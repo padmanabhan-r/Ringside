@@ -8,7 +8,8 @@ web
 
 ## Users
 
-- **Primary: the owner of a one-person trades business** (plumber, electrician, HVAC, handyman). Demo persona: Mike, of Mike's Plumbing in Saginaw,
+- **Primary: the owner of a small service business** that quotes a job, does it, then charges the real cost (plumbers,
+  electricians, HVAC, handymen, cleaners, locksmiths, landscapers and the like). Demo persona: Mike, of Mike's Plumbing in Saginaw,
   Michigan (fictional business). He is the business, the dispatcher and the cashier. The phone rings while he is under a sink; later,
   on site, the job grows and the customer has to agree to pay more before the work is done. He uses Ringside on his
   phone, on site, with busy or wet hands.
@@ -19,7 +20,7 @@ web
 
 ## Product Purpose
 
-Ringside is an AI field-service employee for a one-person trades business. It answers the call, quotes from the rate
+Ringside is an AI field-service employee for small service businesses. It answers the call, quotes from the rate
 card, books a slot, holds the money with a PayPal authorization, gets the customer's approval when the job grows on
 site, and captures the final amount when the owner says the job is done.
 
@@ -77,7 +78,13 @@ not an invoicing agent; an invoice exists only for a leftover balance the hold c
 ## Brand Commitments
 
 - Product name: **Ringside**.
-- **Ringside is for every one-person trades business** (plumbers, electricians, HVAC techs, handymen), not a plumbing app. The landing page sells Ringside to trades in general; Mike's Plumbing appears only as the labelled demo business inside the "try it" panel (owner, 2026-11-05).
+- **Positioning: Ringside is for every small service business** (owner, 2026-11-05): plumbers, electricians, HVAC,
+  handymen, cleaners, locksmiths and others who quote, do the job and charge the real cost. It is not a plumbing app;
+  Mike's Plumbing is only the labelled demo business.
+- **The landing page is a demo hub for judges** (owner, 2026-11-05). In real use a business's customers see only its
+  booking page (call the business), and the owner's dashboard is a separate, private app only the owner signs in to.
+  For the hackathon the landing shows both doors, says under the dashboard door that in real use only Mike signs in
+  there, and carries a clear prototype notice: built for the PayPal AI Hackathon, PayPal sandbox, fictional business.
 - **Visual world: friendly field-service software** (owner, 2026-11-05 redesign, replacing the Dispatch Board look the
   owner called clumsy): Mike's Plumbing royal blue for the brand and primary actions, green for approved or paid money,
   amber for waiting, grey for no payment; white rounded cards on a pale-grey ground, big rounded buttons, bold friendly
@@ -92,7 +99,7 @@ not an invoicing agent; an invoice exists only for a leftover balance the hold c
   (call, approval) stay plain web pages. Judges use the dashboard, so it showcases Mike's Plumbing.
 - **No photo of Mike**: the business and owner are fictional; his avatar is a blue initial M.
 - **Customer-facing screens** (`/call`, `/j/<code>`) and **Mike's dashboard** wear the business's brand, **Mike's
-  Plumbing**, with a small "Powered by Ringside" credit. The landing page carries Ringside, with two doors: call Mike's
+  Plumbing**, with a small "Powered by Ringside" credit. The landing page carries Ringside and the prototype notice, with two doors: call Mike's
   Plumbing as a customer, or open Mike's dashboard.
 - Mike's Plumbing is fictional and must never read as a real business.
 
