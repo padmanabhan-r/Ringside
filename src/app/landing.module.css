@@ -278,6 +278,11 @@
   background: var(--line);
 }
 
+.demoFace {
+  display: grid;
+  flex: none;
+}
+
 .demoText {
   display: grid;
   justify-items: start;

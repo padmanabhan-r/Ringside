@@ -45,8 +45,8 @@ export function MikesWordmark({ size = 44, href }: { size?: number; href?: strin
 }
 
 /** Mike is fictional: his avatar is an AI-generated face of a fictional plumber (owner, 2026-11-05). */
-export function Avatar({ label = "Mike (fictional)" }: { label?: string }) {
-  return <Image className={s.avatar} src="/people/mike.jpg" alt={label} width={40} height={40} />;
+export function Avatar({ label = "Mike (fictional)", size = 40 }: { label?: string; size?: number }) {
+  return <Image className={s.avatar} src="/people/mike.jpg" alt={label} width={size} height={size} style={{ width: size, height: size }} />;
 }
 
 export type Tone = "ok" | "wait" | "none" | "info";

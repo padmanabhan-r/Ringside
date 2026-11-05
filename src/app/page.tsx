@@ -1,7 +1,7 @@
 import { ArrowRight, Check, Clock, Info, LayoutDashboard, Mail, MapPin, Mic, Phone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { MikesWordmark, StatusPill } from "@/components/brand";
+import { Avatar, MikesWordmark, StatusPill } from "@/components/brand";
 import { BUSINESS_LINE } from "@/lib/business";
 import { PayPalMonogram, PayPalWordmark, RingsideMark } from "./_landing/marks";
 import s from "./landing.module.css";
@@ -63,9 +63,12 @@ export default function Home() {
             <MikesWordmark size={46} />
           </span>
           <span className={s.demoDivider} aria-hidden="true" />
+          <span className={s.demoFace}>
+            <Avatar size={52} label="Mike, the owner (fictional)" />
+          </span>
           <div className={s.demoText}>
             <span className={s.demoTag}>Demo business · fictional</span>
-            <p>A one-person plumber in Saginaw, Michigan, running on Ringside. Be his customer, or be Mike.</p>
+            <p>Mike is a one-person plumber in Saginaw, Michigan, running his business on Ringside. Be his customer, or be Mike.</p>
           </div>
         </div>
 
