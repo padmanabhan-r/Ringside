@@ -193,9 +193,9 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Capture a hold | 1.5–2.6 s | same |
 | Capture more than the hold | 115% allowed ($200.10 on $174.00); +$75 and +69% refused with `MAX_CAPTURE_AMOUNT_EXCEEDED` | same |
 | Retry a final capture with the same `PayPal-Request-Id` | PayPal returns the original capture; nothing is charged twice | same |
-| Second payment for a change order | $119.25 captured in 1.6 s | same |
+| Second payment for a change order | $119.25 captured as its own payment (captures took 1.5–2.6 s), later on the receipt invoice | same, and `scripts/sandbox/receipt-invoice.mjs` |
 | Orders through the PayPal server SDK | create and get for both intents; a replayed create with the same request ID returns the same order, a new ID a new one; authorize or capture before approval gives `ORDER_NOT_APPROVED` (13 checks) | `scripts/sandbox/sdk-orders.ts` |
-| Ask the books | "Who still owes me?" → "Luis in Bay City hasn't approved the $225.00 hold for the running toilet. Everything else is paid or secured" | Mike's Books on the dev server |
+| Ask the books | "Who still owes me?" → "Luis in Bay City hasn't approved the $225.00 hold for the running toilet. Everything else is paid or secured" (4 real calls to Claude Haiku 5.5) | Mike's Books on the dev server |
 | Turn speech into change-order lines | "a shut-off valve and 45 more minutes" → valve + 3 × 15 min = $119.25; a water softener (not on the card) reported, not priced; 3.2–4.7 s, under a cent a call | `scripts/sandbox/change-order-parser.rec.ts` |
 | Send the receipt invoice | created, sent and marked paid in 5.9 s; a replay made one GET and sent nothing twice | `scripts/sandbox/receipt-flow.ts` |
 | A real phone call to the agent | answered with the AI disclosure; replies 0.5–0.65 s after the caller stops (1.3 s at most) over 99 s, on the first test agent's model | a live call to the Twilio number |
