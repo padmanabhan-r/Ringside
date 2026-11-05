@@ -22,7 +22,7 @@ AI", by [Padmanabhan](https://padmanabhan.xyz).
    gathers the problem, address and urgency, quotes, and books a slot.
 2. **The hold.** The customer approves a PayPal authorization (Orders v2, `intent: AUTHORIZE`) for the estimate.
 3. **The change order.** On site, the owner speaks the extra work. A model turns it into rate-card line items, the
-   owner confirms, and the customer approves the new total.
+   owner confirms, and the customer approves the extra as a second PayPal payment (a hold can only grow by 15%).
 4. **The capture.** The owner says "job done" and the authorization is captured for the final amount.
 
 Built on the PayPal sandbox only: no real money moves.
@@ -31,12 +31,12 @@ Built on the PayPal sandbox only: no real money moves.
 
 | Path | What it is |
 |---|---|
-| [src/](src/lib/rate-card.ts) | The Next.js app: rate card, cents math, job state machine, health check |
+| [src/](src/app/page.tsx) | The Next.js app: landing page, rate card, cents math, job state machine, health check |
 | [db/migrations/](db/migrations/001_init.sql) | The Postgres schema, applied on every deploy by `npm run db:migrate` |
 | [render.yaml](render.yaml) | The Render Blueprint: web service and database |
 | [devlog.md](devlog.md) | Build log |
 | [scripts/sandbox/](scripts/sandbox/auth-gates.mjs) | PayPal sandbox checks: the API token, authorization holds, partial and over-captures, replayed requests |
-| [scripts/gates/](scripts/gates/test-call.mjs) | A scripted test call to the phone line and the voice agent |
+| [scripts/gates/](scripts/gates/setup-voice.mjs) | Phone line checks: Twilio settings, voice agent setup, a scripted test call |
 | [.env.example](.env.example) | Every environment variable, with where it comes from |
 
 ## License
