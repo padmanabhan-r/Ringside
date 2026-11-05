@@ -1,0 +1,126 @@
+/* Shared Mike's Plumbing brand pieces for the field-service world. */
+.mark {
+  display: block;
+  flex: none;
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.wordmarkText {
+  display: grid;
+  line-height: 1;
+}
+
+.wordmarkName {
+  font-weight: 800;
+  font-size: 1.25em;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.wordmarkPlace {
+  margin-top: 0.35em;
+  font-size: 0.56em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.86;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.pill svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.ok {
+  background: var(--ok-tint);
+  color: var(--ok-ink);
+}
+
+.wait {
+  background: var(--wait-tint);
+  color: var(--wait-ink);
+}
+
+.none {
+  background: var(--none-tint);
+  color: var(--none-ink);
+}
+
+.info {
+  background: var(--brand-tint);
+  color: var(--brand-ink);
+}
+
+.sandbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid var(--line);
+  color: #142c8e;
+  font-size: 12px;
+  font-weight: 800;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.sandbox span {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #ffd36b;
+  color: #5c3b00;
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0.06em;
+}
+
+.powered {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: inherit;
+  opacity: 0.85;
+  text-decoration: none;
+}
+
+.powered b {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
