@@ -2,6 +2,7 @@
    One comp pixel = 1u; the desktop layout scales with the viewport width. */
 .page {
   --u: calc(min(100vw, 2560px) / 2048);
+  font-variant-numeric: tabular-nums;
   position: relative;
   min-height: 100vh;
   overflow-x: clip;
@@ -76,7 +77,7 @@
   border: calc(1.5 * var(--u)) solid #d0d1d0;
   border-radius: calc(12 * var(--u));
   background: #f4f4f4;
-  font-size: calc(19.5 * var(--u));
+  font-size: max(14px, calc(19.5 * var(--u)));
   font-weight: 450;
   color: #1e2b35;
 }
@@ -133,7 +134,7 @@
 .demoLabel {
   left: calc(46 * var(--u));
   top: calc(376 * var(--u));
-  font-size: calc(23 * var(--u));
+  font-size: max(14px, calc(23 * var(--u)));
   font-weight: 600;
   color: #131f2f;
 }
@@ -184,7 +185,7 @@
   border: calc(1.5 * var(--u)) solid #8e969c;
   background: var(--ground);
   color: var(--ink);
-  font-size: calc(21.5 * var(--u));
+  font-size: max(14px, calc(21.5 * var(--u)));
   white-space: nowrap;
   line-height: 1.25;
 }
@@ -212,7 +213,7 @@
 .notice {
   left: calc(46 * var(--u));
   top: calc(601 * var(--u));
-  font-size: calc(21 * var(--u));
+  font-size: max(14px, calc(21 * var(--u)));
   color: #2a363f;
 }
 
@@ -226,41 +227,33 @@
 }
 
 /* ---------- money tiles ---------- */
+.introFoot {
+  top: calc(688 * var(--u));
+  left: 0;
+  right: 0;
+}
+
 .tiles {
-  inset: calc(688 * var(--u)) auto auto 0;
-  width: 100%;
-  height: calc(259 * var(--u));
-  list-style: none;
+  display: grid;
+  grid-template-columns: calc(212 * var(--u)) calc(232 * var(--u)) calc(180 * var(--u));
+  column-gap: calc(25 * var(--u));
+  margin: 0 0 0 calc(30 * var(--u));
   padding: 0;
+  list-style: none;
 }
 
 .tile {
-  position: absolute;
-  top: 0;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(259 * var(--u));
+  padding: calc(17 * var(--u)) calc(12 * var(--u)) calc(18 * var(--u)) calc(15 * var(--u));
   border: 1px solid var(--rule);
   border-radius: calc(10 * var(--u));
   background: #f9f9f8;
 }
 
 .tile p {
-  position: absolute;
   margin: 0;
-  left: calc(15 * var(--u));
-}
-
-.tile .tileAmount {
-  left: calc(84 * var(--u));
-}
-
-.tileHold {
-  left: calc(30 * var(--u));
-  width: calc(212 * var(--u));
-}
-
-.tileChange {
-  left: calc(257 * var(--u));
-  width: calc(232 * var(--u));
 }
 
 .tileChange .tileText {
@@ -268,17 +261,9 @@
   letter-spacing: -0.02em;
 }
 
-.tileCapture {
-  left: calc(524 * var(--u));
-  width: calc(180 * var(--u));
-}
-
 .tileHead {
-  position: absolute;
-  left: calc(16 * var(--u));
-  top: calc(17 * var(--u));
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: calc(18 * var(--u));
 }
 
@@ -305,39 +290,46 @@
   color: var(--amber);
 }
 
+.tileTitle {
+  display: grid;
+  min-width: 0;
+  padding-top: calc(4 * var(--u));
+}
+
 .tileLabel {
-  margin-top: calc(-10 * var(--u));
-  font-size: calc(21 * var(--u));
+  white-space: nowrap;
+  font-size: max(14px, calc(21 * var(--u)));
   font-weight: 500;
   color: var(--ink);
 }
 
 .tileLabelLarge {
+  align-self: center;
   margin-left: calc(-4 * var(--u));
-  font-size: calc(23 * var(--u));
+  font-size: max(14px, calc(23 * var(--u)));
   font-weight: 600;
   color: var(--ink);
 }
 
 .tileAmount {
-  top: calc(56 * var(--u));
-  font-size: calc(31 * var(--u));
+  margin-top: calc(6 * var(--u));
+  font-size: calc(30 * var(--u));
   font-weight: 600;
   letter-spacing: -0.025em;
 }
 
 .tileText {
-  top: calc(105 * var(--u));
-  right: calc(10 * var(--u));
-  font-size: calc(18 * var(--u));
-  line-height: calc(27 * var(--u));
+  margin-top: calc(14 * var(--u)) !important;
+  font-size: max(14px, calc(18 * var(--u)));
+  line-height: 1.45;
   letter-spacing: -0.01em;
   color: #2f3438;
 }
 
 .tileStatus {
-  bottom: calc(18 * var(--u));
-  font-size: calc(18.5 * var(--u));
+  margin-top: auto !important;
+  padding-top: calc(14 * var(--u));
+  font-size: max(14px, calc(18.5 * var(--u)));
   font-weight: 500;
   white-space: nowrap;
 }
@@ -351,9 +343,9 @@
 }
 
 .footnote {
-  left: calc(46 * var(--u));
-  top: calc(997 * var(--u));
-  font-size: calc(19.5 * var(--u));
+  position: static !important;
+  margin: calc(48 * var(--u)) 0 0 calc(46 * var(--u)) !important;
+  font-size: max(14px, calc(19.5 * var(--u)));
   color: #525a63;
 }
 
@@ -370,11 +362,11 @@
 
 .boardHead {
   display: grid;
-  grid-template-columns: calc(229 * var(--u)) calc(334 * var(--u)) calc(372 * var(--u)) 1fr;
+  grid-template-columns: calc(229 * var(--u)) 1fr auto;
   height: calc(66 * var(--u));
   align-items: center;
   border-bottom: 1px solid var(--rule-soft);
-  font-size: calc(22 * var(--u));
+  font-size: max(14px, calc(22 * var(--u)));
   font-weight: 500;
   color: #0f1013;
   text-align: center;
@@ -386,25 +378,46 @@
   place-items: center;
 }
 
-.band {
+.boardOwner {
+  justify-items: start;
+  padding-left: calc(28 * var(--u));
   border-left: 1px solid var(--rule-soft);
+  color: var(--ink-3);
 }
 
-.board::before,
-.board::after {
+.legend {
+  display: flex !important;
+  align-items: center;
+  gap: calc(26 * var(--u));
+  padding-right: calc(30 * var(--u));
+  font-size: max(12px, calc(17 * var(--u)));
+  color: var(--ink-3);
+}
+
+.legend > span {
+  display: flex;
+  align-items: center;
+  gap: calc(8 * var(--u));
+}
+
+.legend > span::before {
   content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  border-left: 1px solid var(--rule-soft);
+  width: calc(12 * var(--u));
+  height: calc(12 * var(--u));
+  border-radius: calc(3 * var(--u));
 }
 
-.board::before {
-  left: calc(563 * var(--u));
+.legendBooked::before {
+  background: #dfe2e3;
+  border: 1px solid #c3c7cb;
 }
 
-.board::after {
-  left: calc(935 * var(--u));
+.legendHeld::before {
+  background: var(--green);
+}
+
+.legendWaiting::before {
+  background: var(--amber);
 }
 
 .hours {
@@ -416,9 +429,9 @@
   padding: 0;
   list-style: none;
   display: grid;
-  grid-auto-rows: calc(61.9 * var(--u));
+  grid-auto-rows: calc(77.5 * var(--u));
   text-align: right;
-  font-size: calc(19 * var(--u));
+  font-size: max(14px, calc(19 * var(--u)));
   font-weight: 500;
   color: #1e2936;
 }
@@ -427,14 +440,14 @@
   position: absolute;
   left: calc(79 * var(--u));
   top: calc(80 * var(--u));
-  height: calc(775 * var(--u));
+  height: calc(790 * var(--u));
   border-left: 1px solid var(--rule-soft);
 }
 
 .job {
   position: absolute;
   margin: 0;
-  padding: calc(12 * var(--u)) calc(18 * var(--u));
+  padding: calc(10 * var(--u)) calc(16 * var(--u));
   border: 1px solid #d3d6d8;
   border-radius: calc(5 * var(--u));
   background: #f1f2f2;
@@ -445,51 +458,66 @@
   margin: 0;
 }
 
-.jobTime {
-  font-size: calc(16 * var(--u));
-  line-height: calc(24 * var(--u));
-  color: #3a4550;
-}
-
 .jobTitle {
-  font-size: calc(17.5 * var(--u));
-  line-height: calc(25 * var(--u));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: max(14px, calc(17.5 * var(--u)));
+  line-height: 1.35;
   font-weight: 500;
   color: #141c2a;
 }
 
-.jobPlace {
-  font-size: calc(16 * var(--u));
-  line-height: calc(24 * var(--u));
+.jobMeta {
+  margin-top: calc(2 * var(--u)) !important;
+  white-space: nowrap;
+  font-size: max(12px, calc(16 * var(--u)));
+  line-height: 1.35;
   color: #4a5560;
 }
 
-.job1 {
-  left: calc(85 * var(--u));
-  top: calc(100 * var(--u));
-  width: calc(205 * var(--u));
-  height: calc(91 * var(--u));
+.job,
+.liveSlot {
+  top: calc((92 + var(--start) * 77.5) * var(--u));
+  min-height: calc((var(--span) * 77.5 - 8) * var(--u));
 }
 
+.job1,
 .job2 {
   left: calc(85 * var(--u));
-  top: calc(220 * var(--u));
   width: calc(205 * var(--u));
-  height: calc(102 * var(--u));
 }
 
 .job3 {
   left: calc(980 * var(--u));
-  top: calc(334 * var(--u));
-  width: calc(222 * var(--u));
-  height: calc(103 * var(--u));
+  width: calc(240 * var(--u));
 }
 
-.job4 {
-  left: calc(967 * var(--u));
-  top: calc(599 * var(--u));
-  width: calc(194 * var(--u));
-  height: calc(107 * var(--u));
+.liveSlot {
+  position: absolute;
+  left: calc(85 * var(--u));
+  width: calc(205 * var(--u));
+  display: grid;
+  align-content: center;
+  padding: 0 calc(16 * var(--u));
+  border: calc(1.5 * var(--u)) dashed var(--green);
+  border-radius: calc(5 * var(--u));
+  background: var(--green-tint);
+}
+
+.liveSlot::after {
+  content: "";
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  width: calc(22 * var(--u));
+  border-top: calc(1.5 * var(--u)) solid var(--green);
+}
+
+.liveSlotLabel {
+  font-size: max(12px, calc(17 * var(--u)));
+  font-weight: 600;
+  color: var(--green);
 }
 
 /* ---------- live job card ---------- */
@@ -498,7 +526,7 @@
   left: calc(313 * var(--u));
   top: calc(117 * var(--u));
   width: calc(646 * var(--u));
-  height: calc(684 * var(--u));
+  min-height: calc(684 * var(--u));
   display: grid;
   grid-template-columns: calc(421 * var(--u)) 1fr;
   border: 1px solid #d6d8d9;
@@ -509,6 +537,8 @@
 
 .liveMain {
   position: relative;
+  display: flex;
+  flex-direction: column;
   padding: calc(28 * var(--u)) calc(20 * var(--u)) 0 calc(26 * var(--u));
   border-right: 1px solid var(--rule-soft);
   margin: calc(24 * var(--u)) 0 calc(28 * var(--u));
@@ -523,7 +553,7 @@
   display: flex;
   align-items: center;
   gap: calc(10 * var(--u));
-  font-size: calc(19 * var(--u));
+  font-size: max(14px, calc(19 * var(--u)));
   font-weight: 700;
   color: #0e452e;
 }
@@ -563,13 +593,13 @@
   margin-top: calc(6 * var(--u)) !important;
   padding-bottom: calc(18 * var(--u));
   border-bottom: 1px solid var(--rule-soft);
-  font-size: calc(21 * var(--u));
+  font-size: max(14px, calc(21 * var(--u)));
   color: var(--ink-3);
 }
 
 .transcriptLabel {
   margin-top: calc(26 * var(--u)) !important;
-  font-size: calc(15 * var(--u));
+  font-size: max(12px, calc(15 * var(--u)));
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -581,7 +611,7 @@
   padding: 0;
   list-style: none;
   display: grid;
-  gap: calc(30 * var(--u));
+  gap: calc(24 * var(--u));
 }
 
 .line {
@@ -603,7 +633,7 @@
 
 .avatarAi {
   background: var(--green);
-  font-size: calc(11 * var(--u));
+  font-size: max(12px, calc(11 * var(--u)));
   font-weight: 700;
 }
 
@@ -619,27 +649,24 @@
 .lineText {
   margin: 0;
   max-width: calc(292 * var(--u));
-  font-size: calc(17.5 * var(--u));
-  line-height: calc(26 * var(--u));
+  font-size: max(14px, calc(17.5 * var(--u)));
+  line-height: 1.45;
   color: #131823;
 }
 
 .lineTime {
-  font-size: calc(16.5 * var(--u));
+  font-size: max(12px, calc(16.5 * var(--u)));
   color: #6b7480;
 }
 
 .recording {
-  position: absolute;
-  left: calc(26 * var(--u));
-  right: calc(20 * var(--u));
-  bottom: 0;
+  margin-top: auto !important;
   padding-top: calc(16 * var(--u));
   border-top: 1px solid var(--rule-soft);
   display: flex;
   align-items: center;
   gap: calc(8 * var(--u));
-  font-size: calc(19.5 * var(--u));
+  font-size: max(14px, calc(19.5 * var(--u)));
   color: #35414a;
 }
 
@@ -684,7 +711,6 @@
 }
 
 .step_waiting::after {
-  border-left-style: dashed !important;
   border-left-color: var(--idle) !important;
 }
 
@@ -716,14 +742,14 @@
 
 .stepLabel {
   padding-top: calc(4 * var(--u));
-  font-size: calc(21 * var(--u));
+  font-size: max(14px, calc(21 * var(--u)));
   font-weight: 600;
   color: var(--ink);
 }
 
 .stepLine {
-  font-size: calc(16.5 * var(--u));
-  line-height: calc(24 * var(--u));
+  font-size: max(12px, calc(16.5 * var(--u)));
+  line-height: 1.4;
   color: var(--ink-2);
 }
 
@@ -733,7 +759,7 @@
 
 .stepAmount {
   font-size: calc(24 * var(--u));
-  line-height: calc(34 * var(--u));
+  line-height: 1.35;
   font-weight: 600;
   color: var(--green);
 }
@@ -785,7 +811,7 @@
 }
 
 .stat dt {
-  font-size: calc(19 * var(--u));
+  font-size: max(14px, calc(19 * var(--u)));
   color: #3a4550;
 }
 
@@ -801,7 +827,7 @@
 }
 
 .statSub {
-  font-size: calc(19 * var(--u));
+  font-size: max(14px, calc(19 * var(--u)));
   color: var(--ink-3);
 }
 
@@ -815,7 +841,7 @@
 
 .sectionTitle {
   margin: 0;
-  font-size: calc(46 * var(--u));
+  font-size: clamp(30px, 2.4vw, 46px);
   line-height: 1.1;
   font-weight: 600;
   letter-spacing: -0.03em;
@@ -825,7 +851,7 @@
 .sectionLead {
   margin: calc(18 * var(--u)) 0 0;
   max-width: calc(760 * var(--u));
-  font-size: calc(26 * var(--u));
+  font-size: clamp(18px, 1.3vw, 22px);
   line-height: 1.45;
   color: var(--ink-3);
 }
@@ -870,21 +896,21 @@
   position: absolute;
   top: calc(-74 * var(--u));
   left: 0;
-  font-size: calc(19 * var(--u));
+  font-size: 15px;
   font-weight: 500;
   color: var(--ink-3);
 }
 
 .stopTitle {
   margin: 0;
-  font-size: calc(28 * var(--u));
+  font-size: clamp(20px, 1.5vw, 26px);
   font-weight: 600;
   color: var(--ink);
 }
 
 .stopText {
   margin: calc(14 * var(--u)) 0 0;
-  font-size: calc(21 * var(--u));
+  font-size: 17px;
   line-height: 1.5;
   color: #2f3438;
 }
@@ -893,7 +919,7 @@
   margin: calc(18 * var(--u)) 0 0;
   padding-top: calc(14 * var(--u));
   border-top: 1px solid var(--rule-soft);
-  font-size: calc(19 * var(--u));
+  font-size: 15px;
   font-weight: 500;
   color: var(--green);
 }
@@ -916,7 +942,7 @@
 .rules li {
   position: relative;
   padding-left: calc(30 * var(--u));
-  font-size: calc(21 * var(--u));
+  font-size: 17px;
   line-height: 1.5;
   color: #2f3438;
 }
@@ -940,7 +966,7 @@
   border: 1px solid #d6d8d9;
   border-radius: calc(10 * var(--u));
   box-shadow: 0 calc(10 * var(--u)) calc(28 * var(--u)) rgba(24, 40, 52, 0.07);
-  font-size: calc(21 * var(--u));
+  font-size: 17px;
   overflow: hidden;
 }
 
@@ -948,7 +974,7 @@
   caption-side: top;
   padding-bottom: calc(16 * var(--u));
   text-align: left;
-  font-size: calc(19 * var(--u));
+  font-size: 15px;
   font-weight: 500;
   color: var(--ink-3);
 }
@@ -961,7 +987,7 @@
 }
 
 .ledger thead th {
-  font-size: calc(16 * var(--u));
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -982,7 +1008,7 @@
 
 .ledgerGroup th {
   padding-top: calc(26 * var(--u));
-  font-size: calc(19 * var(--u));
+  font-size: 15px;
   font-weight: 600;
   color: var(--ink);
   background: #fafafa;
@@ -1000,7 +1026,7 @@
   padding-top: calc(22 * var(--u));
   padding-bottom: calc(22 * var(--u));
   border-bottom: 0;
-  font-size: calc(24 * var(--u));
+  font-size: 19px;
   font-weight: 600;
   text-align: right;
   background: #f4f6f5;
@@ -1014,7 +1040,7 @@
 .closeTitle {
   margin: 0;
   max-width: calc(1100 * var(--u));
-  font-size: calc(58 * var(--u));
+  font-size: clamp(32px, 3vw, 56px);
   line-height: 1.08;
   font-weight: 600;
   letter-spacing: -0.035em;
@@ -1028,7 +1054,7 @@
 }
 
 .closePhone {
-  font-size: calc(26 * var(--u));
+  font-size: 20px;
   font-weight: 500;
   color: var(--green-ink);
 }
@@ -1039,7 +1065,7 @@
 
 .closeNote {
   margin: calc(36 * var(--u)) 0 0;
-  font-size: calc(20 * var(--u));
+  font-size: 15px;
   color: var(--ink-3);
 }
 
@@ -1057,7 +1083,7 @@
   align-items: center;
   padding: calc(40 * var(--u)) calc(46 * var(--u)) calc(56 * var(--u));
   border-top: 1px solid var(--rule-soft);
-  font-size: calc(18 * var(--u));
+  font-size: 15px;
   color: var(--ink-3);
 }
 
@@ -1153,6 +1179,90 @@
 @media (max-width: 1100px) {
   .page {
     --u: 0.62px;
+  }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .intro {
+    display: contents;
+  }
+
+  .intro > * {
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+  }
+
+  .headline {
+    order: 1;
+    margin-top: 30px !important;
+  }
+
+  .subhead {
+    order: 2;
+  }
+
+  .demoLabel {
+    order: 3;
+  }
+
+  .actions {
+    order: 4;
+  }
+
+  .phone {
+    order: 5;
+    align-self: flex-start;
+  }
+
+  .notice {
+    order: 6;
+  }
+
+  .board {
+    order: 7;
+  }
+
+  .introFoot {
+    order: 8;
+    position: static !important;
+  }
+
+  .tiles {
+    grid-template-columns: 1fr;
+    margin: 26px 0 0 !important;
+  }
+
+  .tile {
+    min-height: 0;
+  }
+
+  .tileAmount {
+    margin-top: 2px;
+    font-size: 24px;
+  }
+
+  .tile .tileText {
+    margin-top: 4px !important;
+  }
+
+  .tile .tileStatus {
+    margin-top: 10px !important;
+    padding-top: 0;
+  }
+
+  .footnote {
+    margin: 18px 0 8px !important;
+  }
+
+  .liveSlot {
+    display: none;
+  }
+
+  .legend {
+    display: none !important;
   }
 
   .topbar {
@@ -1332,12 +1442,6 @@
     font-size: 16px;
   }
 
-  .tile .tileAmount {
-    position: static;
-    grid-column: 1 / -1;
-    margin-top: 8px;
-    font-size: 26px;
-  }
 
   .tile .tileText,
   .tile .tileStatus {
@@ -1385,9 +1489,13 @@
     border-radius: 12px;
   }
 
+  .live {
+    min-height: 0;
+  }
+
   .liveMain {
     margin: 0;
-    padding: 18px 16px 64px;
+    padding: 18px 16px 16px;
     border-right: 0;
     border-bottom: 1px solid var(--rule-soft);
   }

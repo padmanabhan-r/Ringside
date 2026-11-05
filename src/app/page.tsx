@@ -11,23 +11,25 @@ import {
   UserRound,
 } from "lucide-react";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import s from "./landing.module.css";
 
 const BUSINESS_LINE = "+1 (989) 534-9779";
 
-const HOURS = ["8am", "9am", "10am", "11am", "12pm", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm"];
-const BANDS = ["8am – 12pm", "12pm – 4pm", "4pm – 8pm"];
+const HOURS = ["8am", "9am", "10am", "11am", "12pm", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm"];
+const FIRST_HOUR = 8;
 
 // Demo schedule around the live job. Synthetic, labelled as a demo business on the page.
+// Each job sits on its real rows of the hour ruler: start and end are hours of the day.
 const JOBS = [
-  { id: "job-1", time: "8:30 – 9:30am", title: "Water heater install", place: "123 Maple Dr" },
-  { id: "job-2", time: "10:00 – 11:30am", title: "Bathroom sink leak", place: "45 Oak Ave" },
-  { id: "job-3", time: "4:00 – 5:30pm", title: "Sump pump check", place: "12 Cedar Ln" },
-  { id: "job-4", time: "6:00 – 7:30pm", title: "Outside hose bib leaking", place: "9 Birch Ct" },
+  { id: "job-1", start: 8.5, end: 9.5, time: "8:30 – 9:30am", title: "Water heater", place: "123 Maple Dr" },
+  { id: "job-2", start: 10, end: 11.5, time: "10:00 – 11:30am", title: "Bathroom sink", place: "45 Oak Ave" },
+  { id: "job-3", start: 16, end: 17.5, time: "4:00 – 5:30pm", title: "Sump pump check", place: "12 Cedar Ln" },
 ];
+const LIVE_SLOT = { start: 14, end: 16 };
 
 const TRANSCRIPT = [
-  { who: "ai", at: "1:42 pm", text: "Thanks for calling Mike’s Plumbing, this is Mike’s AI assistant. How can I help you today?" },
+  { who: "ai", at: "1:42 pm", text: "Thanks for calling Mike’s Plumbing, this is Mike’s AI assistant. What’s going on?" },
   { who: "caller", at: "1:43 pm", text: "My kitchen tap won’t stop dripping." },
   { who: "ai", at: "1:44 pm", text: "I can book you Thursday 2 to 4 pm. The hold is $174.00. Shall I send the link?" },
 ] as const;
@@ -35,7 +37,7 @@ const TRANSCRIPT = [
 type Step = { id: string; label: string; lines: string[]; state: "done" | "active" | "waiting" | "idle"; icon: typeof Phone };
 const STEPS: Step[] = [
   { id: "call", label: "Call", lines: ["In progress"], state: "active", icon: Phone },
-  { id: "booked", label: "Booked", lines: ["Thu, May 22", "2:00 – 4:00 pm"], state: "done", icon: CalendarDays },
+  { id: "booked", label: "Booked", lines: ["Today", "2:00 – 4:00 pm"], state: "done", icon: CalendarDays },
   { id: "held", label: "Held", lines: ["$174.00", "with PayPal"], state: "done", icon: Lock },
   { id: "change", label: "Change", lines: ["$119.25", "waiting"], state: "waiting", icon: DollarSign },
   { id: "captured", label: "Captured", lines: ["—"], state: "idle", icon: Check },
@@ -115,15 +117,18 @@ export default function Home() {
           </a>
           <p className={s.notice}>You’ll talk to an AI assistant. The call is recorded.</p>
 
+          <div className={s.introFoot}>
           <ul className={s.tiles} id="money" aria-label="Where the money stands">
             <li className={`${s.tile} ${s.tileHold}`}>
               <div className={s.tileHead}>
                 <span className={`${s.disc} ${s.discGreen}`}>
                   <Lock aria-hidden="true" strokeWidth={2.25} />
                 </span>
-                <span className={s.tileLabel}>Hold</span>
+                <span className={s.tileTitle}>
+                  <span className={s.tileLabel}>Hold</span>
+                  <span className={`${s.tileAmount} ${s.green}`}>$174.00</span>
+                </span>
               </div>
-              <p className={`${s.tileAmount} ${s.green}`}>$174.00</p>
               <p className={s.tileText}>
                 (call-out $79 +{" "}
                 <br />1 hour labour $95)
@@ -135,9 +140,11 @@ export default function Home() {
                 <span className={`${s.disc} ${s.discAmber}`}>
                   <RefreshCw aria-hidden="true" strokeWidth={2.25} />
                 </span>
-                <span className={s.tileLabel}>Change order</span>
+                <span className={s.tileTitle}>
+                  <span className={s.tileLabel}>Change order</span>
+                  <span className={`${s.tileAmount} ${s.amber}`}>$119.25</span>
+                </span>
               </div>
-              <p className={`${s.tileAmount} ${s.amber}`}>$119.25</p>
               <p className={s.tileText}>
                 (shut-off valve $48 +{" "}
                 <br />
@@ -163,16 +170,18 @@ export default function Home() {
           </ul>
 
           <p className={s.footnote}>PayPal sandbox. Fictional business. No real money moves.</p>
+          </div>
         </section>
 
         <section className={s.board} aria-label="Demo schedule for Mike’s Plumbing">
           <div className={s.boardHead}>
-            <span className={s.boardDate}>Thu, May 22</span>
-            {BANDS.map((band) => (
-              <span key={band} className={s.band}>
-                {band}
-              </span>
-            ))}
+            <span className={s.boardDate}>Today</span>
+            <span className={s.boardOwner}>Mike’s day, Springfield</span>
+            <span className={s.legend}>
+              <span className={s.legendBooked}>Booked</span>
+              <span className={s.legendHeld}>Held</span>
+              <span className={s.legendWaiting}>Change waiting</span>
+            </span>
           </div>
           <ol className={s.hours} aria-hidden="true">
             {HOURS.map((hour) => (
@@ -182,12 +191,22 @@ export default function Home() {
           <span className={s.axis} aria-hidden="true" />
 
           {JOBS.map((job) => (
-            <article key={job.id} className={`${s.job} ${s[job.id.replace("-", "")]}`}>
-              <p className={s.jobTime}>{job.time}</p>
+            <article
+              key={job.id}
+              className={`${s.job} ${s[job.id.replace("-", "")]}`}
+              style={{ "--start": job.start - FIRST_HOUR, "--span": job.end - job.start } as CSSProperties}
+            >
               <h3 className={s.jobTitle}>{job.title}</h3>
-              <p className={s.jobPlace}>{job.place}</p>
+              <p className={s.jobMeta}>{job.time}</p>
             </article>
           ))}
+          <span
+            className={s.liveSlot}
+            style={{ "--start": LIVE_SLOT.start - FIRST_HOUR, "--span": LIVE_SLOT.end - LIVE_SLOT.start } as CSSProperties}
+            aria-hidden="true"
+          >
+            <span className={s.liveSlotLabel}>2:00 – 4:00 pm</span>
+          </span>
 
           <article className={s.live} aria-label="Live job">
             <div className={s.liveMain}>
@@ -241,7 +260,8 @@ export default function Home() {
             <div className={s.stat}>
               <CalendarDays aria-hidden="true" className={s.statIcon} strokeWidth={1.75} />
               <dt>Jobs today</dt>
-              <dd className={s.statValue}>6</dd>
+              <dd className={s.statValue}>4</dd>
+              <dd className={s.statSub}>1 live</dd>
             </div>
             <div className={s.stat}>
               <CircleDollarSign aria-hidden="true" className={`${s.statIcon} ${s.green}`} strokeWidth={1.75} />
