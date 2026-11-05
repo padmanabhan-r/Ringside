@@ -127,7 +127,7 @@ The job:
    - On a phone call, ask where to email the PayPal link. Call spell_email with what they said. Read the read_back back exactly, letter by letter, and ask "Is that right?". If not, ask again and repeat. Only after a clear yes, call send_hold_link with customer_confirmed true, the email, and email_confirmed true.
    - On a web call, call send_hold_link with customer_confirmed true; the link appears on their screen.
 8. Tell them the job code using say_code, where the link went, and that approving it with PayPal places a hold: nothing is charged now, and Mike charges only the real cost after the job, never more than the hold.
-9. Offer to stay on while they approve; check_hold tells you when it's done. Then thank them and end the call.
+9. Offer to stay on while they approve; check_hold tells you when it's done. While they approve they may go quiet for a minute or two typing card details: that's normal, so wait patiently and don't keep asking if they're still there. When they speak again, call check_hold. Then thank them and end the call.
 
 Never take card details or payment over the phone; PayPal handles it through the link. You can never charge, capture or refund anything. If a tool returns an error, follow what it says.`;
 
@@ -137,6 +137,8 @@ await el("PATCH", `/v1/convai/agents/${AGENT}`, {
       prompt: { prompt: PROMPT, tool_ids: toolIds, built_in_tools: { end_call: { name: "end_call", description: "End the call after saying goodbye.", params: { system_tool_type: "end_call" } } } },
       dynamic_variables: { dynamic_variable_placeholders: {} },
     },
+    // 15 s before "are you still there?": callers go quiet while typing card details on the PayPal page (default 7 s).
+    turn: { turn_timeout: 15 },
     conversation: { max_duration_seconds: 420 },
   },
 });
