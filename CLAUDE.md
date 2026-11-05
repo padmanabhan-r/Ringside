@@ -77,7 +77,7 @@ Load these before building the matching part; none needs a key except where note
 | PayPal | [PayPal AI-Toolkit](https://github.com/paypal/AI-Toolkit) Claude Code plugin (`/paypal:doctor`, `/paypal:explain-error`, sandbox setup); docs as Markdown (append `.md`) and [`llms.txt`](https://developer.paypal.com/llms.txt); OpenAPI at `https://developer.paypal.com/api/<api>/v2/schema.json`. The hosted sandbox MCP has failed since Oct 29 (agent-toolkit #119): don't rely on it |
 | PayPal server SDK | APIMatic context plugin: `npx context-plugins install https://github.com/paypaldev/server-sdk-context-plugin-preview` (also qualifies for the APIMatic bonus if used and shown) |
 | ElevenLabs | Docs as Markdown (`https://elevenlabs.io/docs/...md`); `@elevenlabs/cli` keeps the agent config in git |
-| Bryntum | MCP `claude mcp add --transport http bryntum https://mcp.bryntum.com`; skills `npx skills add bryntum/skills` |
+| AG Grid / AG Studio | MCP `claude mcp add ag-mcp npx ag-mcp`; skills `npx skills add ag-grid/skills`; PayPal's [AG Studio boilerplate](https://github.com/paypaldev/hackathon-paypal-ag-grid-boilerplate) |
 | Libraries (Next.js, Twilio, Render) | context7 |
 
 ## Devlog

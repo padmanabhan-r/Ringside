@@ -76,12 +76,19 @@ not an invoicing agent; an invoice exists only for a leftover balance the hold c
 
 ## Brand Commitments
 
-- Product name: **Ringside**. No logo, colours, fonts or voice rules exist yet; the owner left the visual direction open
-  (2026-11-05).
+- Product name: **Ringside**.
 - **Ringside is for every one-person trades business** (plumbers, electricians, HVAC techs, handymen), not a plumbing app. The landing page sells Ringside to trades in general; Mike's Plumbing appears only as the labelled demo business inside the "try it" panel (owner, 2026-11-05).
-- **Visual direction: professional and calm** (owner, 2026-11-05, after the first hand read as "ugly"): the Dispatch Board world was chosen from a safer re-roll.
-- **Customer-facing screens** (`/call`, `/pay`, `/j/<code>`) wear the business's brand, **Mike's Plumbing**, with a small
-  "Powered by Ringside" credit. The landing page and the owner screens (`/onsite`, `/board`) carry Ringside.
+- **Visual world: friendly field-service software** (owner, 2026-11-05 redesign, replacing the Dispatch Board look the
+  owner called clumsy): Mike's Plumbing royal blue for the brand and primary actions, green for approved or paid money,
+  amber for waiting, grey for no payment; white rounded cards on a pale-grey ground, big rounded buttons, bold friendly
+  sans-serif and large money figures. Familiar to tradespeople, like Jobber or Housecall Pro, kept restrained so it never
+  looks cheap. Reference: `.impeccable/mocks/redesign/c-fieldservice.png`.
+- **Owner screens are phone first, desktop too**: on a phone, today's jobs as cards with Add charges and Job done; on a
+  desk, the same plus Mike's Books (AG Studio). Judges use the dashboard, so it showcases Mike's Plumbing.
+- **No photo of Mike**: the business and owner are fictional; his avatar is a blue initial M.
+- **Customer-facing screens** (`/call`, `/j/<code>`) and **Mike's dashboard** wear the business's brand, **Mike's
+  Plumbing**, with a small "Powered by Ringside" credit. The landing page carries Ringside, with two doors: call Mike's
+  Plumbing as a customer, or open Mike's dashboard.
 - Mike's Plumbing is fictional and must never read as a real business.
 
 ## Evidence on Hand
