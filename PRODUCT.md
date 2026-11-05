@@ -83,8 +83,11 @@ not an invoicing agent; an invoice exists only for a leftover balance the hold c
   amber for waiting, grey for no payment; white rounded cards on a pale-grey ground, big rounded buttons, bold friendly
   sans-serif and large money figures. Familiar to tradespeople, like Jobber or Housecall Pro, kept restrained so it never
   looks cheap. Reference: `.impeccable/mocks/redesign/c-fieldservice.png`.
-- **Owner screens are phone first, desktop too**: on a phone, today's jobs as cards with Add charges and Job done; on a
-  desk, the same plus Mike's Books (AG Studio). Judges use the dashboard, so it showcases Mike's Plumbing.
+- **Mike's dashboard is an installable PWA, phone first, desktop too** (owner, 2026-11-05): "Mike's Plumbing" on the
+  home screen with its tap-and-drop icon, opening standalone on Today; safe-area aware header and bottom tabs, thumb-sized
+  actions, an install prompt on the landing's dashboard door and in the header, a branded offline screen, and push
+  notifications for new bookings and approved holds. On a desk, the same plus Mike's Books (AG Studio). Customer pages
+  (call, approval) stay plain web pages. Judges use the dashboard, so it showcases Mike's Plumbing.
 - **No photo of Mike**: the business and owner are fictional; his avatar is a blue initial M.
 - **Customer-facing screens** (`/call`, `/j/<code>`) and **Mike's dashboard** wear the business's brand, **Mike's
   Plumbing**, with a small "Powered by Ringside" credit. The landing page carries Ringside, with two doors: call Mike's
