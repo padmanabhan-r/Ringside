@@ -70,7 +70,7 @@
 ![Render](https://img.shields.io/badge/Render-Web_·_Postgres_·_Workflows-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Render SDK](https://img.shields.io/badge/Render_SDK-1.3-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Resend](https://img.shields.io/badge/Resend-email-0f1b2d?style=flat-square&logo=resend&labelColor=0f1b2d)
-![Vitest](https://img.shields.io/badge/Vitest-5_·_85_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
+![Vitest](https://img.shields.io/badge/Vitest-5_·_91_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
 ![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-0f1b2d?style=flat-square&logo=githubactions&labelColor=0f1b2d)
 
 </div>
@@ -126,10 +126,13 @@ Every business on Ringside runs the same flow; the screens below are the demo bu
    second tap. PayPal captures exactly that and releases the rest. The close-out then sends a PayPal invoice, marked
    paid, as the customer's receipt, and closes the job. It runs on Render Workflows and is safe to replay.
 5. **Mike's desk.** On a laptop the same dashboard shows the day's bookings, what is held, waiting and paid this week,
-   and every call with its cost. Mike installs it on his phone as an app: one tap where the browser offers it, a Share
-   hint on iPhone, or a QR code from the desk.
+   and every call with its cost, plus **Mike's Books**: his week in AG Studio, with an agent that answers questions like
+   "Who still owes me?" from his own data. Mike installs the dashboard on his phone as an app: one tap where the browser
+   offers it, a Share hint on iPhone, or a QR code from the desk.
 
 <img src="assets/screens/dashboard.jpg" width="100%" alt="Mike's dashboard on a desktop: the blue sidebar, money held, waiting on the customer and paid this week, today's bookings with Add charges and Job done on the current job, and recent calls with their cost">
+
+<img src="assets/screens/books.jpg" width="100%" alt="Mike's Books in AG Studio: figure tiles for charged, held, waiting and calls; money this week by day; a payment timeline for the selected job; the week's jobs grid with status pills; and Ask your books answering who still owes money">
 
 Nobody pays without saying yes, nobody pays more than they approved, and every price comes from the price book, checked
 in code.
@@ -145,6 +148,8 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Capture more than the hold | 115% allowed ($200.10 on $174.00); +$75 and +69% refused with `MAX_CAPTURE_AMOUNT_EXCEEDED` | same |
 | Retry a final capture with the same `PayPal-Request-Id` | PayPal returns the original capture; nothing is charged twice | same |
 | Second payment for a change order | $119.25 captured in 1.6 s | same |
+| Orders through the PayPal server SDK | create and get for both intents; a replayed create with the same request ID returns the same order, a new ID a new one; authorize or capture before approval gives `ORDER_NOT_APPROVED` (13 checks) | `scripts/sandbox/sdk-orders.ts` |
+| Ask the books | "Who still owes me?" → "Luis in Bay City hasn't approved the $225.00 hold for the running toilet. Everything else is paid or secured" | Mike's Books on the dev server |
 | Turn speech into change-order lines | "a shut-off valve and 45 more minutes" → valve + 3 × 15 min = $119.25; a water softener (not on the card) reported, not priced; 3.2–4.7 s, under a cent a call | `scripts/sandbox/change-order-parser.rec.ts` |
 | Send the receipt invoice | created, sent and marked paid in 5.9 s; a replay made one GET and sent nothing twice | `scripts/sandbox/receipt-flow.ts` |
 | A real phone call to the agent | answered with the AI disclosure; replies 0.5–0.65 s after the caller stops (1.3 s at most) over 99 s | a live call to the Twilio number |
@@ -158,7 +163,7 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Browser call | `@elevenlabs/react` over WebRTC, a server-issued conversation token | The same agent in the browser with a live transcript and a booking card that fills in; the conversation is registered to the visitor's session before the first tool call; a recorded call for visitors without a mic ([`src/app/call/`](src/app/call/page.tsx)) |
 | Prices | Mike's price book (about 140 jobs as USD ranges) and a rate card of add-ons, money in integer cents | A quote holds the top of its range; extra work is parts and labour in 15-minute blocks of $23.75 ([`src/lib/price-book.ts`](src/lib/price-book.ts), [`src/lib/rate-card.ts`](src/lib/rate-card.ts)) |
 | Service area | The Saginaw Tri-Cities by ZIP and city | Callers outside it get no booking and no payment ([`src/lib/service-area.ts`](src/lib/service-area.ts)) |
-| Payments | PayPal Orders v2 (`AUTHORIZE`, `CAPTURE`) and Payments v2 (capture, void) | The hold, the change order's second payment, the final capture; every POST carries a stored `PayPal-Request-Id` ([`src/lib/paypal.ts`](src/lib/paypal.ts), [`src/lib/holds.ts`](src/lib/holds.ts), [`src/lib/change-orders.ts`](src/lib/change-orders.ts), [`src/lib/job-done.ts`](src/lib/job-done.ts)) |
+| Payments | PayPal Orders v2 (`AUTHORIZE`, `CAPTURE`) and Payments v2 (capture, void), through the server SDK | The hold, the change order's second payment, the final capture; every POST carries a stored `PayPal-Request-Id` ([`src/lib/paypal.ts`](src/lib/paypal.ts), [`src/lib/holds.ts`](src/lib/holds.ts), [`src/lib/change-orders.ts`](src/lib/change-orders.ts), [`src/lib/job-done.ts`](src/lib/job-done.ts)) |
 | Customer page | Next.js page with PayPal's JavaScript SDK buttons and guest card checkout | Approve the hold, approve or decline extra work, see the charge and receipt ([`src/app/j/[code]/page.tsx`](src/app/j/[code]/page.tsx)) |
 | Change-order parser | Claude Sonnet 5.5 (`claude-sonnet-5-5`, Anthropic API), structured output with a strict JSON schema | Names rate-card items and quantities only; the code takes every price from the card and rejects unknown items, prices from the model and quantities past the card's limits ([`src/lib/change-order-parser.ts`](src/lib/change-order-parser.ts)) |
 | Mike's app | Next.js, installable PWA, the browser's speech recognition | Today with the job he's on first, the job screen with Add charges and Job done, a QR code for on-site approval, find a phone booking by its job code ([`src/app/dashboard/`](src/app/dashboard/page.tsx)) |
@@ -166,12 +171,12 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Close-out | Render Workflows (`@renderinc/sdk`) | Receipt, then close the job; retried by Render, every step idempotent; runs inline when no workflow key is set ([`workflows/close-out.ts`](workflows/close-out.ts), [`src/lib/close-out.ts`](src/lib/close-out.ts)) |
 | Webhooks | PayPal Webhooks, signature verified | An approval completes even if the customer closes the page; captures, voids and paid invoices are recorded ([`src/app/api/paypal/webhook/route.ts`](src/app/api/paypal/webhook/route.ts)) |
 | Link by email | Resend | After a phone call, the link goes to the email the caller confirmed letter by letter; the address is not stored ([`src/lib/email.ts`](src/lib/email.ts)) |
-| Mike's Books | AG Studio 3.0 (AG Grid 36.2, AG Charts 14.2) with the Studio Agent Framework; Claude Haiku 5.5 through a server proxy (being built today) | Mike's week on the desk: figure tiles, money by day, a payment-timeline widget per job, the jobs grid, and "Ask your books" answering from his data (`src/app/dashboard/books/`) |
-| PayPal server SDK | `@paypal/paypal-server-sdk` 2.5, generated by APIMatic, written with APIMatic's PayPal context plugin (being moved over today) | Orders and Payments calls through PayPal's official SDK, request IDs unchanged; Invoicing and webhook checks stay on REST, which the SDK doesn't cover |
+| Mike's Books | AG Studio 3.0 (AG Grid 36.2, AG Charts 14.2) in view mode, themed from the app's tokens; the Studio Agent Framework with Claude Haiku 5.5 through a server proxy | Mike's week on the desk: custom figure-tile and payment-timeline widgets, money by day, the jobs grid with status pills, and "Ask your books", which reads the books through a `read_books` tool and can point the timeline at a job; capped per request, visit and day ([`src/app/dashboard/books/`](src/app/dashboard/books/page.tsx), [`src/app/api/books/ai/route.ts`](src/app/api/books/ai/route.ts)) |
+| PayPal server SDK | `@paypal/paypal-server-sdk` 2.5, generated by APIMatic; written with APIMatic's PayPal context plugin | Orders and Payments run through PayPal's official SDK with the stored request IDs; Invoicing and webhook checks stay on REST, which the SDK doesn't cover ([`src/lib/paypal.ts`](src/lib/paypal.ts)) |
 | Demo sessions | A cookie per visitor; Postgres 18; a job state machine | Each visitor sees only their own jobs plus labelled sample jobs that can't be charged ([`src/lib/dashboard.ts`](src/lib/dashboard.ts), [`src/lib/job-state.ts`](src/lib/job-state.ts), [`db/migrations/`](db/migrations/001_init.sql)) |
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Figtree, lucide-react | Landing page, call page, customer page, Mike's app ([`src/app/`](src/app/page.tsx)) |
 | Hosting | Render web service, Render Postgres and a Render workflow from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
-| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 85 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
+| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 91 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
 
 PayPal runs in the sandbox only: the server refuses to start unless `PAYPAL_ENV=sandbox`.
 
@@ -206,6 +211,8 @@ npm run dev                   # http://localhost:3000
 | `TWILIO_PHONE_NUMBER`, `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET`, `TWILIO_AUTH_TOKEN` | Importing the phone line into ElevenLabs (setup only) |
 | `LLM_API_KEY`, `LLM_MODEL` | The change-order parser (Anthropic API key; default `claude-sonnet-5-5`) |
 | `RESEND_API_KEY`, `EMAIL_FROM` | Emailing the PayPal link to phone callers (optional: without them the agent reads out the job code) |
+| `AG_STUDIO_LICENSE_KEY` | AG Studio's licence (without it, a trial watermark shows) |
+| `BOOKS_LLM_MODEL` | Ask your books' model (optional; default `claude-haiku-5-5`) |
 | `RENDER_WORKFLOW`, `RENDER_WORKFLOW_API_KEY` | Running the close-out on Render Workflows (optional: without them it runs in the app) |
 
 Every value stays on the server; only `PAYPAL_CLIENT_ID` reaches a browser. [`.env.example`](.env.example) says where
@@ -215,19 +222,18 @@ each one comes from.
 
 Working end to end in the sandbox: the phone and browser calls, the quote from the price book, the PayPal hold and its
 approval (PayPal or guest card), the spoken change order as a second payment, job done with the final capture, the
-receipt invoice and the close-out, on the live site.
+receipt invoice and the close-out, Mike's installable app, and Mike's Books with its agent, on the live site.
 
 - PayPal runs in the sandbox only, in USD.
 - A hold can grow by at most 15% at capture, so extra work is always a separate payment.
 - PayPal Invoicing ignores `PayPal-Request-Id`, so the receipt's repeat safety comes from the invoice's own state.
 - After a phone call, the demo emails the PayPal link. A business registered for US text messaging (A2P 10DLC) can text
   it instead.
+- The Books chart's value axis shows plain numbers: AG Studio's built-in chart doesn't format it as dollars.
 - Speaking the extra work uses the browser's speech recognition; where a browser lacks it, Mike types or picks it.
 
 ## Next steps
 
-- **Mike's Books on AG Studio:** jobs, payments and calls in one desktop dashboard, with an "Ask your books" agent.
-- **PayPal's official server SDK** for the order and payment calls.
 - **Notifications on Mike's phone** when a booking or an approval comes in.
 - **The demo video,** and the public demo kept up through the end of judging.
 
