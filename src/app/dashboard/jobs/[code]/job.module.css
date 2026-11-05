@@ -92,6 +92,12 @@
   color: var(--brand);
 }
 
+/* A title with a small icon is as tall as one with an icon disc, so the timeline's title lines up with the card
+   beside it. */
+.cardTitle:has(> svg) {
+  min-height: 44px;
+}
+
 .titleIcon {
   display: grid;
   place-items: center;
