@@ -752,9 +752,21 @@ a.approve:active {
   height: 24px;
 }
 
+/* The recording's approve button: plainly not a live link. Greyed, flat, and it says why underneath. */
 .approveRecorded {
-  cursor: default;
+  width: 100%;
+  border: 1px dashed #c3cbd6;
+  background: var(--none-tint);
+  color: var(--none-ink);
+  font: inherit;
+  text-align: left;
+  box-shadow: none;
+  cursor: not-allowed;
   grid-template-columns: auto 1fr;
+}
+
+.approveRecorded > svg:first-child {
+  opacity: 0.7;
 }
 
 .holdNote {

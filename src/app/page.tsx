@@ -90,7 +90,12 @@ export default function Home() {
             <Link className={`${s.button} ${s.buttonCall}`} href="/call">
               Start a call
             </Link>
-            <p className={s.doorNote}>You’ll talk to an AI assistant, and the call is recorded.</p>
+            <p className={s.doorNote}>
+              You’ll talk to an AI assistant, and the call is recorded.{" "}
+              <Link className={s.replayLink} href="/call?replay">
+                No mic? Watch a recorded call
+              </Link>
+            </p>
           </article>
 
           <article className={`${s.door} ${s.doorDash}`}>

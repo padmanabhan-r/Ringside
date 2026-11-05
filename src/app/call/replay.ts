@@ -19,7 +19,7 @@ export const REPLAY_LINES: readonly Line[] = [
   { id: "r3", role: "agent", at: 14, text: "Sorry to hear that. What’s your ZIP code?" },
   { id: "r4", role: "user", at: 18, text: "48602." },
   { id: "r5", role: "agent", at: 21, text: "Good, that’s in Mike’s area. Can I get your first name and street address?" },
-  { id: "r6", role: "user", at: 26, text: "Dana, 212 Maple Street." },
+  { id: "r6", role: "user", at: 26, text: "Dana, 42 Elm Street." },
   { id: "r7", role: "agent", at: 31, text: "Thanks, Dana. A faucet leak repair runs $125 to $250. PayPal will hold up to $250; nothing is charged now, and Mike charges only the real cost when the job is done. Want me to book it?" },
   { id: "r8", role: "user", at: 44, text: "Yes, please." },
   { id: "r9", role: "agent", at: 47, text: "I have today 10 am to 12 pm, or 2 to 4 pm. Which works better?" },

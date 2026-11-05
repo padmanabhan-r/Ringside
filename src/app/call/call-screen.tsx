@@ -418,7 +418,7 @@ function Call({
             <div className={s.empty}>
               <p className={s.emptyLead}>{phase === "starting" || live ? "The assistant is picking up…" : "What you and the assistant say shows up here as you talk."}</p>
               <p className={s.emptyHint}>
-                Try: “My kitchen tap won’t stop dripping. I’m in Saginaw, 48602.” The assistant quotes from Mike’s rate card,
+                Try: “My kitchen tap won’t stop dripping. I’m in Saginaw, 48602.” The assistant quotes from Mike’s price book,
                 offers a visit window, and puts a PayPal hold link on this page.
               </p>
             </div>

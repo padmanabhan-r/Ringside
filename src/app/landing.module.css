@@ -461,6 +461,38 @@
   text-align: center;
 }
 
+/* "No mic? Watch a recorded call": a quiet way in for visitors without a microphone. */
+.replayLink {
+  margin-left: 4px;
+  color: var(--brand-ink);
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.replayLink:hover {
+  color: var(--brand-deep);
+  text-decoration-thickness: 2px;
+}
+
+.replayLink:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (max-width: 640px) {
+  .replayLink {
+    display: block;
+    width: fit-content;
+    margin: 2px auto 0;
+    padding: 6px 4px;
+    font-size: 14.5px;
+  }
+}
+
 /* How it works: one job, three steps */
 .how {
   margin: 24px 0 0;

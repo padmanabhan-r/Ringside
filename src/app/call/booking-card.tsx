@@ -1,4 +1,4 @@
-import { ArrowUpRight, Check, Clock, Lock, MapPin, Wallet, Wrench } from "lucide-react";
+import { ArrowUpRight, Check, Clock, Info, Lock, MapPin, Wallet, Wrench } from "lucide-react";
 import type { ReactNode } from "react";
 import { StatusPill } from "@/components/brand";
 import type { CallJobView } from "./types";
@@ -47,7 +47,7 @@ export function BookingCard({ job, recording }: { job: CallJobView | null; recor
           }
           done={Boolean(title)}
           title={title ?? "What needs fixing"}
-          sub={job?.range ? <span className={s.price}>{job.range}</span> : job?.estimate && title ? "Estimate visit, no payment" : "A price range from Mike’s rate card"}
+          sub={job?.range ? <span className={s.price}>{job.range}</span> : job?.estimate && title ? "Estimate visit, no payment" : "A price range from Mike’s price book"}
         />
         <Step
           icon={<MapPin strokeWidth={2.2} />}
@@ -70,7 +70,7 @@ export function BookingCard({ job, recording }: { job: CallJobView | null; recor
         ) : job?.hold === "awaiting" && (job.link || recording) ? (
           <>
             {recording ? (
-              <span className={`${s.approve} ${s.approveRecorded}`} aria-disabled="true">
+              <button type="button" className={`${s.approve} ${s.approveRecorded}`} disabled aria-describedby="recorded-note">
                 <Wallet aria-hidden="true" />
                 <span className={s.approveText}>
                   <span className={s.approveMain}>
@@ -78,7 +78,7 @@ export function BookingCard({ job, recording }: { job: CallJobView | null; recor
                   </span>
                   <span className={s.approveSub}>hold up to {job.holdText}</span>
                 </span>
-              </span>
+              </button>
             ) : (
               <a className={s.approve} href={job.link!} target="_blank" rel="noopener">
                 <Wallet aria-hidden="true" />
@@ -91,12 +91,17 @@ export function BookingCard({ job, recording }: { job: CallJobView | null; recor
                 <ArrowUpRight className={s.approveArrow} aria-hidden="true" />
               </a>
             )}
-            <p className={s.holdNote}>
-              <Lock aria-hidden="true" />
-              {recording
-                ? "In the recording this was the caller’s own PayPal link. Start a live call to get yours."
-                : "You won’t be charged now. PayPal holds the funds and Mike charges only the real cost."}
-            </p>
+            {recording ? (
+              <p className={s.holdNote} id="recorded-note">
+                <Info aria-hidden="true" />
+                In the recording this was the caller’s own link. Start a live call to get yours.
+              </p>
+            ) : (
+              <p className={s.holdNote}>
+                <Lock aria-hidden="true" />
+                You won’t be charged now. PayPal holds the funds and Mike charges only the real cost.
+              </p>
+            )}
           </>
         ) : job?.estimate && window ? (
           <StatusPill tone="none">Estimate visit booked, no payment</StatusPill>

@@ -4,7 +4,7 @@ export type HoldState = "none" | "awaiting" | "approved" | "closed";
 
 export interface CallJobView {
   code: string;
-  /** The rate-card job(s) quoted, e.g. "Faucet leak repair". */
+  /** The price-book job(s) quoted, e.g. "Faucet leak repair". */
   title: string;
   /** The quoted range, e.g. "$125–$250"; null for an estimate visit. */
   range: string | null;

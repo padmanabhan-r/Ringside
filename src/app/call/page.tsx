@@ -7,7 +7,7 @@ import s from "./call.module.css";
 
 export const metadata: Metadata = {
   title: "Call Mike’s Plumbing · Ringside",
-  description: "Talk to Mike’s Plumbing’s AI assistant in your browser: a quote from the rate card, a visit window and a PayPal sandbox hold.",
+  description: "Talk to Mike’s Plumbing’s AI assistant in your browser: a quote from the price book, a visit window and a PayPal sandbox hold.",
 };
 
 export default function CallPage() {
