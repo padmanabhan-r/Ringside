@@ -44,9 +44,9 @@
       <sub>The records. Jobs, calls, payments and events, each scoped to a demo session.</sub>
     </td>
     <td align="center" width="200">
-      <img src="assets/logos/anthropic.svg" width="56" height="56" alt="Anthropic"><br>
-      <b>Anthropic</b><br>
-      <sub>The change orders. Turns the owner's spoken extra work into rate-card lines.</sub>
+      <img src="assets/logos/claude.svg" width="56" height="56" alt="Claude"><br>
+      <b>Claude</b><br>
+      <sub>The change orders. Claude Sonnet 5.5 turns the owner's spoken extra work into rate-card lines.</sub>
     </td>
     <td align="center" width="200">
       <img src="assets/logos/deepseek.svg" width="56" height="56" alt="DeepSeek"><br>
@@ -119,7 +119,7 @@ Measured against the real PayPal sandbox and the real phone line on 2026-11-05.
 | Prices | The rate card in code, money in integer cents | Every price comes from here; labour is billed in 15-minute blocks of $23.75 ([`src/lib/rate-card.ts`](src/lib/rate-card.ts), [`src/lib/money.ts`](src/lib/money.ts)) |
 | Payments | PayPal Orders v2 (`AUTHORIZE`, `CAPTURE`), Payments v2 (capture, void), Webhooks | The hold, the change order's second payment, the capture; every POST carries a stored `PayPal-Request-Id` ([`src/lib/paypal.ts`](src/lib/paypal.ts)) |
 | Invoices | PayPal Invoicing v2 (being built) | The receipt at job done, or a payable invoice for a leftover balance |
-| Change-order parser | Anthropic `claude-sonnet-5-5` with structured output (being built) | Turns Mike's spoken change into rate-card lines; the code rejects anything not on the card |
+| Change-order parser | Claude Sonnet 5.5 (`claude-sonnet-5-5`, Anthropic API) with structured output (being built) | Turns Mike's spoken change into rate-card lines; the code rejects anything not on the card |
 | Close-out | Render Workflows flow (being built) | Capture, invoice, close; a replay after a failure reuses PayPal's original response |
 | Jobs and state | Postgres 18; a job state machine | Jobs, calls, line items, payments and events, each scoped to a demo session ([`db/migrations/`](db/migrations/001_init.sql), [`src/lib/job-state.ts`](src/lib/job-state.ts)) |
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Geist, lucide-react | The landing page now; the call page, the customer's approval page and the owner's screens next ([`src/app/`](src/app/page.tsx)) |
