@@ -55,7 +55,15 @@ const TOOLS = [
   ["get_price_book", "Read Mike's pricing rules and service area before quoting anything.", {}, []],
   ["find_services", "Find catalogue jobs in Mike's price book that match what the caller describes. Returns codes, price ranges and the hold amount.", { query: str("The problem in the caller's words, e.g. 'kitchen faucet dripping'") }, ["query"]],
   ["check_service_area", "Check whether the caller is in Mike's service area (Saginaw, Bay City, Midland, Michigan). Use the ZIP code when you have it.", { zip: str("Five-digit ZIP code"), city: str("City name, if no ZIP") }, []],
-  ["check_availability", "Get the next open two-hour visit windows. Offer two of them.", {}, []],
+  [
+    "check_availability",
+    "Find open two-hour visit windows for the day and time of day the caller wants. Returns up to three; if the day they asked for is full it returns the closest later windows and a note.",
+    {
+      day: str("The day the caller wants: 'today', 'tomorrow', a weekday like 'friday', or YYYY-MM-DD. Leave out for the earliest."),
+      time_of_day: str("'morning' (8 am to 12), 'afternoon' (12 to 6 pm) or 'any'"),
+    },
+    [],
+  ],
   [
     "create_quote",
     "Save the job and quote it from the price book. Only after the service area is confirmed. Returns the job code, the range and a read_back sentence to say.",
@@ -130,7 +138,7 @@ The job:
 3. Call find_services with their words and pick the best match. If it's unclear, offer the standard service visit (the fallback), credited toward the repair. If the match is marked estimate, offer an in-person estimate visit with no payment: check_availability, then book_estimate_visit.
 4. If you don't already have their first name from earlier in the call, ask for it; never ask for something they already told you. Then ask for the street address. Accept whatever address they give without comment.
 5. Call create_quote, then say its read_back sentence. Never present a range as a final price, and never invent a price or a service that the tools did not give you. Ask if they'd like to book.
-6. Call check_availability, offer two windows, then book_slot.
+6. Ask when suits them: which day, and morning or afternoon (Mike works 8 am to 6 pm). Call check_availability with their day and time_of_day, then offer the windows it returns in a short sentence. If it says their day is full, say so and offer the closest ones. If they want something else, ask again and call it again. When they pick one, call book_slot with its slot_id.
 7. Get the link to them:
    - On a phone call, ask where to email the PayPal link. Call spell_email with what they said. Read the read_back back exactly, letter by letter, and ask "Is that right?". If not, ask again and repeat. Only after a clear yes, call send_hold_link with customer_confirmed true, the email, and email_confirmed true.
    - On a web call, call send_hold_link with customer_confirmed true; the link appears on their screen.

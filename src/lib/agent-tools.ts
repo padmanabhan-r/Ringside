@@ -20,7 +20,7 @@ import { approvalUrl, createOrder, type OrderItem } from "./paypal";
 import { PriceBookError, SECTION_TITLES, SERVICE_VISIT, quote, rangeText, searchServices } from "./price-book";
 import { notifyJobEvent } from "./push";
 import { SERVICE_AREA_NAME, checkServiceArea } from "./service-area";
-import { formatWindow, openSlots, slotFromId, TIME_ZONE } from "./slots";
+import { findSlots, formatWindow, slotFromId, TIME_ZONE, type DayPart } from "./slots";
 import { isValidEmail, maskEmail, normaliseEmail, sendHoldEmail, spellEmail } from "./email";
 import { addEvent } from "./jobs";
 
@@ -95,11 +95,23 @@ export const tools = {
   },
 
   /** The next open two-hour windows. */
-  async check_availability(_args: Args, ctx: ToolContext) {
-    const until = new Date(ctx.now.getTime() + 3 * 24 * 3600_000);
+  /** Open visit windows for the day and time of day the caller wants ("tomorrow", "friday", morning/afternoon). */
+  async check_availability(args: Args, ctx: ToolContext) {
+    const until = new Date(ctx.now.getTime() + 9 * 24 * 3600_000);
     const busy = await bookedSlots(ctx.demoSessionId, ctx.now, until);
-    const slots = openSlots(ctx.now, busy);
-    return { time_zone: TIME_ZONE, slots: slots.map((s) => ({ slot_id: s.id, label: s.label })) };
+    const day = str(args, "day", false) ?? undefined;
+    const partSaid = (str(args, "time_of_day", false) ?? "").toLowerCase();
+    const part: DayPart = partSaid.startsWith("morn") ? "morning" : partSaid.startsWith("after") || partSaid.startsWith("even") ? "afternoon" : "any";
+    // The agent offers three; the booking form asks for a whole day (up to five windows) to show and to validate.
+    const limit = typeof args.limit === "number" && args.limit >= 1 && args.limit <= 5 ? Math.floor(args.limit) : 3;
+    const { slots, onDay } = findSlots(ctx.now, busy, { day, part }, limit);
+    const asked = day ? `${day}${part === "any" ? "" : ` ${part}`}` : "";
+    return {
+      time_zone: TIME_ZONE,
+      on_requested_day: day ? onDay : undefined,
+      note: day && !onDay ? `Nothing is open ${asked}; these are the closest windows after it. Say so, then offer them.` : undefined,
+      slots: slots.map((s) => ({ slot_id: s.id, label: s.label })),
+    };
   },
 
   /** Saves the job and quotes it from the price book: a range, held at the top. */

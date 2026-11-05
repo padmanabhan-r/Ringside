@@ -24,19 +24,30 @@ function context(req: NextRequest, demoSessionId: string, conversationId?: strin
   };
 }
 
-/** The windows still open for this visit: the agent's own availability check, so the form offers what the call would. */
-async function openSlots(ctx: ToolContext) {
-  const { slots } = await tools.check_availability({}, ctx);
+/**
+ * The windows still open for this visit: the agent's own availability check, so the form offers what the call would,
+ * for the day and time of day the visitor picks.
+ */
+async function openSlots(ctx: ToolContext, want: { day?: string; time_of_day?: string } = {}) {
+  const { slots } = await tools.check_availability({ ...want, limit: 5 }, ctx);
   return slots.map((s) => {
     const w = slotFromId(s.slot_id)!;
     return { id: s.slot_id, label: formatWindow(w.start, w.end, ctx.now) };
   });
 }
 
+/** The chosen window's own day, so a window later in the week validates against that day's openings. */
+function slotDay(body: unknown): { day?: string } {
+  const slot = (body as { slot?: unknown } | null)?.slot;
+  return typeof slot === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}$/.test(slot) ? { day: slot.slice(0, 10) } : {};
+}
+
 export async function GET(req: NextRequest) {
   const session = await demoSession();
   try {
-    return session.attach(NextResponse.json({ slots: await openSlots(context(req, session.id)) }));
+    const q = new URL(req.url).searchParams;
+    const want = { day: q.get("day") ?? undefined, time_of_day: q.get("part") ?? undefined };
+    return session.attach(NextResponse.json({ slots: await openSlots(context(req, session.id), want) }));
   } catch (error) {
     console.error("book form slots:", error);
     return session.attach(NextResponse.json({ error: "We couldn’t load Mike’s calendar. Try again in a moment." }, { status: 500 }));
@@ -70,7 +81,7 @@ export async function POST(req: NextRequest) {
           where demo_session_id = ${session.id} and conversation_id like 'form-%' and started_at > now() - interval '1 day'`;
         if (count >= DAILY_LIMIT) return reply({ error: "That’s the most bookings this demo takes from one visit in a day. Approve one you’ve made, or come back tomorrow." }, 429);
       }
-      const open = (await openSlots(ctx)).map((s) => s.id);
+      const open = (await openSlots(ctx, slotDay(body))).map((s) => s.id);
       const checked = checkBooking(body, ctx.now, started?.slot_start ? [...open, String(body.slot)] : open, { requireConfirmed: true });
       const code =
         started?.job_code ??
@@ -88,7 +99,7 @@ export async function POST(req: NextRequest) {
       return reply({ code });
     }
     const ctx = context(req, session.id);
-    const checked = checkBooking(body, ctx.now, (await openSlots(ctx)).map((s) => s.id));
+    const checked = checkBooking(body, ctx.now, (await openSlots(ctx, slotDay(body))).map((s) => s.id));
     return reply({ readBack: checked.readBack, holdCents: checked.holdCents });
   } catch (error) {
     if (error instanceof BookingFormError) return reply({ error: error.message, field: error.field }, 422);

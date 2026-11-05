@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { COMMON_SERVICES, rangeShort, townForZip } from "@/lib/book-form";
 import { findService, searchServices, type Service } from "@/lib/price-book";
 import { checkServiceArea } from "@/lib/service-area";
+import { localDate, TIME_ZONE } from "@/lib/slots";
 import s from "./book-form.module.css";
 
 type Field = "service" | "name" | "street" | "zip" | "slot" | "confirmed";
@@ -15,6 +16,15 @@ interface Slot {
 }
 
 const COMMON = COMMON_SERVICES.map((code) => findService(code)!).filter(Boolean);
+
+/** The next seven days in Mike's time zone, for the day picker. */
+const DAYS = Array.from({ length: 7 }, (_, i) => {
+  const date = new Date(Date.now() + i * 86_400_000);
+  const iso = localDate(date);
+  const weekday = new Intl.DateTimeFormat("en-US", { timeZone: TIME_ZONE, weekday: "short" }).format(date);
+  const label = i === 0 ? "Today" : i === 1 ? "Tomorrow" : `${weekday} ${Number(iso.slice(8, 10))}`;
+  return { date: iso, label };
+});
 
 /**
  * "No mic? Book without calling": the call's booking as a short form. Same price book, same service area, same visit
@@ -34,6 +44,8 @@ export function BookForm({ onClose }: { onClose: () => void }) {
   const [slot, setSlot] = useState("");
   const [slots, setSlots] = useState<Slot[] | null>(null);
   const [slotsError, setSlotsError] = useState<string | null>(null);
+  const [day, setDay] = useState(() => DAYS[0]!.date);
+  const [part, setPart] = useState<"any" | "morning" | "afternoon">("any");
   const [readBack, setReadBack] = useState<string | null>(null);
   const [formId, setFormId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -42,20 +54,26 @@ export function BookForm({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     top.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  // Mike's calendar for the day and time of day the visitor picks (the same check the agent makes on a call).
+  useEffect(() => {
     let stop = false;
-    fetch("/api/call/book", { cache: "no-store" })
+    const q = new URLSearchParams({ day, part });
+    fetch(`/api/call/book?${q}`, { cache: "no-store" })
       .then(async (res) => {
         const body = (await res.json().catch(() => ({}))) as { slots?: Slot[]; error?: string };
         if (stop) return;
         if (!res.ok || !body.slots) return setSlotsError(body.error ?? "We couldn’t load Mike’s calendar. Try again in a moment.");
+        setSlotsError(null);
         setSlots(body.slots);
-        setSlot((cur) => cur || body.slots?.[0]?.id || "");
+        setSlot((cur) => (body.slots?.some((w) => w.id === cur) ? cur : body.slots?.[0]?.id || ""));
       })
       .catch(() => !stop && setSlotsError("We couldn’t load Mike’s calendar. Try again in a moment."));
     return () => {
       stop = true;
     };
-  }, []);
+  }, [day, part]);
 
   const results = useMemo(() => (query.trim().length > 2 ? searchServices(query, 6) : []), [query]);
   const area = /^\d{5}$/.test(zip) ? checkServiceArea({ zip }) : "unknown";
@@ -282,8 +300,22 @@ export function BookForm({ onClose }: { onClose: () => void }) {
 
           <fieldset className={s.group} aria-invalid={invalid("slot")}>
             <legend className={s.legend}>
-              <Clock aria-hidden="true" /> When
+              <Clock aria-hidden="true" /> When suits you
             </legend>
+            <div className={s.days} role="radiogroup" aria-label="Day">
+              {DAYS.map((d) => (
+                <button key={d.date} type="button" role="radio" aria-checked={day === d.date} className={`${s.dayChip} ${day === d.date ? s.chosen : ""}`} onClick={() => setDay(d.date)}>
+                  {d.label}
+                </button>
+              ))}
+            </div>
+            <div className={s.parts} role="radiogroup" aria-label="Time of day">
+              {(["any", "morning", "afternoon"] as const).map((p) => (
+                <button key={p} type="button" role="radio" aria-checked={part === p} className={`${s.partChip} ${part === p ? s.chosen : ""}`} onClick={() => setPart(p)}>
+                  {p === "any" ? "Any time" : p === "morning" ? "Morning, 8–12" : "Afternoon, 12–6"}
+                </button>
+              ))}
+            </div>
             {slots ? (
               slots.length ? (
                 <ul className={s.slots}>
@@ -297,7 +329,7 @@ export function BookForm({ onClose }: { onClose: () => void }) {
                   ))}
                 </ul>
               ) : (
-                <p className={s.hint}>Mike’s next two days are full. Try again tomorrow.</p>
+                <p className={s.hint}>Mike’s week is full at that time. Try another day or time.</p>
               )
             ) : (
               <p className={s.hint}>{slotsError ?? "Loading Mike’s calendar…"}</p>

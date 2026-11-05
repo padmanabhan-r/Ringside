@@ -594,3 +594,38 @@
     min-height: 46px;
   }
 }
+
+/* When suits you: a day and a time of day, then Mike's open windows */
+.days,
+.parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.dayChip,
+.partChip {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dayChip:hover,
+.partChip:hover {
+  border-color: var(--brand);
+}
+
+.dayChip.chosen,
+.partChip.chosen {
+  border-color: var(--brand);
+  background: var(--brand-tint);
+  color: var(--brand-ink);
+}

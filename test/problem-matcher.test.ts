@@ -41,7 +41,7 @@ describe("matchProblem", () => {
     expect(m.service.name).toBe("Faucet leak repair");
     expect([m.service.lowCents, m.service.highCents]).toEqual([12500, 25000]);
     expect(m.safety).toBe(false);
-    const format = lastBody?.output_config?.format as { schema: { properties: { code: { enum: string[] } } } };
+    const format = lastBody?.output_config?.format as unknown as { schema: { properties: { code: { enum: string[] } } } };
     expect(format.schema.properties.code.enum).toContain("faucet_leak_repair");
   });
 

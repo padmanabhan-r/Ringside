@@ -81,6 +81,73 @@ export function openSlots(now: Date, busy: readonly { start: Date; end: Date }[]
   return out;
 }
 
+export type DayPart = "morning" | "afternoon" | "any";
+
+const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+/** "today", "tomorrow", a weekday ("friday", "next friday") or a YYYY-MM-DD date → a local date within two weeks. */
+export function resolveDay(day: string | undefined, now: Date, timeZone = TIME_ZONE): string | undefined {
+  if (!day) return undefined;
+  const today = localDate(now, timeZone);
+  const raw = day.trim().toLowerCase();
+  const next = /^next\s+/.test(raw);
+  const said = raw.replace(/^next\s+/, "");
+  if (said === "today") return today;
+  if (said === "tomorrow") return addDays(today, 1);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(said)) {
+    const diff = (new Date(`${said}T12:00:00Z`).getTime() - new Date(`${today}T12:00:00Z`).getTime()) / 86_400_000;
+    return diff >= 0 && diff <= 14 ? said : undefined;
+  }
+  const want = WEEKDAYS.findIndex((w) => said.startsWith(w.slice(0, 3)));
+  if (want < 0) return undefined;
+  const todayDow = new Date(`${today}T12:00:00Z`).getUTCDay();
+  const ahead = (want - todayDow + 7) % 7;
+  return addDays(today, ahead === 0 && next ? 7 : ahead);
+}
+
+function dayWordFor(date: string, today: string): string {
+  const diff = Math.round((new Date(`${date}T12:00:00Z`).getTime() - new Date(`${today}T12:00:00Z`).getTime()) / 86_400_000);
+  if (diff === 0) return "today";
+  if (diff === 1) return "tomorrow";
+  const d = new Date(`${date}T12:00:00Z`);
+  const weekday = WEEKDAYS[d.getUTCDay()]!;
+  const name = weekday[0]!.toUpperCase() + weekday.slice(1);
+  return diff < 7 ? name : `${name.slice(0, 3)}, ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" }).format(d)}`;
+}
+
+/**
+ * Open windows for the visit the customer asks for: their day and time of day first, then the closest later windows
+ * with the same time of day, up to a week ahead. `onDay` says whether the day they asked for had any.
+ */
+export function findSlots(
+  now: Date,
+  busy: readonly { start: Date; end: Date }[],
+  want: { day?: string; part?: DayPart } = {},
+  limit = 3,
+  timeZone = TIME_ZONE,
+): { slots: Slot[]; onDay: boolean } {
+  const today = localDate(now, timeZone);
+  const first = resolveDay(want.day, now, timeZone) ?? today;
+  const part = want.part ?? "any";
+  const fits = (s: number) => part === "any" || (part === "morning" ? s < 12 : s >= 12);
+  const out: Slot[] = [];
+  let onDay = false;
+  for (let offset = 0; offset < 8 && out.length < limit; offset++) {
+    const date = addDays(first, offset);
+    for (const [s, e] of WINDOWS) {
+      if (!fits(s)) continue;
+      const start = localHour(date, s, timeZone);
+      const end = localHour(date, e, timeZone);
+      if (start.getTime() < now.getTime() + 30 * 60_000) continue;
+      if (busy.some((b) => b.start < end && b.end > start)) continue;
+      out.push({ id: `${date}T${String(s).padStart(2, "0")}`, start, end, label: windowLabel(dayWordFor(date, today), s, e) });
+      if (offset === 0) onDay = true;
+      if (out.length >= limit) break;
+    }
+  }
+  return { slots: out, onDay };
+}
+
 /** Resolves a slot id back to its window, or undefined if the id is malformed or not a working window. */
 export function slotFromId(id: string, timeZone = TIME_ZONE): { start: Date; end: Date } | undefined {
   const m = /^(\d{4}-\d{2}-\d{2})T(\d{2})$/.exec(id);

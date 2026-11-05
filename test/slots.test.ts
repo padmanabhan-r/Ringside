@@ -30,3 +30,40 @@ describe("visit slots", () => {
     expect(slotFromId("tomorrow")).toBeUndefined();
   });
 });
+
+import { findSlots, resolveDay } from "../src/lib/slots";
+
+describe("findSlots: the customer's day and time of day", () => {
+  // Thursday Nov 5, 2026, 9:00 am in Detroit (14:00 UTC).
+  const thu9am = new Date("2026-11-05T14:00:00Z");
+
+  it("reads today, tomorrow, weekdays and dates", () => {
+    expect(resolveDay("today", thu9am)).toBe("2026-11-05");
+    expect(resolveDay("tomorrow", thu9am)).toBe("2026-11-06");
+    expect(resolveDay("Saturday", thu9am)).toBe("2026-11-07");
+    expect(resolveDay("monday", thu9am)).toBe("2026-11-09");
+    expect(resolveDay("thursday", thu9am)).toBe("2026-11-05");
+    expect(resolveDay("next thursday", thu9am)).toBe("2026-11-12");
+    expect(resolveDay("2026-11-10", thu9am)).toBe("2026-11-10");
+    expect(resolveDay("2027-01-01", thu9am)).toBeUndefined();
+    expect(resolveDay("someday", thu9am)).toBeUndefined();
+  });
+
+  it("offers the asked-for day and part first, labelled the way the agent says it", () => {
+    const { slots, onDay } = findSlots(thu9am, [], { day: "saturday", part: "morning" });
+    expect(onDay).toBe(true);
+    expect(slots.map((s) => s.id)).toEqual(["2026-11-07T08", "2026-11-07T10", "2026-11-08T08"]);
+    expect(slots[0]!.label).toBe("Saturday, 8 to 10 am");
+  });
+
+  it("afternoons only, and rolls to the next day when the asked-for day is full", () => {
+    const busy = [12, 14, 16].map((h) => ({ start: new Date(`2026-11-06T${h + 5}:00:00Z`), end: new Date(`2026-11-06T${h + 7}:00:00Z`) }));
+    const { slots, onDay } = findSlots(thu9am, busy, { day: "tomorrow", part: "afternoon" });
+    expect(onDay).toBe(false);
+    expect(slots[0]!.id).toBe("2026-11-07T12");
+  });
+
+  it("with no preference starts at the next window at least 30 minutes away", () => {
+    expect(findSlots(thu9am, []).slots[0]!.id).toBe("2026-11-05T10");
+  });
+});
