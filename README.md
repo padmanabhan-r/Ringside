@@ -108,9 +108,20 @@ Every business on Ringside runs the same flow; the screens below are the demo bu
    the agent spells the caller's email back letter by letter and sends the link only after a yes. The customer approves
    with PayPal's buttons, or as a guest with a card. Nothing is charged yet. The job lands on Mike's phone.
 
-| The customer approves the hold | Mike's day, job he's on first |
-|---|---|
-| <img src="assets/screens/approve.jpg" width="300" alt="The approval page on a phone: a $250.00 hold, the reassurance that nothing is charged now and never more than the hold, PayPal's buttons and the sandbox test card"> | <img src="assets/screens/app-today.jpg" width="300" alt="Mike's app on a phone: Thursday, the job he is on now with Add charges and Job done buttons, then the rest of the day"> |
+<div align="center">
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="assets/screens/approve.jpg" width="230" alt="The approval page on a phone: a $250.00 hold, the reassurance that nothing is charged now and never more than the hold, PayPal's buttons and the sandbox test card"><br>
+      <sub><b>The customer approves the hold</b></sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="assets/screens/app-today.jpg" width="230" alt="Mike's app on a phone: Thursday, the job he is on now with Add charges and Job done buttons, then the rest of the day"><br>
+      <sub><b>Mike's day, job he's on first</b></sub>
+    </td>
+  </tr>
+</table>
+</div>
 
 3. **The change order.** On site, Mike taps the mic and says "add a shut-off valve and 45 more minutes" (or types it,
    or picks from his price list). Claude turns it into rate-card lines; the code prices them from the card: $48.00 plus
@@ -118,9 +129,20 @@ Every business on Ringside runs the same flow; the screens below are the demo bu
    PayPal payment for exactly that amount, from the same page as the booking or a QR code on Mike's phone. PayPal lets a
    hold grow by 15% at most, so extra work is always its own payment.
 
-| Mike adds charges | The customer approves the extra |
-|---|---|
-| <img src="assets/screens/app-job.jpg" width="300" alt="The job screen: Add charges with a mic button, a price-list picker and a text box; Job done below"> | <img src="assets/screens/approve-change.jpg" width="300" alt="The customer's page: $119.25 extra, a shut-off valve $48.00 and labour 45 minutes $71.25, a separate PayPal payment, approve or decline"> |
+<div align="center">
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="assets/screens/app-job.jpg" width="230" alt="The job screen: Add charges with a mic button, a price-list picker and a text box; Job done below"><br>
+      <sub><b>Mike adds charges</b></sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="assets/screens/approve-change.jpg" width="230" alt="The customer's page: $119.25 extra, a shut-off valve $48.00 and labour 45 minutes $71.25, a separate PayPal payment, approve or decline"><br>
+      <sub><b>The customer approves the extra</b></sub>
+    </td>
+  </tr>
+</table>
+</div>
 
 4. **Job done.** Mike enters the real cost, inside the quoted range and never above the hold, and confirms it with a
    second tap. PayPal captures exactly that and releases the rest. The close-out then sends a PayPal invoice, marked
