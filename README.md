@@ -61,7 +61,7 @@
 ![PayPal JS SDK](https://img.shields.io/badge/PayPal_JS_SDK-buttons_·_guest_card-003087?style=flat-square&logo=paypal&labelColor=0f1b2d)
 
 ![ElevenLabs Agents](https://img.shields.io/badge/ElevenLabs-Agents_·_React_SDK_1.19-0f1b2d?style=flat-square&logo=elevenlabs&labelColor=0f1b2d)
-![gpt-6-luna](https://img.shields.io/badge/agent_LLM-gpt--6--luna-0f1b2d?style=flat-square&labelColor=0f1b2d)
+![GLM 5.2](https://img.shields.io/badge/agent_LLM-GLM_5.2-0f1b2d?style=flat-square&labelColor=0f1b2d)
 ![Claude Sonnet 5.5](https://img.shields.io/badge/Claude-Sonnet_5.5_·_Haiku_5.5-cc785c?style=flat-square&logo=anthropic&labelColor=0f1b2d)
 ![Anthropic SDK](https://img.shields.io/badge/Anthropic_SDK-1.1-cc785c?style=flat-square&logo=anthropic&labelColor=0f1b2d)
 ![Twilio](https://img.shields.io/badge/Twilio-Voice-f22f46?style=flat-square&logo=twilio&labelColor=0f1b2d)
@@ -183,7 +183,7 @@ in code.
 
 ## Architecture
 
-<img src="assets/architecture.png" width="100%" alt="Ringside's architecture: a customer calls the Twilio number or the browser call page; the ElevenLabs agent (gpt-6-luna) calls Ringside's ten server tools on Render; Ringside holds, captures and voids through PayPal Orders and Payments (server SDK), sends the receipt with Invoicing and verifies webhooks; Claude Sonnet 5.5 parses spoken change orders and Haiku 5.5 answers Ask your books; Postgres and Render Workflows run underneath; the customer approves in PayPal on the job page and the owner works from the dashboard; Resend and web push carry links and notifications">
+<img src="assets/architecture.png" width="100%" alt="Ringside's architecture: a customer calls the Twilio number or the browser call page; the ElevenLabs agent (GLM 5.2) calls Ringside's ten server tools on Render; Ringside holds, captures and voids through PayPal Orders and Payments (server SDK), sends the receipt with Invoicing and verifies webhooks; Claude Sonnet 5.5 parses spoken change orders and Haiku 5.5 answers Ask your books; Postgres and Render Workflows run underneath; the customer approves in PayPal on the job page and the owner works from the dashboard; Resend and web push carry links and notifications">
 
 The diagram's source is [`assets/src/architecture.html`](assets/src/architecture.html), rendered with headless Chrome.
 
@@ -210,7 +210,7 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Part | Built with | What it does |
 |---|---|---|
 | Phone line | Twilio US number, imported into ElevenLabs | Callers dial the business and land straight on the agent ([`scripts/gates/setup-voice.mjs`](scripts/gates/setup-voice.mjs)) |
-| Voice agent | ElevenLabs Agents; LLM `gpt-6-luna` with medium reasoning, hosted by ElevenLabs; voice "Chris"; calls capped at 6 minutes | Answers as Mike's AI assistant; its ten server tools read the price book, check the service area, find open windows, save the quote, book it and send the PayPal link only after a yes. Near the time limit every tool reply tells it to wrap up ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`scripts/agent/configure.mjs`](scripts/agent/configure.mjs)) |
+| Voice agent | ElevenLabs Agents; LLM GLM 5.2 (`glm-52`) with medium reasoning, hosted by ElevenLabs; voice "Chris"; calls capped at 6 minutes | Answers as Mike's AI assistant; its ten server tools read the price book, check the service area, find open windows, save the quote, book it and send the PayPal link only after a yes. Near the time limit every tool reply tells it to wrap up ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`scripts/agent/configure.mjs`](scripts/agent/configure.mjs)) |
 | Browser call | `@elevenlabs/react` over WebRTC, a server-issued conversation token | The same agent in the browser with a live transcript and a booking card that fills in; the conversation is registered to the visitor's session before the first tool call; a recorded call, and **Book without calling**: describe the problem in your own words and Claude Haiku 5.5 matches it to a job in the price book (or pick it yourself), then the same read-back and the agent's own quote, booking and hold tools ([`src/app/call/`](src/app/call/page.tsx)) |
 | Prices | Mike's price book (125 jobs as USD ranges) and a rate card of add-ons, money in integer cents | A quote holds the top of its range; extra work is parts and labour in 15-minute blocks of $23.75, or a whole job at Mike's price inside its range ([`src/lib/price-book.ts`](src/lib/price-book.ts), [`src/lib/rate-card.ts`](src/lib/rate-card.ts)) |
 | Service area | The Saginaw Tri-Cities by ZIP and city | Callers outside it get no booking and no payment ([`src/lib/service-area.ts`](src/lib/service-area.ts)) |
@@ -264,7 +264,7 @@ npm run dev                   # http://localhost:3000
 | `APP_BASE_URL` | The public HTTPS address: links the agent and the app hand out, the agent's tool calls, PayPal's webhooks |
 | `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | The voice agent and the browser call. No phone line? Create an agent in the ElevenLabs dashboard and set its ID instead of running `setup-voice.mjs` |
 | `ELEVENLABS_TOOL_SECRET` | A long random string you choose: `configure.mjs` stores it in ElevenLabs and the agent sends it with every tool call |
-| `ELEVENLABS_AGENT_LLM`, `ELEVENLABS_AGENT_REASONING` | The agent's model and reasoning effort (optional; default `gpt-6-luna`, `medium`) |
+| `ELEVENLABS_AGENT_LLM`, `ELEVENLABS_AGENT_REASONING` | The agent's model and reasoning effort (optional; default `glm-52`, `medium`) |
 | `TWILIO_PHONE_NUMBER`, `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET`, `TWILIO_AUTH_TOKEN` | Importing the phone line into ElevenLabs (setup only) |
 | `TWILIO_TEST_CALLER_ID` | A verified phone of yours for `scripts/gates/test-call.mjs` (optional: a Twilio number can't call itself) |
 | `LLM_API_KEY`, `LLM_MODEL` | Anthropic API key for the change-order parser, Ask your books and the problem matcher; `LLM_MODEL` is the parser's model (optional; default `claude-sonnet-5-5`) |

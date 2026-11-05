@@ -15,7 +15,7 @@ const SECRET_NAME = "ringside_tool_secret";
 // The cheapest agent LLM that stays available through judging ($0.0022 per call minute, 2026-11-05): gpt-5-nano is
 // cheaper but OpenAI shuts the gpt-5 family down on Dec 11 and the demo runs to Dec 15. Low reasoning keeps replies
 // quick. Override with ELEVENLABS_AGENT_LLM.
-const LLM = process.env.ELEVENLABS_AGENT_LLM || "gpt-6-luna";
+const LLM = process.env.ELEVENLABS_AGENT_LLM || "glm-52"; // owner, 2026-11-05: GLM 5.2 ($0.0173/min LLM); GLM 4.5 Air is retired (all traffic rerouted)
 const REASONING = process.env.ELEVENLABS_AGENT_REASONING || "medium";
 const MAX_CALL_SECONDS = 360;
 
@@ -152,7 +152,7 @@ Time: every call ends automatically at 6 minutes. Never guess how much time is l
 await el("PATCH", `/v1/convai/agents/${AGENT}`, {
   conversation_config: {
     agent: {
-      prompt: { prompt: PROMPT, llm: LLM, ...(/^gpt-[56]/.test(LLM) ? { reasoning_effort: REASONING } : {}), tool_ids: toolIds, built_in_tools: { end_call: { name: "end_call", description: "End the call after saying goodbye.", params: { system_tool_type: "end_call" } } } },
+      prompt: { prompt: PROMPT, llm: LLM, ...(/^(gpt-[56]|glm-5)/.test(LLM) ? { reasoning_effort: REASONING } : {}), tool_ids: toolIds, built_in_tools: { end_call: { name: "end_call", description: "End the call after saying goodbye.", params: { system_tool_type: "end_call" } } } },
       dynamic_variables: { dynamic_variable_placeholders: {} },
     },
     // 15 s before "are you still there?": callers go quiet while typing card details on the PayPal page (default 7 s).
