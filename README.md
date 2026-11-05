@@ -110,7 +110,7 @@ Measured against the real PayPal sandbox and the real phone line on 2026-11-05.
 | Close-out | Render Workflows flow (being built) | Capture, invoice, close; a replay after a failure reuses PayPal's original response |
 | Jobs and state | Postgres 18; a job state machine | Jobs, calls, line items, payments and events, each scoped to a demo session ([`db/migrations/`](db/migrations/001_init.sql), [`src/lib/job-state.ts`](src/lib/job-state.ts)) |
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Geist, lucide-react | The landing page now; the call page, the customer's approval page and the owner's screens next ([`src/app/`](src/app/page.tsx)) |
-| Schedule board | Bryntum Scheduler Community (being built) | Mike's day, every call with its cost and outcome, and each job's money |
+| Owner dashboard | AG Grid on desktop (being built) | Mike's day, every call with its cost and outcome, and each job's money |
 | Hosting | Render web service and Render Postgres from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
 | Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 62 tests, including the PayPal client against recorded sandbox responses ([`test/`](test/paypal.test.ts)) |
 

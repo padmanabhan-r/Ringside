@@ -9,7 +9,7 @@
 - **Live app:** not deployed
 - **Demo:** not recorded
 - **Repo:** private
-- **Stack:** planned: Next.js (App Router, TypeScript), Postgres, Render, ElevenLabs Agents, Twilio, Bryntum Scheduler Community
+- **Stack:** planned: Next.js (App Router, TypeScript), Postgres, Render, ElevenLabs Agents, Twilio, Resend, AG Grid, PayPal server SDK
 - **Hosting:** not deployed
 - **Auth:** none
 - **External services:** none connected yet (Twilio number bought; ElevenLabs Scale plan)
@@ -18,7 +18,7 @@
 - **Event deadline:** 2026-11-12 12:00 PST = 2026-11-13 01:30 IST
 - **PayPal APIs used:** none yet (planned: Orders v2, Payments v2, Invoicing v2, Webhooks)
 - **Voice stack:** ElevenLabs agent not created; Twilio US number bought, not linked
-- **Sponsor tools used:** none yet (planned: Bryntum, Render)
+- **Sponsor tools used:** Render (hosting and Postgres, live); planned: AG Grid (owner books), APIMatic (PayPal server SDK), Render Workflows
 - **Model and voice spend:** none yet
 - **Started:** 2026-11-05T06:06:00+05:30
 - **Last updated:** 2026-11-05T07:00:00+05:30

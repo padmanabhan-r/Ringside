@@ -12,8 +12,9 @@ Padmanabhan ([@padmanabhan-r](https://github.com/padmanabhan-r)), solo, IST. **R
 
 - Deadline: **Thu Nov 12, 2026, 12:00 PST = Fri Nov 13, 2026, 01:30 IST.** Target: submit Wed Nov 11, 21:00 IST.
   Plan: `docs/timeline.md`.
-- Tracks: none. Honorable mentions include Best Use of Agentic Commerce and Best Use of PayPal + AI; sponsor prizes
-  we can meet: Bryntum (Scheduler) and Render (hosting). Only one sponsor prize can be won.
+- Tracks: none. Honorable mentions include Best Use of Agentic Commerce and Best Use of PayPal + AI; sponsor tools
+  used where they do a real job: AG Grid (Mike's books), APIMatic (PayPal server SDK) and Render (hosting, Workflows).
+  Only one sponsor prize can be won; each tool is a separate shot. No forced integrations.
 - Hard requirement: the **PayPal developer platform (free sandbox)** plus an AI tool, with PayPal **central**.
   Stage One is pass/fail on that.
 - Criteria (equal weight): Technological Implementation, Design, Potential Impact, Innovation/Idea, Presentation.
@@ -30,7 +31,7 @@ Padmanabhan ([@padmanabhan-r](https://github.com/padmanabhan-r)), solo, IST. **R
 | `docs/decisions.md` | One line per decision (date, decision, why). Add to it |
 | `docs/hackathon.md` | Rules, dates, submission items, prizes, sponsor tools, PayPal terms, contacts, discrepancies, open questions |
 | `docs/paypal-api-reference.md` | Endpoints, auth, authorizations (§8), limits, what does not exist, terms. Read before writing PayPal code |
-| `docs/stack-reference.md` | ElevenLabs Agents, Twilio, Bryntum, Render, parser model: setup, limits, costs, gotchas |
+| `docs/stack-reference.md` | ElevenLabs Agents, Twilio, AG Grid, Render, parser model: setup, limits, costs, gotchas |
 | `docs/playbook.md` | Comparable winners, crowded themes, judges, criteria as checks, build defaults, judging budget |
 | `docs/judges-talk.md` | What a judge (Eddie Jaoude) and other DevRel said about winning |
 | `docs/ideas.md` | Ringside scored against the criteria and its nearest competitors |

@@ -43,7 +43,8 @@ not an invoicing agent; an invoice exists only for a leftover balance the hold c
   total, the change and the new total, with approve or decline.
 - **Owner on site (`/onsite`):** push-to-talk for the change order and "job done"; the parsed line items are shown for
   the owner to confirm before anything reaches the customer.
-- **Schedule (`/board`):** the day's jobs on a Bryntum Scheduler, plus each job's timeline of events.
+- **Owner dashboard:** today's jobs as cards on a phone; on a desk, the books in AG Grid (every job, payment and
+  call), plus each job's timeline of events.
 - **Every page** shows the sandbox buyer login to use for approvals and a Reset demo button. Each visitor's demo
   session is isolated.
 - The job close-out (capture, balance invoice, close) runs on Render Workflows.
@@ -70,7 +71,8 @@ not an invoicing agent; an invoice exists only for a leftover balance the hold c
 - Voice minutes and model calls are capped per session and per day; a friendly message shows when a cap is hit.
 - The demo must stay usable until Dec 15, 2026.
 - Stack: Next.js 16 (App Router), React 19, TypeScript, Postgres, Render. Voice: ElevenLabs Agents
-  (`@elevenlabs/react`) and a Twilio number. Schedule: Bryntum Scheduler Community.
+  (`@elevenlabs/react`) and a Twilio number. Owner books: AG Grid. PayPal Orders and Payments through the official server
+  SDK (`@paypal/paypal-server-sdk`).
 
 ## Brand Commitments
 
