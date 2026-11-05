@@ -5,6 +5,7 @@ import { BUSINESS_LINE } from "@/lib/business";
 import { callsToday, loadToday, type DashCall, type DashJob } from "@/lib/dashboard";
 import { formatUsd } from "@/lib/money";
 import { currentSession } from "@/lib/session";
+import { localDate } from "@/lib/slots";
 import { FindBooking } from "./find-booking";
 import { centsShort, durationLabel, hourLabel, weekday, windowLabel } from "./format";
 import s from "./today.module.css";
@@ -40,11 +41,11 @@ function canWork(job: DashJob): boolean {
   return !job.sample && (job.state === "booked" || job.state === "in_progress" || job.state === "change_pending");
 }
 
-function NowCard({ job, now }: { job: DashJob; now: Date }) {
+function NowCard({ job, label, now }: { job: DashJob; label: string; now: Date }) {
   return (
     <article className={s.now} aria-labelledby="now-title">
       <div className={s.nowHead}>
-        <span className={s.nowLabel}>Now</span>
+        <span className={s.nowLabel}>{label}</span>
         {job.sample ? <span className={s.sampleTag}>Sample</span> : null}
       </div>
       <div className={s.nowBody}>
@@ -151,7 +152,14 @@ function JobRow({ job, label, now }: { job: DashJob; label: string; now: Date })
   );
 }
 
-function CallItem({ call }: { call: DashCall }) {
+/** "7:39 am" today; "Yesterday 10:05 am" or "Monday 4 pm" for an older call, so nothing past reads as later today. */
+function callTime(at: Date, now: Date): string {
+  const day = localDate(at);
+  if (day === localDate(now)) return hourLabel(at);
+  return `${day === localDate(new Date(now.getTime() - 86_400_000)) ? "Yesterday" : weekday(at)} ${hourLabel(at)}`;
+}
+
+function CallItem({ call, now }: { call: DashCall; now: Date }) {
   const Icon = call.channel === "web" ? Globe : Phone;
   return (
     <li className={s.call}>
@@ -160,7 +168,7 @@ function CallItem({ call }: { call: DashCall }) {
       </span>
       <div className={s.callBody}>
         <p className={s.callTime}>
-          {hourLabel(call.at)}
+          {callTime(call.at, now)}
           <span>
             {call.channel === "web" ? "Browser" : "Phone"}
             {call.durationSecs !== null ? ` · ${durationLabel(call.durationSecs)}` : ""}
@@ -195,10 +203,10 @@ export default async function TodayPage() {
       <div className={s.grid}>
         <section className={s.bookings} aria-label="Today’s bookings">
           <h2 className={s.sectionTitle}>Today’s bookings</h2>
-          <NowCard job={today.now} now={now} />
+          <NowCard job={today.now} label={today.nowLabel} now={now} />
           <ol className={s.rows}>
-            {today.others.map((job, i) => (
-              <JobRow key={job.key} job={job} label={i === 0 ? "Next" : "Later today"} now={now} />
+            {today.others.map((job) => (
+              <JobRow key={job.key} job={job} label={job.label} now={now} />
             ))}
           </ol>
           {!today.hasLive ? <FindBooking /> : null}
@@ -247,7 +255,7 @@ export default async function TodayPage() {
             </h2>
             <ul className={s.callList}>
               {today.calls.slice(0, 3).map((call) => (
-                <CallItem key={call.key} call={call} />
+                <CallItem key={call.key} call={call} now={now} />
               ))}
             </ul>
             <Link className={s.allCalls} href="/dashboard/calls">

@@ -5,7 +5,7 @@ import { db } from "./db";
 import type { JobState } from "./job-state";
 import { addEvent, findJobByCode, lineItems, payments, type Job, type LineItem, type Payment } from "./jobs";
 import { formatUsd } from "./money";
-import { SAMPLE_CALLS, SAMPLE_EARLIER, SAMPLE_NOW, SAMPLE_TODAY, sampleCallTime, sampleWindow, type SampleJob } from "./samples";
+import { SAMPLE_CALLS, SAMPLE_EARLIER, SAMPLE_NOW, SAMPLE_TODAY, sampleCallSummary, sampleCallTime, sampleWindow, type SampleJob } from "./samples";
 import { localDate } from "./slots";
 
 export type Tone = "ok" | "wait" | "none" | "info";
@@ -178,7 +178,10 @@ function rank(job: DashJob): number {
 
 export interface Today {
   now: DashJob;
-  others: DashJob[];
+  /** "Now" for the job Mike is on, "Next up" when the Now card's visit is still to come. */
+  nowLabel: "Now" | "Next up";
+  /** The rest of the day in time order, each with where it sits against the clock. */
+  others: (DashJob & { label: string })[];
   earlier: DashJob[];
   money: { heldCents: number; waitingCents: number; paidWeekCents: number };
   calls: DashCall[];
@@ -191,10 +194,17 @@ export async function loadToday(session: string | undefined, now = new Date()): 
   const open = described.filter((j) => j.state !== "cancelled");
   open.sort((a, b) => rank(a) - rank(b) || (a.start?.getTime() ?? Infinity) - (b.start?.getTime() ?? Infinity));
 
-  const samples = SAMPLE_TODAY.map((s) => describeSample(s, now));
+  // The sample day follows Mike's clock (samples.ts). A sample that fell on yesterday (the paid job, before 8 am)
+  // belongs with the earlier jobs, not today's bookings.
+  const today = localDate(now);
+  const planned = SAMPLE_TODAY.map((s) => describeSample(s, now));
+  const beforeToday = (j: DashJob) => j.start !== null && localDate(j.start) < today;
   const nowJob = open[0] ?? describeSample(SAMPLE_NOW, now);
-  const others = [...open.slice(1), ...samples].sort((a, b) => (a.start?.getTime() ?? Infinity) - (b.start?.getTime() ?? Infinity));
-  const earlier = SAMPLE_EARLIER.map((s) => describeSample(s, now));
+  const sorted = [...open.slice(1), ...planned.filter((j) => !beforeToday(j))].sort((a, b) => (a.start?.getTime() ?? Infinity) - (b.start?.getTime() ?? Infinity));
+  const earlier = [...SAMPLE_EARLIER.map((s) => describeSample(s, now)), ...planned.filter(beforeToday)];
+  const onJob = nowJob.state === "in_progress" || nowJob.state === "change_pending";
+  const nowLabel = !onJob && nowJob.start && nowJob.start > now ? "Next up" : "Now";
+  const others = withLabels(sorted, now, nowLabel === "Now");
 
   const onScreen = [nowJob, ...others];
   const money = {
@@ -202,7 +212,27 @@ export async function loadToday(session: string | undefined, now = new Date()): 
     waitingCents: onScreen.reduce((sum, j) => sum + j.waitingCents, 0),
     paidWeekCents: [...onScreen, ...earlier].reduce((sum, j) => sum + j.paidCents, 0),
   };
-  return { now: nowJob, others, earlier, money, calls: await loadCalls(session, now), hasLive: open.length > 0 };
+  return { now: nowJob, nowLabel, others, earlier, money, calls: await loadCalls(session, now), hasLive: open.length > 0 };
+}
+
+/** Each of today's rows placed against the clock: earlier today, now, next, later today, tomorrow. */
+function withLabels(rows: DashJob[], now: Date, nowCardIsCurrent: boolean): (DashJob & { label: string })[] {
+  const today = localDate(now);
+  const tomorrow = localDate(new Date(now.getTime() + 86_400_000));
+  let nextGiven = !nowCardIsCurrent;
+  return rows.map((job) => {
+    let label = "Not booked yet";
+    if (job.start && job.end) {
+      const day = localDate(job.start);
+      if (job.end <= now) label = day === today ? "Earlier today" : "Earlier";
+      else if (job.start <= now) label = "Now";
+      else if (day === today) {
+        label = nextGiven ? "Later today" : "Next";
+        nextGiven = true;
+      } else label = day === tomorrow ? "Tomorrow" : "Coming up";
+    }
+    return { ...job, label };
+  });
 }
 
 export async function loadCalls(session: string | undefined, now = new Date()): Promise<DashCall[]> {
@@ -230,7 +260,7 @@ export async function loadCalls(session: string | undefined, now = new Date()): 
     at: sampleCallTime(c, now),
     channel: c.channel,
     durationSecs: c.durationSecs,
-    summary: c.summary,
+    summary: sampleCallSummary(c, now),
     outcome: c.outcome,
     costCents: c.costCents,
     sample: true,

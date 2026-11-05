@@ -242,7 +242,8 @@ export async function loadBooks(session: string | undefined, now = new Date()): 
       rank,
     });
     steps.push(...liveSteps(job, view, pays, changes, events.filter((e) => e.job_id === job.id), rank));
-    const day = localDate(job.slot_start ?? job.created_at);
+    // Money lands on the day it moved, never later than today: a hold approved now for tomorrow's visit is held today.
+    const day = [localDate(job.slot_start ?? job.created_at), today].sort()[0]!;
     if (view.paidCents > 0) money.push({ key: `${job.id}-charged`, day, kind: "Charged", amount: dollars(view.paidCents) });
     if (view.heldCents > 0) money.push({ key: `${job.id}-held`, day, kind: "Held", amount: dollars(view.heldCents) });
   });
@@ -280,7 +281,7 @@ export async function loadBooks(session: string | undefined, now = new Date()): 
       rank,
     });
     steps.push(...sampleSteps(sample, key, rank));
-    const day = localDate(start);
+    const day = [localDate(start), today].sort()[0]!;
     if (sample.kind === "paid") money.push({ key: `${key}-charged`, day, kind: "Charged", amount });
     if (sample.kind === "held") money.push({ key: `${key}-held`, day, kind: "Held", amount });
   });
