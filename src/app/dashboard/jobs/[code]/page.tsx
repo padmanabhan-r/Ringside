@@ -1,4 +1,4 @@
-import { ArrowLeft, Ban, CircleCheck, Clock, ExternalLink, MapPin, Mic, User } from "lucide-react";
+import { ArrowLeft, Ban, CircleCheck, Clock, ExternalLink, MapPin, Mic, SearchX, User } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import QRCode from "qrcode";
@@ -15,11 +15,23 @@ import { AddCharges, type PriceItem } from "./add-charges";
 import { CancelJob } from "./cancel-job";
 import { JobDone } from "./job-done";
 import s from "./job.module.css";
+import m from "./missing.module.css";
 
 export const dynamic = "force-dynamic";
 
+/** A code from the URL as it may be shown: letters, digits and dashes, at most 12. */
+function shownCode(code: string): string {
+  let text = code;
+  try {
+    text = decodeURIComponent(code);
+  } catch {
+    // A malformed escape: show what is left of it.
+  }
+  return text.toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 12);
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }) {
-  return { title: (await params).code.toUpperCase() };
+  return { title: shownCode((await params).code) || "Job" };
 }
 
 const PRICE_ITEMS: PriceItem[] = CHANGE_ORDER_CODES.map((code) => {
@@ -100,14 +112,23 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
   const { code } = await params;
   const detail = await loadJobDetail(await currentSession(), code);
   if (!detail) {
+    const shown = shownCode(code);
     return (
-      <div className={s.page}>
-        <Link className={s.back} href="/dashboard">
+      <div className={m.wrap}>
+        <Link className={m.back} href="/dashboard">
           <ArrowLeft aria-hidden="true" /> Today
         </Link>
-        <h1 className={s.missingTitle}>Job {code.toUpperCase()} isn’t in your demo</h1>
-        <p className={s.missingText}>Open it from your own call, or find a phone booking by the job code the assistant read out.</p>
+        <div className={m.intro}>
+          <span className={m.icon} aria-hidden="true">
+            <SearchX />
+          </span>
+          <h1 className={m.title}>{shown ? `Job ${shown} isn’t in your demo` : "That job isn’t in your demo"}</h1>
+          <p className={m.text}>Each visitor sees only the jobs from their own calls. Called Mike’s line on the phone? Enter the job code the assistant read out.</p>
+        </div>
         <FindBooking />
+        <p className={m.alt}>
+          No job yet? <Link href="/call">Call Mike’s Plumbing</Link> and book one.
+        </p>
       </div>
     );
   }

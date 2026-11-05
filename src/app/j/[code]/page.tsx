@@ -256,16 +256,34 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
   const { code } = await params;
   const job = await findJobByCode(code);
   if (!job) {
+    let shown = code;
+    try {
+      shown = decodeURIComponent(code);
+    } catch {
+      // A malformed escape: show what is left of it.
+    }
+    shown = shown.toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 12);
+    const looksRight = /^MP-\d{4}$/.test(shown);
     return (
       <Shell>
-        <h1 className={s.title}>We couldn’t find that job</h1>
+        <h1 className={s.title}>No booking found</h1>
         <section className={`${s.card} ${s.notFound}`}>
           <SearchX className={s.notFoundIcon} aria-hidden="true" />
           <p>
-            No job matches <b>{code.toUpperCase().slice(0, 16)}</b>. Check the code the assistant read out on the call: two letters and four digits, like
-            MP-4127.
+            {looksRight ? (
+              <>
+                There’s no booking with the code <b>{shown}</b>. Check the code the assistant read out at the end of your call.
+              </>
+            ) : (
+              <>
+                {shown ? <b>{shown}</b> : "That"} isn’t a booking code. Codes look like MP-4127; the assistant reads yours out at the end of the call.
+              </>
+            )}
           </p>
         </section>
+        <a className={s.btnPrimary} href="/call">
+          Call Mike’s Plumbing to book
+        </a>
       </Shell>
     );
   }
