@@ -1,4 +1,5 @@
 import { Check, Clock, MinusCircle, type LucideIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useId, type ReactNode } from "react";
 import s from "./brand.module.css";
@@ -43,13 +44,9 @@ export function MikesWordmark({ size = 44, href }: { size?: number; href?: strin
   );
 }
 
-/** Mike is fictional, so his avatar is his initial, never a photo. */
-export function Avatar({ initial = "M", label = "Mike" }: { initial?: string; label?: string }) {
-  return (
-    <span className={s.avatar} role="img" aria-label={label}>
-      {initial}
-    </span>
-  );
+/** Mike is fictional: his avatar is an AI-generated face of a fictional plumber (owner, 2026-11-05). */
+export function Avatar({ label = "Mike (fictional)" }: { label?: string }) {
+  return <Image className={s.avatar} src="/people/mike.jpg" alt={label} width={40} height={40} />;
 }
 
 export type Tone = "ok" | "wait" | "none" | "info";

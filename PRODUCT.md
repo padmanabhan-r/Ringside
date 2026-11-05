@@ -100,7 +100,7 @@ not an invoicing agent; an invoice exists only for a leftover balance the hold c
   offline screen, and push
   notifications for new bookings and approved holds. On a desk, the same plus Mike's Books (AG Studio). Customer pages
   (call, approval) stay plain web pages. Judges use the dashboard, so it showcases Mike's Plumbing.
-- **No photo of Mike**: the business and owner are fictional; his avatar is a blue initial M.
+- **Mike's avatar is an AI-generated face of a fictional plumber** (owner, 2026-11-05), labelled "Mike (fictional)".
 - **Customer-facing screens** (`/call`, `/j/<code>`) and **Mike's dashboard** wear the business's brand, **Mike's
   Plumbing**, with a small "Powered by Ringside" credit. The landing page carries Ringside and the prototype notice, with two doors: call Mike's
   Plumbing as a customer, or open Mike's dashboard.
