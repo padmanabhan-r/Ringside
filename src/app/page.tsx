@@ -41,6 +41,33 @@ const STEPS: Step[] = [
   { id: "captured", label: "Captured", lines: ["—"], state: "idle", icon: Check },
 ];
 
+const RUN = [
+  {
+    time: "1:42 pm",
+    title: "The call",
+    text: "The agent answers as the business, says it is an AI, and gathers the problem, the address and how urgent it is. It quotes from the rate card and offers a slot.",
+    yes: "Customer says yes to the quote",
+  },
+  {
+    time: "1:45 pm",
+    title: "The hold",
+    text: "The customer approves a $174.00 PayPal hold from the link on their screen. The job lands on the board. Nothing is charged yet.",
+    yes: "Customer approves with PayPal",
+  },
+  {
+    time: "2:51 pm",
+    title: "The change",
+    text: "On site, Mike says: add a shut-off valve and 45 minutes. A model turns it into rate-card lines, Mike confirms, and the customer approves $119.25.",
+    yes: "Owner confirms, customer approves",
+  },
+  {
+    time: "3:58 pm",
+    title: "The capture",
+    text: "Mike says job done and confirms the total. The close-out runs on Render Workflows and captures the hold through PayPal.",
+    yes: "Owner says job done",
+  },
+];
+
 export default function Home() {
   return (
     <div className={s.page}>
@@ -98,7 +125,7 @@ export default function Home() {
               </div>
               <p className={`${s.tileAmount} ${s.green}`}>$174.00</p>
               <p className={s.tileText}>
-                (call-out $79 +
+                (call-out $79 +{" "}
                 <br />1 hour labour $95)
               </p>
               <p className={`${s.tileStatus} ${s.green}`}>Held with PayPal</p>
@@ -112,9 +139,9 @@ export default function Home() {
               </div>
               <p className={`${s.tileAmount} ${s.amber}`}>$119.25</p>
               <p className={s.tileText}>
-                (shut-off valve $48 +
+                (shut-off valve $48 +{" "}
                 <br />
-                45 minutes $71.25,
+                45 minutes $71.25,{" "}
                 <br />a second PayPal payment)
               </p>
               <p className={`${s.tileStatus} ${s.amber}`}>Waiting for customer</p>
@@ -127,7 +154,7 @@ export default function Home() {
                 <span className={s.tileLabelLarge}>Capture</span>
               </div>
               <p className={s.tileText}>
-                when the owner
+                when the owner{" "}
                 <br />
                 says job done.
               </p>
@@ -237,6 +264,126 @@ export default function Home() {
           </dl>
         </section>
       </main>
+
+      <section className={s.how} id="how" aria-labelledby="how-title">
+        <h2 id="how-title" className={s.sectionTitle}>
+          How a job runs
+        </h2>
+        <p className={s.sectionLead}>One job, four moments, and a person says yes before any money moves.</p>
+        <ol className={s.ruler}>
+          {RUN.map((stop) => (
+            <li key={stop.title} className={s.stop}>
+              <time className={s.stopTime}>{stop.time}</time>
+              <h3 className={s.stopTitle}>{stop.title}</h3>
+              <p className={s.stopText}>{stop.text}</p>
+              <p className={s.stopYes}>{stop.yes}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className={s.money} aria-labelledby="money-title">
+        <div className={s.moneyCopy}>
+          <h2 id="money-title" className={s.sectionTitle}>
+            The money, line by line
+          </h2>
+          <p className={s.sectionLead}>
+            Every price comes from the owner’s rate card. The agent quotes, reads the amount back and waits for a yes; it can
+            never capture or refund.
+          </p>
+          <ul className={s.rules}>
+            <li>The hold is a PayPal authorization: the customer’s money is reserved, not taken.</li>
+            <li>
+              PayPal lets a hold grow by 15% at most, so a bigger change becomes its own payment that the customer approves.
+            </li>
+            <li>
+              The final capture runs only after the owner says “job done”. Every PayPal call carries a request ID, so a retry
+              returns the same capture instead of charging twice.
+            </li>
+          </ul>
+        </div>
+        <table className={s.ledger}>
+          <caption>Mike’s Plumbing, kitchen tap, 42 Elm St (demo)</caption>
+          <thead>
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col">Qty</th>
+              <th scope="col">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className={s.ledgerGroup}>
+              <th scope="rowgroup" colSpan={3}>
+                Hold, approved by the customer on the call
+              </th>
+            </tr>
+            <tr>
+              <td>Call-out</td>
+              <td>1</td>
+              <td>$79.00</td>
+            </tr>
+            <tr>
+              <td>Labour, 15 minutes</td>
+              <td>4</td>
+              <td>$95.00</td>
+            </tr>
+            <tr className={s.ledgerTotal}>
+              <td colSpan={2}>Held with PayPal</td>
+              <td className={s.green}>$174.00</td>
+            </tr>
+            <tr className={s.ledgerGroup}>
+              <th scope="rowgroup" colSpan={3}>
+                Change order, approved by the customer on site
+              </th>
+            </tr>
+            <tr>
+              <td>Shut-off valve</td>
+              <td>1</td>
+              <td>$48.00</td>
+            </tr>
+            <tr>
+              <td>Labour, 15 minutes</td>
+              <td>3</td>
+              <td>$71.25</td>
+            </tr>
+            <tr className={s.ledgerTotal}>
+              <td colSpan={2}>Second PayPal payment</td>
+              <td className={s.amber}>$119.25</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={2}>Job total when Mike says job done</td>
+              <td>$293.25</td>
+            </tr>
+          </tfoot>
+        </table>
+      </section>
+
+      <section className={s.close} aria-labelledby="close-title">
+        <h2 id="close-title" className={s.closeTitle}>
+          Call Mike’s Plumbing and watch the money move.
+        </h2>
+        <div className={s.closeActions}>
+          <Link className={s.callButton} href="/call">
+            <Phone aria-hidden="true" className={s.callIcon} strokeWidth={2.25} />
+            Call Mike’s Plumbing
+          </Link>
+          <a className={s.closePhone} href="tel:+19895349779">
+            or dial {BUSINESS_LINE}
+          </a>
+        </div>
+        <p className={s.closeNote}>
+          To approve payments, sign in to the PayPal sandbox as the demo buyer:{" "}
+          <span className={s.mono}>sb-glfwp53707955@personal.example.com</span>.
+        </p>
+      </section>
+
+      <footer className={s.footer}>
+        <p>Ringside. PayPal sandbox only; no real money moves. Mike’s Plumbing is a fictional business.</p>
+        <p>Built with PayPal, ElevenLabs, Twilio and Render.</p>
+        <a href="https://github.com/padmanabhan-r/Ringside">Source on GitHub</a>
+      </footer>
     </div>
   );
 }
