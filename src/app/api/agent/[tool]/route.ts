@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { ToolError, isToolName, tools, type ToolContext } from "@/lib/agent-tools";
+import { callContext } from "@/lib/jobs";
 import { PayPalError } from "@/lib/paypal";
 
 export const dynamic = "force-dynamic";
@@ -22,11 +23,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ too
 
   const args = (await req.json().catch(() => ({}))) as Record<string, unknown>;
   const conversationId = typeof args.conversation_id === "string" ? args.conversation_id : undefined;
-  const session = typeof args.demo_session_id === "string" && args.demo_session_id ? args.demo_session_id : undefined;
+  // A browser call registers its conversation (session and channel) when it starts; anything else is a phone call.
+  const known = conversationId ? await callContext(conversationId) : undefined;
   const ctx: ToolContext = {
-    demoSessionId: session ?? (conversationId ? `conv-${conversationId}` : "public"),
+    demoSessionId: known?.demoSessionId ?? (conversationId ? `call-${conversationId}` : "public"),
     conversationId,
-    channel: args.channel === "web" ? "web" : "phone",
+    channel: known?.channel ?? "phone",
     baseUrl: process.env.APP_BASE_URL ?? new URL(req.url).origin,
     now: new Date(),
   };

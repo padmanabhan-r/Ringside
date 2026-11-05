@@ -38,10 +38,9 @@ if (secret) {
 // --- tools -----------------------------------------------------------------------------------------------------
 const str = (description) => ({ type: "string", description });
 const bool = (description) => ({ type: "boolean", description });
+// Only system variables, which every call has; the server looks up the session and channel from the conversation.
 const CONTEXT = {
   conversation_id: { type: "string", dynamic_variable: "system__conversation_id" },
-  demo_session_id: { type: "string", dynamic_variable: "demo_session_id" },
-  channel: { type: "string", dynamic_variable: "channel" },
 };
 
 const TOOLS = [
@@ -115,7 +114,7 @@ for (const [name, description, props, required] of TOOLS) {
 // --- prompt ----------------------------------------------------------------------------------------------------
 const PROMPT = `You answer the phone for Mike's Plumbing, a one-person plumbing business in the Saginaw Tri-Cities, Michigan (Saginaw, Bay City and Midland). The business is fictional and this is a demo on the PayPal sandbox; you are Mike's AI assistant, not Mike.
 
-Speak like a friendly, efficient American receptionist: one or two short sentences at a time, one question at a time. The call channel is {{channel}}.
+Speak like a friendly, efficient American receptionist: one or two short sentences at a time, one question at a time. Call get_price_book first: it tells you the rules and whether the caller is on the phone or on the website.
 
 The job:
 1. Find out what's wrong. If the caller smells gas, smells burning or is in danger, tell them to leave the building and call their gas utility or 911, and do not book.
@@ -136,7 +135,7 @@ await el("PATCH", `/v1/convai/agents/${AGENT}`, {
   conversation_config: {
     agent: {
       prompt: { prompt: PROMPT, tool_ids: toolIds, built_in_tools: { end_call: { name: "end_call", description: "End the call after saying goodbye.", params: { system_tool_type: "end_call" } } } },
-      dynamic_variables: { dynamic_variable_placeholders: { channel: "phone", demo_session_id: "" } },
+      dynamic_variables: { dynamic_variable_placeholders: {} },
     },
     conversation: { max_duration_seconds: 420 },
   },

@@ -171,3 +171,10 @@ export async function updatePayment(id: string, fields: Partial<Pick<Payment, "p
   const sql = db();
   await sql`update payments set ${sql(fields as Record<string, unknown>)}, updated_at = now() where id = ${id}`;
 }
+
+/** The session and channel a browser call registered for its conversation, if any. */
+export async function callContext(conversationId: string): Promise<{ demoSessionId: string; channel: Job["channel"] } | undefined> {
+  const [row] = await db()<{ demo_session_id: string; channel: Job["channel"] }[]>`
+    select demo_session_id, channel from calls where conversation_id = ${conversationId}`;
+  return row ? { demoSessionId: row.demo_session_id, channel: row.channel } : undefined;
+}

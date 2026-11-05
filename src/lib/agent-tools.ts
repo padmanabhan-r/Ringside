@@ -59,8 +59,10 @@ async function requireJob(ctx: ToolContext, args: Args): Promise<Job> {
 
 export const tools = {
   /** The pricing rules and the price book's sections. */
-  async get_price_book() {
+  async get_price_book(_args: Args, ctx: ToolContext) {
     return {
+      channel: ctx.channel,
+      link_delivery: ctx.channel === "web" ? "The caller is on the website: the PayPal link appears on their screen, so don't ask for an email." : "The caller is on the phone: email the link after spelling the address back.",
       currency: "USD",
       service_area: SERVICE_AREA_NAME,
       sections: SECTION_TITLES,
