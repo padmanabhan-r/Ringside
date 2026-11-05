@@ -202,6 +202,7 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Ask the books | "Who still owes me?" → "Luis in Bay City hasn't approved the $225.00 hold for the running toilet. Everything else is paid or secured" (4 real calls to Claude Haiku 5.5) | Mike's Books on the dev server |
 | Turn speech into change-order lines | "a shut-off valve and 45 more minutes" → valve + 3 × 15 min = $119.25; a water softener (not on the card) reported, not priced; 3.2–4.7 s, under a cent a call | `scripts/sandbox/change-order-parser.rec.ts` |
 | Send the receipt invoice | created, sent and marked paid in 5.9 s; a replay made one GET and sent nothing twice | `scripts/sandbox/receipt-flow.ts` |
+| A whole job on the live site | A browser call booked a $99.00 service visit and the customer approved the hold in PayPal; $22.00 of extra work was approved and captured 1 s after approval, the $99.00 hold was captured at job done, and the receipt invoice was marked paid 13 s later. PayPal sent `CHECKOUT.ORDER.APPROVED` twice, `PAYMENT.CAPTURE.COMPLETED` twice and `INVOICING.INVOICE.PAID` | the 3 min 56 s call's ElevenLabs log and PayPal's sandbox webhook event log |
 | A real phone call to the agent | answered with the AI disclosure; replies 0.5–0.65 s after the caller stops (1.3 s at most) over 99 s, on the first test agent's model | a live call to the Twilio number |
 
 ## The tech, part by part
@@ -282,7 +283,7 @@ each one comes from.
 Working end to end in the sandbox: the phone and browser calls, the quote from the price book, the PayPal hold and its
 approval (PayPal or guest card), the spoken change order as a second payment, job done with the final capture, the
 receipt invoice and the close-out, Mike's installable app, and Mike's Books with its agent. Each step is checked
-against the real APIs, and all of it is deployed on the live site.
+against the real APIs, and a whole job has run end to end on the live site.
 
 - PayPal runs in the sandbox only, in USD.
 - A hold can grow by at most 15% at capture, so extra work is always a separate payment.

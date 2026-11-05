@@ -20,7 +20,7 @@ import { approvalUrl, createOrder, type OrderItem } from "./paypal";
 import { PriceBookError, SECTION_TITLES, SERVICE_VISIT, quote, rangeText, searchServices } from "./price-book";
 import { notifyJobEvent } from "./push";
 import { SERVICE_AREA_NAME, checkServiceArea } from "./service-area";
-import { findSlots, formatWindow, slotFromId, TIME_ZONE, type DayPart } from "./slots";
+import { findSlots, formatWindow, resolveDay, slotFromId, TIME_ZONE, type DayPart } from "./slots";
 import { isValidEmail, maskEmail, normaliseEmail, sendHoldEmail, spellEmail } from "./email";
 import { addEvent } from "./jobs";
 
@@ -104,6 +104,16 @@ export const tools = {
     const part: DayPart = partSaid.startsWith("morn") ? "morning" : partSaid.startsWith("after") || partSaid.startsWith("even") ? "afternoon" : "any";
     // The agent offers three; the booking form asks for a whole day (up to five windows) to show and to validate.
     const limit = typeof args.limit === "number" && args.limit >= 1 && args.limit <= 5 ? Math.floor(args.limit) : 3;
+    // A day we can't place (or one past the two-week horizon) must never read as "full": say so and offer the earliest.
+    if (day && !resolveDay(day, ctx.now)) {
+      const { slots } = findSlots(ctx.now, busy, { part }, limit);
+      return {
+        time_zone: TIME_ZONE,
+        day_not_understood: day,
+        note: `"${day}" isn't a day within the next two weeks, the furthest Mike books. Don't say it's full. Ask which day they mean (a weekday, or a date like November 12), or offer these earliest windows.`,
+        slots: slots.map((s) => ({ slot_id: s.id, label: s.label })),
+      };
+    }
     const { slots, onDay } = findSlots(ctx.now, busy, { day, part }, limit);
     const asked = day ? `${day}${part === "any" ? "" : ` ${part}`}` : "";
     return {

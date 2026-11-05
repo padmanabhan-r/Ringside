@@ -86,6 +86,50 @@ export type DayPart = "morning" | "afternoon" | "any";
 const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
 /** "today", "tomorrow", a weekday ("friday", "next friday") or a YYYY-MM-DD date → a local date within two weeks. */
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+
+/**
+ * A spoken calendar date: "November 8", "8th November", "Sunday, Nov 8th", "the 8th", "11/8". Returns the date if it
+ * falls within Mike's two-week booking horizon, undefined if it's a date outside it, and null if `said` isn't a date.
+ */
+function calendarDate(said: string, today: string): string | undefined | null {
+  const [ty, tm] = today.split("-").map(Number) as [number, number];
+  const monthAt = (word: string) => MONTHS.indexOf(word.slice(0, 3));
+  let month = -1;
+  let day = 0;
+  let year: number | undefined;
+  const named =
+    /\b([a-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s+(\d{4}))?\b/.exec(said) ?? null;
+  const dayFirst = /\b(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?([a-z]{3,9})\.?(?:,?\s+(\d{4}))?\b/.exec(said) ?? null;
+  const numeric = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/.exec(said);
+  const bare = /^(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)$/.exec(said);
+  if (named && monthAt(named[1]!) >= 0) {
+    month = monthAt(named[1]!);
+    day = Number(named[2]);
+    year = named[3] ? Number(named[3]) : undefined;
+  } else if (dayFirst && monthAt(dayFirst[2]!) >= 0) {
+    month = monthAt(dayFirst[2]!);
+    day = Number(dayFirst[1]);
+    year = dayFirst[3] ? Number(dayFirst[3]) : undefined;
+  } else if (numeric) {
+    month = Number(numeric[1]) - 1;
+    day = Number(numeric[2]);
+    year = numeric[3] ? Number(numeric[3].length === 2 ? `20${numeric[3]}` : numeric[3]) : undefined;
+  } else if (bare) {
+    month = tm - 1;
+    day = Number(bare[1]);
+  } else return null;
+  if (month < 0 || month > 11 || day < 1 || day > 31) return undefined;
+  const iso = (y: number, m: number) => `${y}-${String(m + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  const daysFrom = (date: string) => (new Date(`${date}T12:00:00Z`).getTime() - new Date(`${today}T12:00:00Z`).getTime()) / 86_400_000;
+  let date = iso(year ?? ty, month);
+  // No year said and the date has passed: the next one ("the 2nd" late in the month means next month's).
+  if (year === undefined && daysFrom(date) < 0) date = bare ? iso(month === 11 ? ty + 1 : ty, (month + 1) % 12) : iso(ty + 1, month);
+  if (new Date(`${date}T12:00:00Z`).getUTCDate() !== day) return undefined;
+  const diff = daysFrom(date);
+  return diff >= 0 && diff <= 14 ? date : undefined;
+}
+
 export function resolveDay(day: string | undefined, now: Date, timeZone = TIME_ZONE): string | undefined {
   if (!day) return undefined;
   const today = localDate(now, timeZone);
@@ -98,6 +142,8 @@ export function resolveDay(day: string | undefined, now: Date, timeZone = TIME_Z
     const diff = (new Date(`${said}T12:00:00Z`).getTime() - new Date(`${today}T12:00:00Z`).getTime()) / 86_400_000;
     return diff >= 0 && diff <= 14 ? said : undefined;
   }
+  const dated = calendarDate(said, today);
+  if (dated !== null) return dated;
   const want = WEEKDAYS.findIndex((w) => said.startsWith(w.slice(0, 3)));
   if (want < 0) return undefined;
   const todayDow = new Date(`${today}T12:00:00Z`).getUTCDay();

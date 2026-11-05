@@ -49,6 +49,24 @@ describe("findSlots: the customer's day and time of day", () => {
     expect(resolveDay("someday", thu9am)).toBeUndefined();
   });
 
+  it("reads spoken calendar dates, as callers say them (2026-11-05 call: \"November 8th at 10 am\")", () => {
+    expect(resolveDay("November 8", thu9am)).toBe("2026-11-08");
+    expect(resolveDay("november 8th", thu9am)).toBe("2026-11-08");
+    expect(resolveDay("Nov. 8", thu9am)).toBe("2026-11-08");
+    expect(resolveDay("8th November", thu9am)).toBe("2026-11-08");
+    expect(resolveDay("the 8th of November", thu9am)).toBe("2026-11-08");
+    expect(resolveDay("Sunday, November 8", thu9am)).toBe("2026-11-08");
+    expect(resolveDay("11/8", thu9am)).toBe("2026-11-08");
+    expect(resolveDay("the 12th", thu9am)).toBe("2026-11-12");
+    expect(resolveDay("November 19", thu9am)).toBe("2026-11-19");
+    // Past Mike's two-week horizon, already past, or not a real date: not placed (the tool then asks again).
+    expect(resolveDay("November 20", thu9am)).toBeUndefined();
+    expect(resolveDay("December 25", thu9am)).toBeUndefined();
+    expect(resolveDay("November 2", thu9am)).toBeUndefined();
+    expect(resolveDay("February 30", thu9am)).toBeUndefined();
+    expect(resolveDay("the 2nd", new Date("2026-11-28T14:00:00Z"))).toBe("2026-12-02");
+  });
+
   it("offers the asked-for day and part first, labelled the way the agent says it", () => {
     const { slots, onDay } = findSlots(thu9am, [], { day: "saturday", part: "morning" });
     expect(onDay).toBe(true);
