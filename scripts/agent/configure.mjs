@@ -16,7 +16,7 @@ const SECRET_NAME = "ringside_tool_secret";
 // cheaper but OpenAI shuts the gpt-5 family down on Dec 11 and the demo runs to Dec 15. Low reasoning keeps replies
 // quick. Override with ELEVENLABS_AGENT_LLM.
 const LLM = process.env.ELEVENLABS_AGENT_LLM || "gpt-6-luna";
-const REASONING = process.env.ELEVENLABS_AGENT_REASONING || "low";
+const REASONING = process.env.ELEVENLABS_AGENT_REASONING || "medium";
 const MAX_CALL_SECONDS = 360;
 
 async function el(method, path, body) {
