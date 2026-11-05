@@ -10,7 +10,7 @@
 
 [![Event](https://img.shields.io/badge/event-PayPal_AI_Hackathon-003087?style=flat-square&labelColor=0f1b2d)](https://paypalaihackathon.devpost.com)
 [![Deadline](https://img.shields.io/badge/deadline-Nov_12_2026_12%3A00_PST-1557c0?style=flat-square&labelColor=0f1b2d)](https://paypalaihackathon.devpost.com/details/dates)
-[![Status](https://img.shields.io/badge/status-building-e8930c?style=flat-square&labelColor=0f1b2d)](#status-and-limits)
+[![Status](https://img.shields.io/badge/status-live_demo-1f8a3b?style=flat-square&labelColor=0f1b2d)](#status-and-limits)
 [![PayPal](https://img.shields.io/badge/PayPal-sandbox_only-1f8a3b?style=flat-square&labelColor=0f1b2d)](#status-and-limits)
 [![Licence](https://img.shields.io/badge/licence-MIT-465264?style=flat-square&labelColor=0f1b2d)](LICENSE)
 
@@ -174,7 +174,7 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Ask the books | "Who still owes me?" → "Luis in Bay City hasn't approved the $225.00 hold for the running toilet. Everything else is paid or secured" | Mike's Books on the dev server |
 | Turn speech into change-order lines | "a shut-off valve and 45 more minutes" → valve + 3 × 15 min = $119.25; a water softener (not on the card) reported, not priced; 3.2–4.7 s, under a cent a call | `scripts/sandbox/change-order-parser.rec.ts` |
 | Send the receipt invoice | created, sent and marked paid in 5.9 s; a replay made one GET and sent nothing twice | `scripts/sandbox/receipt-flow.ts` |
-| A real phone call to the agent | answered with the AI disclosure; replies 0.5–0.65 s after the caller stops (1.3 s at most) over 99 s | a live call to the Twilio number |
+| A real phone call to the agent | answered with the AI disclosure; replies 0.5–0.65 s after the caller stops (1.3 s at most) over 99 s, on the first test agent's model | a live call to the Twilio number |
 
 ## The tech, part by part
 
@@ -183,7 +183,7 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Phone line | Twilio US number, imported into ElevenLabs | Callers dial the business and land straight on the agent ([`scripts/gates/setup-voice.mjs`](scripts/gates/setup-voice.mjs)) |
 | Voice agent | ElevenLabs Agents; LLM `gpt-6-luna` with low reasoning, hosted by ElevenLabs; voice "Chris"; calls capped at 6 minutes | Answers as Mike's AI assistant; its ten server tools read the price book, check the service area, find open windows, save the quote, book it and send the PayPal link only after a yes. Near the time limit every tool reply tells it to wrap up ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`scripts/agent/configure.mjs`](scripts/agent/configure.mjs)) |
 | Browser call | `@elevenlabs/react` over WebRTC, a server-issued conversation token | The same agent in the browser with a live transcript and a booking card that fills in; the conversation is registered to the visitor's session before the first tool call; a recorded call for visitors without a mic ([`src/app/call/`](src/app/call/page.tsx)) |
-| Prices | Mike's price book (about 140 jobs as USD ranges) and a rate card of add-ons, money in integer cents | A quote holds the top of its range; extra work is parts and labour in 15-minute blocks of $23.75 ([`src/lib/price-book.ts`](src/lib/price-book.ts), [`src/lib/rate-card.ts`](src/lib/rate-card.ts)) |
+| Prices | Mike's price book (125 jobs as USD ranges) and a rate card of add-ons, money in integer cents | A quote holds the top of its range; extra work is parts and labour in 15-minute blocks of $23.75 ([`src/lib/price-book.ts`](src/lib/price-book.ts), [`src/lib/rate-card.ts`](src/lib/rate-card.ts)) |
 | Service area | The Saginaw Tri-Cities by ZIP and city | Callers outside it get no booking and no payment ([`src/lib/service-area.ts`](src/lib/service-area.ts)) |
 | Payments | PayPal Orders v2 (`AUTHORIZE`, `CAPTURE`) and Payments v2 (capture, void), through the server SDK | The hold, the change order's second payment, the final capture; every POST carries a stored `PayPal-Request-Id` ([`src/lib/paypal.ts`](src/lib/paypal.ts), [`src/lib/holds.ts`](src/lib/holds.ts), [`src/lib/change-orders.ts`](src/lib/change-orders.ts), [`src/lib/job-done.ts`](src/lib/job-done.ts)) |
 | Customer page | Next.js page with PayPal's JavaScript SDK buttons and guest card checkout | Approve the hold, approve or decline extra work, see the charge and receipt ([`src/app/j/[code]/page.tsx`](src/app/j/[code]/page.tsx)) |
@@ -235,9 +235,10 @@ npm run dev                   # http://localhost:3000
 | `RESEND_API_KEY`, `EMAIL_FROM` | Emailing the PayPal link to phone callers (optional: without them the agent reads out the job code) |
 | `AG_STUDIO_LICENSE_KEY` | AG Studio's licence (without it, a trial watermark shows) |
 | `BOOKS_LLM_MODEL` | Ask your books' model (optional; default `claude-haiku-5-5`) |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Phone notifications for Mike (optional; `scripts/push/vapid.mjs` makes the keys) |
 | `RENDER_WORKFLOW`, `RENDER_WORKFLOW_API_KEY` | Running the close-out on Render Workflows (optional: without them it runs in the app) |
 
-Every value stays on the server; only `PAYPAL_CLIENT_ID` reaches a browser. [`.env.example`](.env.example) says where
+Secrets stay on the server. Only public values reach a browser: the PayPal client ID, the AG Studio licence key and the VAPID public key. [`.env.example`](.env.example) says where
 each one comes from.
 
 ## Status and limits

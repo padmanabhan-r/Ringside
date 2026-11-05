@@ -1,6 +1,6 @@
 # Ringside — project instructions
 
-**Ringside** is a solo entry to the PayPal AI Hackathon: a voice agent for a one-person trades business (demo
+**Ringside** is an entry to the PayPal AI Hackathon: a voice agent for a one-person trades business (demo
 persona: Mike's Plumbing, fictional) that takes the call, quotes from a rate card, places a PayPal authorization
 hold, handles a spoken mid-job change order the customer approves, and captures the final amount. The build spec is
 [`docs/brief.md`](docs/brief.md); read it before writing code.
@@ -8,7 +8,7 @@ hold, handles a spoken mid-job change order the customer approves, and captures 
 ## Hackathon
 
 Entry for **PayPal AI Hackathon — "Build what's next with PayPal and AI"** (Devpost, sponsor PayPal Inc.). Team:
-Padmanabhan ([@padmanabhan-r](https://github.com/padmanabhan-r)), solo, IST. **Representative: Padmanabhan.**
+Padmanabhan ([@padmanabhan-r](https://github.com/padmanabhan-r)), IST. **Representative: Padmanabhan.**
 
 - Deadline: **Thu Nov 12, 2026, 12:00 PST = Fri Nov 13, 2026, 01:30 IST.** Target: submit Wed Nov 11, 21:00 IST.
   Plan: `docs/timeline.md`.
