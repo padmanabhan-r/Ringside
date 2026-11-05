@@ -7,10 +7,20 @@ const geist = Geist({ subsets: ["latin"], weight: ["400", "500", "600", "700"], 
 // The field-service world's friendly geometric sans (redesign 2026-11-05).
 const figtree = Figtree({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-ui" });
 
+const DESCRIPTION = "The AI front desk for small service businesses: it answers the call, books the job and holds the money with PayPal.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://ringside-4bup.onrender.com"),
   title: "Ringside",
-  description:
-    "The AI front desk for small service businesses: it answers the call, books the job and holds the money with PayPal.",
+  description: DESCRIPTION,
+  // The preview image is src/app/opengraph-image.png, rendered from assets/src/og.html.
+  openGraph: {
+    type: "website",
+    siteName: "Ringside",
+    title: "Ringside: AI front-desk software for small service businesses",
+    description: DESCRIPTION,
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
