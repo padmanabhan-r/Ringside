@@ -47,6 +47,7 @@ const agentConfig = {
       },
     },
     conversation: { max_duration_seconds: 180 },
+    tts: { voice_id: "iP95p4xoKVk53GoZ742B" }, // Chris, a premade American voice (owner's pick)
   },
   platform_settings: {
     call_limits: { daily_limit: 40, agent_concurrency_limit: 2, bursting_enabled: false },
