@@ -20,9 +20,9 @@ while IFS= read -r md; do
   done < <(grep -oE '\]\([^)]+\)' "$md" | sed -E 's/^\]\((.*)\)$/\1/' | grep -vE '^(https?:|mailto:|#)' || true)
 done < <(git ls-files '*.md')
 
-# 2. No secrets in tracked files. This script holds the patterns, so it is excluded.
+# 2. No secrets in tracked files. This script holds the patterns, and the lockfile's integrity hashes look key-shaped, so both are excluded.
 patterns='(sk-[A-Za-z0-9_-]{20,}|sk_live_[A-Za-z0-9]{10,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,}|xox[abp]-[A-Za-z0-9-]{10,}|whsec_[A-Za-z0-9]{10,}|Bearer [A-Za-z0-9._-]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|\b[AE][A-Za-z0-9_-]{78,}\b)'
-if git grep -nE "$patterns" -- . ':!scripts/check-docs.sh'; then
+if git grep -nE "$patterns" -- . ':!scripts/check-docs.sh' ':!package-lock.json'; then
   echo "key-shaped string found (above)"
   status=1
 fi
