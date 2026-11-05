@@ -31,7 +31,7 @@ const LIVE_SLOT = { start: 14, end: 16 };
 const TRANSCRIPT = [
   { who: "ai", at: "1:42 pm", text: "Thanks for calling Mike’s Plumbing, this is Mike’s AI assistant. What’s going on?" },
   { who: "caller", at: "1:43 pm", text: "My kitchen tap won’t stop dripping." },
-  { who: "ai", at: "1:44 pm", text: "I can book you Thursday 2 to 4 pm. The hold is $174.00. Shall I send the link?" },
+  { who: "ai", at: "1:44 pm", text: "I can book you this afternoon, 2 to 4 pm. The hold is $174.00. Shall I send the link?" },
 ] as const;
 
 type Step = { id: string; label: string; lines: string[]; state: "done" | "active" | "waiting" | "idle"; icon: typeof Phone };
@@ -146,9 +146,8 @@ export default function Home() {
                 </span>
               </div>
               <p className={s.tileText}>
-                (shut-off valve $48 +{" "}
-                <br />
-                45 minutes $71.25,{" "}
+                (shut-off valve $48{" "}
+                <br />+ 45 minutes $71.25,{" "}
                 <br />a second PayPal payment)
               </p>
               <p className={`${s.tileStatus} ${s.amber}`}>Waiting for customer</p>
@@ -161,9 +160,9 @@ export default function Home() {
                 <span className={s.tileLabelLarge}>Capture</span>
               </div>
               <p className={s.tileText}>
-                when the owner{" "}
+                when the owner says{" "}
                 <br />
-                says job done.
+                job done.
               </p>
               <p className={`${s.tileStatus} ${s.green}`}>Paid out to you</p>
             </li>

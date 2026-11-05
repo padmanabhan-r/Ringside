@@ -85,7 +85,7 @@
 /* ---------- hero frame ---------- */
 .hero {
   position: relative;
-  height: calc(1062 * var(--u));
+  height: max(calc(1062 * var(--u)), 760px);
 }
 
 .intro {
@@ -327,6 +327,7 @@
 }
 
 .tileStatus {
+  letter-spacing: -0.01em;
   margin-top: auto !important;
   padding-top: calc(14 * var(--u));
   font-size: max(14px, calc(18.5 * var(--u)));
@@ -748,6 +749,7 @@
 }
 
 .stepLine {
+  white-space: nowrap;
   font-size: max(12px, calc(16.5 * var(--u)));
   line-height: 1.4;
   color: var(--ink-2);
@@ -1249,6 +1251,7 @@
   }
 
   .tile .tileStatus {
+  letter-spacing: -0.01em;
     margin-top: 10px !important;
     padding-top: 0;
   }
@@ -1445,6 +1448,7 @@
 
   .tile .tileText,
   .tile .tileStatus {
+  letter-spacing: -0.01em;
     grid-column: 1 / -1;
     margin-top: 4px;
     font-size: 15px;
@@ -1456,6 +1460,7 @@
   }
 
   .tile .tileStatus {
+  letter-spacing: -0.01em;
     margin-top: 10px;
   }
 
