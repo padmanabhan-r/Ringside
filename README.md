@@ -1,43 +1,182 @@
 <div align="center">
 
+<img src="assets/banner.jpg" width="100%" alt="Ringside banner: 'Answers the call. Holds the money.' beside the landing page, which shows a live job card with its transcript and a status track from call to captured">
+
 # Ringside
 
-[![Event](https://img.shields.io/badge/event-PayPal_AI_Hackathon-003087?style=flat-square&labelColor=001435)](https://paypalaihackathon.devpost.com)
-[![Deadline](https://img.shields.io/badge/deadline-Nov_12_2026_12%3A00_PST-0070e0?style=flat-square&labelColor=001435)](https://paypalaihackathon.devpost.com/details/dates)
-[![Status](https://img.shields.io/badge/status-building-ffc439?style=flat-square&labelColor=001435)](devlog.md)
-[![Licence](https://img.shields.io/badge/licence-MIT-3d3d3d?style=flat-square&labelColor=001435)](LICENSE)
+[![Event](https://img.shields.io/badge/event-PayPal_AI_Hackathon-003087?style=flat-square&labelColor=182834)](https://paypalaihackathon.devpost.com)
+[![Deadline](https://img.shields.io/badge/deadline-Nov_12_2026_12%3A00_PST-0b4b37?style=flat-square&labelColor=182834)](https://paypalaihackathon.devpost.com/details/dates)
+[![Status](https://img.shields.io/badge/status-building-b47212?style=flat-square&labelColor=182834)](#status-and-limits)
+[![Licence](https://img.shields.io/badge/licence-MIT-455059?style=flat-square&labelColor=182834)](LICENSE)
+
+<table align="center">
+  <tr>
+    <td align="center" width="240">
+      <img src="assets/logos/paypal.svg" width="56" height="56" alt="PayPal"><br>
+      <b>PayPal</b><br>
+      <sub>The money. Holds the payment at booking, takes a second payment for the change order, captures at job done.</sub>
+    </td>
+    <td align="center" width="240">
+      <img src="assets/logos/elevenlabs.svg" width="56" height="56" alt="ElevenLabs"><br>
+      <b>ElevenLabs Agents</b><br>
+      <sub>The voice. Answers the business's phone and the browser call, gathers the job and quotes it.</sub>
+    </td>
+    <td align="center" width="240">
+      <img src="assets/logos/render.svg" width="56" height="56" alt="Render"><br>
+      <b>Render</b><br>
+      <sub>The platform. Runs the app and its Postgres, and the close-out flow on Render Workflows.</sub>
+    </td>
+  </tr>
+</table>
+
+![Next.js](https://img.shields.io/badge/Next.js-16-182834?style=flat-square&logo=nextdotjs)
+![React](https://img.shields.io/badge/React-19-182834?style=flat-square&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-182834?style=flat-square&logo=typescript)
+![Postgres](https://img.shields.io/badge/Postgres-18-182834?style=flat-square&logo=postgresql)
+![Node](https://img.shields.io/badge/Node-24-182834?style=flat-square&logo=nodedotjs)
+![Twilio](https://img.shields.io/badge/Twilio-voice-182834?style=flat-square)
 
 </div>
 
-An AI field-service employee for a one-person trades business. It answers the call, quotes from the rate card,
-holds the money with PayPal, gets the customer's approval when the job grows on site, and captures the final amount
-when the job is done. The demo business is Mike's Plumbing, which is fictional.
+Ringside is the AI front desk for one-person trades: the plumber, electrician or HVAC tech who is the business, the
+dispatcher and the cashier at once. It answers the call while they are under a sink, quotes from their own rate card,
+holds the customer's money with PayPal, gets the customer's yes when the job grows on site, and captures the final
+amount when the work is done. The demo business is Mike's Plumbing, which is fictional.
 
 A solo entry to the [PayPal AI Hackathon](https://paypalaihackathon.devpost.com), "Build what's next with PayPal and
 AI", by [Padmanabhan](https://padmanabhan.xyz).
 
-## How the money moves
+## How it works
 
-1. **The call.** A customer phones the business (Twilio) or calls from the browser. An ElevenLabs voice agent
-   gathers the problem, address and urgency, quotes, and books a slot.
-2. **The hold.** The customer approves a PayPal authorization (Orders v2, `intent: AUTHORIZE`) for the estimate.
-3. **The change order.** On site, the owner speaks the extra work. A model turns it into rate-card line items, the
-   owner confirms, and the customer approves the extra as a second PayPal payment (a hold can only grow by 15%).
-4. **The capture.** The owner says "job done" and the authorization is captured for the final amount.
+1. **The call.** A customer phones the business (a Twilio number) or calls from the browser. The ElevenLabs agent says
+   it is an AI assistant answering for Mike, gathers the problem, the address and how urgent it is, quotes from the
+   rate card and offers a slot.
+2. **The hold.** After reading the amount back and hearing a yes, the agent creates a PayPal hold (Orders v2,
+   `intent: AUTHORIZE`) for $174.00 and gives the customer a job code. They approve it on their phone; nothing is
+   charged yet.
+3. **The change order.** On site, Mike says "add a shut-off valve and 45 more minutes". It becomes rate-card lines
+   ($119.25), Mike confirms, and the customer approves it as a second PayPal payment. PayPal lets a hold grow by 15% at
+   most, so a bigger change is its own payment.
+4. **The capture.** Mike says "job done" and confirms the total. The close-out captures the hold and sends a PayPal
+   invoice: marked paid as a receipt, or payable for any leftover balance.
 
-Built on the PayPal sandbox only: no real money moves.
+Nobody pays without saying yes, and every price comes from the rate card, checked in code.
 
-## Where things are
+<img src="assets/screens/landing.jpg" width="100%" alt="Ringside landing page: the pitch and call button on the left, the owner's day board on the right with a live job card, its transcript and a status track">
+
+| On a phone | How a job runs |
+|---|---|
+| <img src="assets/screens/landing-mobile.jpg" width="260" alt="The landing page at phone width: headline, call button and the start of the live job card"> | <img src="assets/screens/how.jpg" alt="How a job runs: the call, the hold, the change and the capture on one timeline, each with who says yes"> |
+
+<img src="assets/screens/money.jpg" width="100%" alt="The demo job's money line by line: the hold and the change order from the rate card, totalling $293.25 at job done">
+
+## Real runs
+
+Measured against the real PayPal sandbox and the real phone line on 2026-11-05.
+
+| What | Result | How |
+|---|---|---|
+| Place a PayPal hold | $174.00 authorized in 1.8–2.0 s; the hold lasts 29 days | `scripts/sandbox/auth-gates.mjs` |
+| Capture a hold | 1.5–2.6 s | same |
+| Capture more than the hold | 115% allowed ($200.10 on $174.00); +$75 and +69% refused with `MAX_CAPTURE_AMOUNT_EXCEEDED` | same |
+| Retry a final capture with the same `PayPal-Request-Id` | PayPal returns the original capture; nothing is charged twice | same |
+| Release the rest of a hold | a capture of part, then a void, leaves exactly the part captured | same |
+| Second payment for a change order | $119.25 captured in 1.6 s | same |
+| A real phone call to the agent | answered with the AI disclosure; replies 0.5–0.65 s after the caller stops (1.3 s at most) over 99 s | a live call to the Twilio number |
+
+## The tech, part by part
+
+| Part | Built with | What it does |
+|---|---|---|
+| Phone line | Twilio US number, imported into ElevenLabs | Callers dial the business and land straight on the agent ([`scripts/gates/setup-voice.mjs`](scripts/gates/setup-voice.mjs)) |
+| Voice agent | ElevenLabs Agents; LLM `deepseek-v41-flash` (hosted by ElevenLabs); voice "Chris" on `eleven_v4_turbo` | Answers as Mike's AI assistant, gathers the job, quotes and books |
+| Prices | The rate card in code, money in integer cents | Every price comes from here; labour is billed in 15-minute blocks of $23.75 ([`src/lib/rate-card.ts`](src/lib/rate-card.ts), [`src/lib/money.ts`](src/lib/money.ts)) |
+| Payments | PayPal Orders v2 (`AUTHORIZE`, `CAPTURE`), Payments v2 (capture, void), Webhooks | The hold, the change order's second payment, the capture; every POST carries a stored `PayPal-Request-Id` ([`src/lib/paypal.ts`](src/lib/paypal.ts)) |
+| Invoices | PayPal Invoicing v2 (being built) | The receipt at job done, or a payable invoice for a leftover balance |
+| Change-order parser | Anthropic `claude-sonnet-5-5` with structured output (being built) | Turns Mike's spoken change into rate-card lines; the code rejects anything not on the card |
+| Close-out | Render Workflows flow (being built) | Capture, invoice, close; a replay after a failure reuses PayPal's original response |
+| Jobs and state | Postgres 18; a job state machine | Jobs, calls, line items, payments and events, each scoped to a demo session ([`db/migrations/`](db/migrations/001_init.sql), [`src/lib/job-state.ts`](src/lib/job-state.ts)) |
+| App | Next.js 16 (App Router), React 19, TypeScript 5.9, Geist, lucide-react | The landing page now; the call page, the customer's approval page and the owner's screens next ([`src/app/`](src/app/page.tsx)) |
+| Schedule board | Bryntum Scheduler Community (being built) | Mike's day, every call with its cost and outcome, and each job's money |
+| Hosting | Render web service and Render Postgres from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
+| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 45 tests, including the PayPal client against recorded sandbox responses ([`test/`](test/paypal.test.ts)) |
+
+PayPal runs in the sandbox only: the server refuses to start unless `PAYPAL_ENV=sandbox`.
+
+## Run it yourself
+
+You need Node 24, Docker (for a local Postgres), a PayPal developer account with a sandbox app on a US business
+account, and, for the voice parts, an ElevenLabs account and a Twilio number.
+
+```bash
+git clone https://github.com/padmanabhan-r/Ringside && cd Ringside
+npm ci
+cp .env.example .env          # fill in the values below
+docker run -d --name ringside-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=ringside \
+  -p 127.0.0.1:5432:5432 postgres:18
+node --env-file=.env scripts/migrate.mjs
+npm run dev                   # http://localhost:3000
+```
+
+| Variable | For |
+|---|---|
+| `PAYPAL_ENV` | Must be `sandbox`; the app refuses to start otherwise |
+| `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | The PayPal sandbox app's credentials |
+| `PAYPAL_WEBHOOK_ID` | Verifying PayPal webhook deliveries |
+| `CHANGE_ORDER_MODE` | `second_order` (default): a change is its own PayPal payment |
+| `DATABASE_URL` | Postgres |
+| `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | The voice agent |
+| `ELEVENLABS_TOOL_SECRET`, `ELEVENLABS_WEBHOOK_SECRET` | Authenticating the agent's tool calls and post-call webhooks |
+| `TWILIO_PHONE_NUMBER`, `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET` | The phone line |
+| `TWILIO_AUTH_TOKEN` | Only for importing the number into ElevenLabs (optional afterwards) |
+| `TWILIO_TEST_CALLER_ID` | Only for the scripted test call (optional) |
+| `LLM_API_KEY`, `LLM_MODEL` | The change-order parser |
+| `DAILY_VOICE_MINUTES_CAP`, `SESSION_LLM_CALLS_CAP` | Cost caps for the public demo |
+| `APP_BASE_URL` | Links the agent hands out |
+| `RENDER_API_KEY` | Local deploy and log checks only (optional) |
+
+Every value stays on the server; only `PAYPAL_CLIENT_ID` reaches a browser. [`.env.example`](.env.example) says where
+each one comes from.
+
+## Status and limits
+
+Working today: the landing page on Render with its Postgres, the PayPal sandbox flow (hold, change payment, capture,
+void, idempotent retries) through the PayPal client, and the phone line answered by the voice agent.
+
+- PayPal runs in the sandbox only, in USD.
+- A hold can grow by at most 15% at capture, so a larger change order is always a separate payment.
+- Payment links are read out as a short job code rather than sent by text message.
+
+## Next steps
+
+- **The call page and the agent's tools:** quote, book and send the hold link during the call, in the browser and on
+  the phone.
+- **The customer's approval page:** approve the hold and the change order with PayPal's buttons.
+- **The owner's on-site screen:** speak the change order, confirm the lines, say job done.
+- **The board:** Mike's day, every call with its outcome and cost, each job's money and invoice.
+- **The close-out on Render Workflows:** capture, invoice and close, safe to replay.
+- **The demo video and the public demo,** usable through the end of judging.
+
+## Repository
 
 | Path | What it is |
 |---|---|
-| [src/](src/app/page.tsx) | The Next.js app: landing page, rate card, cents math, job state machine, health check |
-| [db/migrations/](db/migrations/001_init.sql) | The Postgres schema, applied on every deploy by `npm run db:migrate` |
-| [render.yaml](render.yaml) | The Render Blueprint: web service and database |
-| [devlog.md](devlog.md) | Build log |
-| [scripts/sandbox/](scripts/sandbox/auth-gates.mjs) | PayPal sandbox checks: the API token, authorization holds, partial and over-captures, replayed requests |
-| [scripts/gates/](scripts/gates/setup-voice.mjs) | Phone line checks: Twilio settings, voice agent setup, a scripted test call |
-| [.env.example](.env.example) | Every environment variable, with where it comes from |
+| [`src/app/`](src/app/page.tsx) | The Next.js app; the landing page is `page.tsx` |
+| [`src/lib/`](src/lib/paypal.ts) | PayPal client, rate card, cents math, job state machine, database access |
+| [`db/migrations/`](db/migrations/001_init.sql) | The Postgres schema, applied on every deploy |
+| [`scripts/sandbox/`](scripts/sandbox/auth-gates.mjs) | PayPal sandbox checks: token, holds, partial and over-captures, replays |
+| [`scripts/gates/`](scripts/gates/setup-voice.mjs) | Phone line checks: Twilio settings, voice agent setup, a scripted test call |
+| [`scripts/capture.mjs`](scripts/capture.mjs) | Full-page screenshots at real device widths |
+| [`test/`](test/paypal.test.ts) | Unit tests, with recorded PayPal sandbox responses in `test/fixtures/` |
+| [`render.yaml`](render.yaml) | The Render Blueprint: web service and database |
+| [`PRODUCT.md`](PRODUCT.md) | Who Ringside is for and the rules the design follows |
+| [`devlog.md`](devlog.md) | Build log |
+| [`assets/`](assets/src/banner.html) | README images; the banner's HTML source is in `assets/src/` |
+
+```bash
+npm run check    # typecheck, lint, tests, docs check
+npm run build
+```
 
 ## License
 
