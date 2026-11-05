@@ -54,19 +54,20 @@ amount when the work is done. The demo business is Mike's Plumbing, which is fic
 
 ## How it works
 
-1. **The call.** A customer phones the business (a Twilio number) or calls from the browser. The ElevenLabs agent says
-   it is an AI assistant answering for Mike, gathers the problem, the address and how urgent it is, quotes from the
-   rate card and offers a slot.
+1. **The call.** A customer in Mike's area (the Saginaw Tri-Cities, Michigan) phones the business or calls from the
+   browser. The ElevenLabs agent says it is an AI assistant answering for Mike, finds the job in Mike's price book and
+   quotes its range: a dripping faucet is $125 to $250. It offers a slot.
 2. **The hold.** After reading the amount back and hearing a yes, the agent creates a PayPal hold (Orders v2,
-   `intent: AUTHORIZE`) for $174.00 and gives the customer a job code. They approve it on their phone; nothing is
-   charged yet.
+   `intent: AUTHORIZE`) for the top of the range, $250.00, and gives the customer a job code. They approve it on their
+   phone; nothing is charged yet. Major jobs get an estimate visit instead, with no payment.
 3. **The change order.** On site, Mike says "add a shut-off valve and 45 more minutes". It becomes rate-card lines
    ($119.25), Mike confirms, and the customer approves it as a second PayPal payment. PayPal lets a hold grow by 15% at
    most, so a bigger change is its own payment.
-4. **The capture.** Mike says "job done" and confirms the total. The close-out captures the hold and sends a PayPal
-   invoice: marked paid as a receipt, or payable for any leftover balance.
+4. **The capture.** Mike says "job done" and enters the real cost, say $190.00. The close-out captures that much from
+   the hold, releases the rest, and sends a PayPal invoice: marked paid as a receipt, or payable for any leftover
+   balance.
 
-Nobody pays without saying yes, and every price comes from the rate card, checked in code.
+Nobody pays without saying yes, nobody pays more than they approved, and every price comes from the price book, checked in code.
 
 <img src="assets/screens/landing.jpg" width="100%" alt="Ringside landing page: the pitch and call button on the left, the owner's day board on the right with a live job card, its transcript and a status track">
 
@@ -96,7 +97,8 @@ Measured against the real PayPal sandbox and the real phone line on 2026-11-05.
 |---|---|---|
 | Phone line | Twilio US number, imported into ElevenLabs | Callers dial the business and land straight on the agent ([`scripts/gates/setup-voice.mjs`](scripts/gates/setup-voice.mjs)) |
 | Voice agent | ElevenLabs Agents; LLM `deepseek-v41-flash` (hosted by ElevenLabs); voice "Chris" on `eleven_v4_turbo` | Answers as Mike's AI assistant and gathers the job; its server tools read the rate card, find open windows, save the quote, book it and send the PayPal hold link only after the customer says yes ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`src/lib/slots.ts`](src/lib/slots.ts)) |
-| Prices | The rate card in code, money in integer cents | Every price comes from here; labour is billed in 15-minute blocks of $23.75 ([`src/lib/rate-card.ts`](src/lib/rate-card.ts), [`src/lib/money.ts`](src/lib/money.ts)) |
+| Prices | Mike's price book (about 140 jobs as USD ranges) and fixed-price add-ons for change orders, money in integer cents | Every quote comes from the book and holds the top of its range; add-ons are parts and labour in 15-minute blocks of $23.75 ([`src/lib/price-book.ts`](src/lib/price-book.ts), [`src/lib/rate-card.ts`](src/lib/rate-card.ts)) |
+| Service area | The Saginaw Tri-Cities by ZIP and city | Callers outside it get no booking and no payment ([`src/lib/service-area.ts`](src/lib/service-area.ts)) |
 | Payments | PayPal Orders v2 (`AUTHORIZE`, `CAPTURE`), Payments v2 (capture, void), Webhooks | The hold, the change order's second payment, the capture; every POST carries a stored `PayPal-Request-Id` ([`src/lib/paypal.ts`](src/lib/paypal.ts)) |
 | Invoices | PayPal Invoicing v2 (being built) | The receipt at job done, or a payable invoice for a leftover balance |
 | Change-order parser | Claude Sonnet 5.5 (`claude-sonnet-5-5`, Anthropic API) with structured output (being built) | Turns Mike's spoken change into rate-card lines; the code rejects anything not on the card |
@@ -105,7 +107,7 @@ Measured against the real PayPal sandbox and the real phone line on 2026-11-05.
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Geist, lucide-react | The landing page now; the call page, the customer's approval page and the owner's screens next ([`src/app/`](src/app/page.tsx)) |
 | Schedule board | Bryntum Scheduler Community (being built) | Mike's day, every call with its cost and outcome, and each job's money |
 | Hosting | Render web service and Render Postgres from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
-| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 49 tests, including the PayPal client against recorded sandbox responses ([`test/`](test/paypal.test.ts)) |
+| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 57 tests, including the PayPal client against recorded sandbox responses ([`test/`](test/paypal.test.ts)) |
 
 PayPal runs in the sandbox only: the server refuses to start unless `PAYPAL_ENV=sandbox`.
 

@@ -31,14 +31,14 @@ const LIVE_SLOT = { start: 14, end: 16 };
 const TRANSCRIPT = [
   { who: "ai", at: "1:42 pm", text: "Thanks for calling Mike’s Plumbing, this is Mike’s AI assistant. What’s going on?" },
   { who: "caller", at: "1:43 pm", text: "My kitchen tap won’t stop dripping." },
-  { who: "ai", at: "1:44 pm", text: "I can book you this afternoon, 2 to 4 pm. The hold is $174.00. Shall I send the link?" },
+  { who: "ai", at: "1:44 pm", text: "I can book you this afternoon, 2 to 4 pm. PayPal will hold up to $250.00. Shall I send the link?" },
 ] as const;
 
 type Step = { id: string; label: string; lines: string[]; state: "done" | "active" | "waiting" | "idle"; icon: typeof Phone };
 const STEPS: Step[] = [
   { id: "call", label: "Call", lines: ["In progress"], state: "active", icon: Phone },
   { id: "booked", label: "Booked", lines: ["Today", "2:00 – 4:00 pm"], state: "done", icon: CalendarDays },
-  { id: "held", label: "Held", lines: ["$174.00", "with PayPal"], state: "done", icon: Lock },
+  { id: "held", label: "Held", lines: ["$250.00", "with PayPal"], state: "done", icon: Lock },
   { id: "change", label: "Change", lines: ["$119.25", "waiting"], state: "waiting", icon: DollarSign },
   { id: "captured", label: "Captured", lines: ["—"], state: "idle", icon: Check },
 ];
@@ -47,13 +47,13 @@ const RUN = [
   {
     time: "1:42 pm",
     title: "The call",
-    text: "The agent answers as the business, says it is an AI, and gathers the problem, the address and how urgent it is. It quotes from the rate card and offers a slot.",
+    text: "The agent answers as the business, says it is an AI, and gathers the problem, the address and how urgent it is. It checks the address is in Mike’s area, quotes the job’s range from the price book and offers a slot.",
     yes: "Customer says yes to the quote",
   },
   {
     time: "1:45 pm",
     title: "The hold",
-    text: "The customer approves a $174.00 PayPal hold from the link on their screen. The job lands on the board. Nothing is charged yet.",
+    text: "The price book says $125 to $250, so the customer approves a PayPal hold for up to $250.00 from the link on their screen. The job lands on the board. Nothing is charged yet.",
     yes: "Customer approves with PayPal",
   },
   {
@@ -126,12 +126,12 @@ export default function Home() {
                 </span>
                 <span className={s.tileTitle}>
                   <span className={s.tileLabel}>Hold</span>
-                  <span className={`${s.tileAmount} ${s.green}`}>$174.00</span>
+                  <span className={`${s.tileAmount} ${s.green}`}>$250.00</span>
                 </span>
               </div>
               <p className={s.tileText}>
-                (call-out $79 +{" "}
-                <br />1 hour labour $95)
+                (faucet leak repair,{" "}
+                <br />$125 to $250, held at the top)
               </p>
               <p className={`${s.tileStatus} ${s.green}`}>Held with PayPal</p>
             </li>
@@ -175,7 +175,7 @@ export default function Home() {
         <section className={s.board} aria-label="Demo schedule for Mike’s Plumbing">
           <div className={s.boardHead}>
             <span className={s.boardDate}>Today</span>
-            <span className={s.boardOwner}>Mike’s day, Springfield</span>
+            <span className={s.boardOwner}>Mike’s day, Saginaw</span>
             <span className={s.legend}>
               <span className={s.legendBooked}>Booked</span>
               <span className={s.legendHeld}>Held</span>
@@ -265,7 +265,7 @@ export default function Home() {
             <div className={s.stat}>
               <CircleDollarSign aria-hidden="true" className={`${s.statIcon} ${s.green}`} strokeWidth={1.75} />
               <dt>Held</dt>
-              <dd className={`${s.statValue} ${s.green}`}>$174.00</dd>
+              <dd className={`${s.statValue} ${s.green}`}>$250.00</dd>
               <dd className={s.statSub}>1 job</dd>
             </div>
             <div className={s.stat}>
@@ -307,11 +307,14 @@ export default function Home() {
             The money, line by line
           </h2>
           <p className={s.sectionLead}>
-            Every price comes from the owner’s rate card. The agent quotes, reads the amount back and waits for a yes; it can
-            never capture or refund.
+            Every price comes from Mike’s price book. The agent quotes the range, reads the hold back and waits for a yes;
+            it can never capture or refund.
           </p>
           <ul className={s.rules}>
-            <li>The hold is a PayPal authorization: the customer’s money is reserved, not taken.</li>
+            <li>
+              The hold is a PayPal authorization for the top of the price-book range: the customer’s money is reserved, not
+              taken, and they never pay more than they approved.
+            </li>
             <li>
               PayPal lets a hold grow by 15% at most, so a bigger change becomes its own payment that the customer approves.
             </li>
@@ -337,18 +340,13 @@ export default function Home() {
               </th>
             </tr>
             <tr>
-              <td>Call-out</td>
+              <td>Faucet leak repair, price book $125 to $250</td>
               <td>1</td>
-              <td>$79.00</td>
-            </tr>
-            <tr>
-              <td>Labour, 15 minutes</td>
-              <td>4</td>
-              <td>$95.00</td>
+              <td>$250.00</td>
             </tr>
             <tr className={s.ledgerTotal}>
-              <td colSpan={2}>Held with PayPal</td>
-              <td className={s.green}>$174.00</td>
+              <td colSpan={2}>Held with PayPal (the top of the range)</td>
+              <td className={s.green}>$250.00</td>
             </tr>
             <tr className={s.ledgerGroup}>
               <th scope="rowgroup" colSpan={3}>
@@ -369,11 +367,26 @@ export default function Home() {
               <td colSpan={2}>Second PayPal payment</td>
               <td className={s.amber}>$119.25</td>
             </tr>
+            <tr className={s.ledgerGroup}>
+              <th scope="rowgroup" colSpan={3}>
+                At job done, Mike charges the real cost
+              </th>
+            </tr>
+            <tr>
+              <td>Faucet leak repair, captured from the hold</td>
+              <td>1</td>
+              <td>$190.00</td>
+            </tr>
+            <tr>
+              <td>Released back to the customer</td>
+              <td></td>
+              <td>$60.00</td>
+            </tr>
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan={2}>Job total when Mike says job done</td>
-              <td>$293.25</td>
+              <td colSpan={2}>The customer pays $190.00 + $119.25</td>
+              <td>$309.25</td>
             </tr>
           </tfoot>
         </table>
