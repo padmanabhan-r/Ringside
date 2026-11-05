@@ -18,6 +18,7 @@ import {
 import { formatUsd } from "./money";
 import { approvalUrl, createOrder, type OrderItem } from "./paypal";
 import { PriceBookError, SECTION_TITLES, SERVICE_VISIT, quote, rangeText, searchServices } from "./price-book";
+import { notifyJobEvent } from "./push";
 import { SERVICE_AREA_NAME, checkServiceArea } from "./service-area";
 import { formatWindow, openSlots, slotFromId, TIME_ZONE } from "./slots";
 import { isValidEmail, maskEmail, normaliseEmail, sendHoldEmail, spellEmail } from "./email";
@@ -123,6 +124,7 @@ export const tools = {
       lines: q.services.map((s) => ({ code: s.code, name: s.name, lowCents: s.lowCents, highCents: s.highCents })),
     });
     if (ctx.conversationId) await linkCall({ conversationId: ctx.conversationId, demoSessionId: ctx.demoSessionId, channel: ctx.channel, jobId: job.id, outcome: "quoted" });
+    notifyJobEvent(job, { kind: "new_quote", holdCents: q.holdCents });
     const what = q.services.map((s) => `${s.name.toLowerCase()}, ${rangeText(s)}`).join("; ");
     return {
       job_code: job.job_code,

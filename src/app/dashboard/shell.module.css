@@ -199,6 +199,102 @@
   height: 15px;
 }
 
+/* Notifications */
+.notifyTop {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+}
+
+.notifyTop svg,
+.notifySide svg {
+  width: 16px;
+  height: 16px;
+}
+
+.notifyTop[data-on],
+.notifySide[aria-pressed="true"] {
+  border-color: #fff;
+  background: #fff;
+  color: var(--brand-deep);
+}
+
+.notifyTop:hover,
+.notifySide:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.notifyTop[data-on]:hover,
+.notifySide[aria-pressed="true"]:hover {
+  background: var(--brand-tint);
+}
+
+.notifyTop:disabled,
+.notifySide:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.notifyTop:focus-visible,
+.notifySide:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.notifySideWrap {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+
+.notifySide {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  background: transparent;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.notifyNote {
+  max-width: 200px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.notifyText {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.notifyOff {
+  margin-top: 14px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--brand-ink);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 /* Desk */
 @media (min-width: 1024px) {
   .shell {

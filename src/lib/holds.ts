@@ -2,6 +2,7 @@
 // authorize call reuses a request ID derived from the payment's own, so a retry never places a second hold.
 import { addEvent, findJobByCode, payments, setCallOutcomeForJob, setState, updatePayment, type Job, type Payment } from "./jobs";
 import { authorizeOrder, getOrder, PayPalError } from "./paypal";
+import { notifyJobEvent } from "./push";
 
 export type ApproveResult =
   | { status: "held"; amountCents: number; authorizationId: string }
@@ -23,6 +24,7 @@ async function markHeld(job: Job, payment: Payment, auth: { authorizationId: str
   if (job.state === "quoted") await setState(job, "booked", { holdCents: auth.amountCents });
   await setCallOutcomeForJob(job.id, "booked_hold");
   await addEvent(job.id, "hold_approved", { amountCents: auth.amountCents, authorizationId: auth.authorizationId });
+  notifyJobEvent(job, { kind: "hold_approved", amountCents: auth.amountCents });
 }
 
 export async function approveHold(jobCode: string): Promise<ApproveResult> {

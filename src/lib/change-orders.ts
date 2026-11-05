@@ -5,6 +5,7 @@ import { db } from "./db";
 import { parseChangeOrder } from "./change-order-parser";
 import { addEvent, findJobByCode, setState, startPayment, updatePayment, type Job, type Payment } from "./jobs";
 import { approvalUrl, captureOrder, createOrder, getOrder, PayPalError } from "./paypal";
+import { notifyJobEvent } from "./push";
 import { priceLineItems, RateCardError, totalOf, type PricedItem } from "./rate-card";
 
 export interface ChangeOrder {
@@ -172,6 +173,7 @@ async function markPaid(job: Job, co: ChangeOrder, payment: Payment, captureId: 
   await db()`update change_orders set status = 'approved', updated_at = now() where id = ${co.id}`;
   await setState(job, "in_progress", { changeOrderId: co.id });
   await addEvent(job.id, "change_order_paid", { changeOrderId: co.id, amountCents: payment.amount_cents, captureId });
+  notifyJobEvent(job, { kind: "change_paid", amountCents: payment.amount_cents });
 }
 
 /** The customer approved the change in PayPal: take exactly that payment. Safe to call more than once. */
@@ -208,5 +210,6 @@ export async function declineChangeOrder(jobCode: string): Promise<ChangeDecisio
   if (payment) await updatePayment(payment.id, { status: "declined" });
   await setState(job, "in_progress", { changeOrderId: co.id, declined: true });
   await addEvent(job.id, "change_order_declined", { changeOrderId: co.id });
+  notifyJobEvent(job, { kind: "change_declined", amountCents: co.delta_cents });
   return { status: "declined" };
 }

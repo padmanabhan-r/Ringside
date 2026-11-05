@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { Avatar, MikesWordmark, PoweredByRingside, SandboxTag } from "@/components/brand";
 import { Nav } from "./nav";
 import { InstallApp } from "./install-app";
+import { NotifyToggle } from "./notify-toggle";
 import s from "./shell.module.css";
 
 export const metadata: Metadata = {
@@ -33,12 +34,14 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         <div className={s.sideFoot}>
           <SandboxTag />
           <InstallApp placement="side" qrSvg={qrSvg} />
+          <NotifyToggle placement="side" />
           <PoweredByRingside />
         </div>
       </aside>
       <header className={s.top}>
         <MikesWordmark size={40} href="/dashboard" />
         <div className={s.topEnd}>
+          <NotifyToggle placement="top" />
           <InstallApp placement="top" />
           <Avatar />
         </div>

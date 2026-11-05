@@ -40,6 +40,12 @@ services:
         value: ringside-close-out # the workflow's slug (its name); the close-out runs inline until the key below is set
       - key: RENDER_WORKFLOW_API_KEY
         sync: false # a Render API key just for starting close-out runs (POST /v1/task-runs)
+      - key: VAPID_PUBLIC_KEY
+        sync: false # web push for Mike's dashboard; all three from node scripts/push/vapid.mjs (local .env)
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false # mailto:padmanabhan.rajendrakumar@gmail.com
 
   # The close-out after Mike's confirmed "job done": receipt invoice, then completed → closed. Retried by Render;
   # every step is idempotent. Runs the app's TypeScript as written (Node 24 type stripping, workflows/register.mjs).
