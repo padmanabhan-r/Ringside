@@ -345,6 +345,7 @@
   gap: 24px;
 }
 
+/* Rows sit at the top: the doors share a height, and the shorter one must not stretch its button to fill it. */
 .door {
   display: grid;
   grid-template-columns: 104px 1fr;
@@ -352,6 +353,7 @@
     "icon text"
     "button button"
     "note note";
+  align-content: start;
   column-gap: 28px;
   padding: 28px 36px 20px;
   border-radius: var(--r-card);
