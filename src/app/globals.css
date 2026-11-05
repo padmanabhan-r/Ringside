@@ -1,0 +1,69 @@
+:root {
+  --ground: #f7f7f6;
+  --surface: #ffffff;
+  --ink: #182834;
+  --ink-2: #455059;
+  --ink-3: #59626c;
+  --ink-4: #8a9197;
+  --rule: #c6c9ca;
+  --rule-soft: #dcdfdf;
+  --green: #0b4b37;
+  --green-ink: #14523b;
+  --green-tint: #e4eee8;
+  --amber: #b47212;
+  --amber-ink: #9a5f0c;
+  --amber-tint: #f7e2ca;
+  --idle: #c8cbca;
+  --record: #d23c2f;
+  --radius: 8px;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scrollbar-color: var(--rule) var(--ground);
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-geist), system-ui, sans-serif;
+  font-feature-settings: "tnum" 1, "cv11" 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--green-tint);
+  color: var(--green);
+}
+
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
