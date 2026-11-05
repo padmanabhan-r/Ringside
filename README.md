@@ -70,7 +70,7 @@
 ![Render](https://img.shields.io/badge/Render-Web_·_Postgres_·_Workflows-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Render SDK](https://img.shields.io/badge/Render_SDK-1.3-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Resend](https://img.shields.io/badge/Resend-email-0f1b2d?style=flat-square&logo=resend&labelColor=0f1b2d)
-![Vitest](https://img.shields.io/badge/Vitest-5_·_131_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
+![Vitest](https://img.shields.io/badge/Vitest-5_·_136_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
 ![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-0f1b2d?style=flat-square&logo=githubactions&labelColor=0f1b2d)
 
 </div>
@@ -206,7 +206,7 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 |---|---|---|
 | Phone line | Twilio US number, imported into ElevenLabs | Callers dial the business and land straight on the agent ([`scripts/gates/setup-voice.mjs`](scripts/gates/setup-voice.mjs)) |
 | Voice agent | ElevenLabs Agents; LLM `gpt-6-luna` with low reasoning, hosted by ElevenLabs; voice "Chris"; calls capped at 6 minutes | Answers as Mike's AI assistant; its ten server tools read the price book, check the service area, find open windows, save the quote, book it and send the PayPal link only after a yes. Near the time limit every tool reply tells it to wrap up ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`scripts/agent/configure.mjs`](scripts/agent/configure.mjs)) |
-| Browser call | `@elevenlabs/react` over WebRTC, a server-issued conversation token | The same agent in the browser with a live transcript and a booking card that fills in; the conversation is registered to the visitor's session before the first tool call; a recorded call, and **Book without calling**: a short form with the same read-back that runs the agent's own quote, booking and hold tools ([`src/app/call/`](src/app/call/page.tsx)) |
+| Browser call | `@elevenlabs/react` over WebRTC, a server-issued conversation token | The same agent in the browser with a live transcript and a booking card that fills in; the conversation is registered to the visitor's session before the first tool call; a recorded call, and **Book without calling**: describe the problem in your own words and Claude Haiku 5.5 matches it to a job in the price book (or pick it yourself), then the same read-back and the agent's own quote, booking and hold tools ([`src/app/call/`](src/app/call/page.tsx)) |
 | Prices | Mike's price book (125 jobs as USD ranges) and a rate card of add-ons, money in integer cents | A quote holds the top of its range; extra work is parts and labour in 15-minute blocks of $23.75 ([`src/lib/price-book.ts`](src/lib/price-book.ts), [`src/lib/rate-card.ts`](src/lib/rate-card.ts)) |
 | Service area | The Saginaw Tri-Cities by ZIP and city | Callers outside it get no booking and no payment ([`src/lib/service-area.ts`](src/lib/service-area.ts)) |
 | Payments | PayPal Orders v2 (`AUTHORIZE`, `CAPTURE`) and Payments v2 (capture, void), through the server SDK | The hold, the change order's second payment, the final capture; every POST carries a stored `PayPal-Request-Id` ([`src/lib/paypal.ts`](src/lib/paypal.ts), [`src/lib/holds.ts`](src/lib/holds.ts), [`src/lib/change-orders.ts`](src/lib/change-orders.ts), [`src/lib/job-done.ts`](src/lib/job-done.ts)) |
@@ -222,7 +222,7 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Demo sessions | A cookie per visitor; Postgres 18; a job state machine | Each visitor sees only their own jobs plus labelled sample jobs that can't be charged ([`src/lib/dashboard.ts`](src/lib/dashboard.ts), [`src/lib/job-state.ts`](src/lib/job-state.ts), [`db/migrations/`](db/migrations/001_init.sql)) |
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Figtree, lucide-react | Landing page, call page, customer page, Mike's app ([`src/app/`](src/app/page.tsx)) |
 | Hosting | Render web service, Render Postgres and a Render workflow from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
-| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 131 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
+| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 136 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
 
 PayPal runs in the sandbox only: the server refuses to start unless `PAYPAL_ENV=sandbox`.
 
@@ -259,6 +259,7 @@ npm run dev                   # http://localhost:3000
 | `RESEND_API_KEY`, `EMAIL_FROM` | Emailing the PayPal link to phone callers (optional: without them the agent reads out the job code) |
 | `AG_STUDIO_LICENSE_KEY` | AG Studio's licence (without it, a trial watermark shows) |
 | `BOOKS_LLM_MODEL` | Ask your books' model (optional; default `claude-haiku-5-5`) |
+| `MATCH_LLM_MODEL` | Book without calling's problem matcher (optional; default `claude-haiku-5-5`) |
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Phone notifications for Mike (optional; `scripts/push/vapid.mjs` makes the keys) |
 | `RENDER_WORKFLOW`, `RENDER_WORKFLOW_API_KEY` | Running the close-out on Render Workflows (optional: without them it runs in the app) |
 

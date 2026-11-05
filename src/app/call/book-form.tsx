@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Check, Clock, Info, Lock, MapPin, Search, Wrench, X } from "lucide-react";
+import { ArrowLeft, Check, Clock, Info, Lock, MapPin, Search, Sparkles, TriangleAlert, Wrench, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { COMMON_SERVICES, rangeShort, townForZip } from "@/lib/book-form";
@@ -24,6 +24,9 @@ const COMMON = COMMON_SERVICES.map((code) => findService(code)!).filter(Boolean)
 export function BookForm({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [problem, setProblem] = useState("");
+  const [matching, setMatching] = useState(false);
+  const [match, setMatch] = useState<{ why: string; safety: boolean; error?: string } | null>(null);
   const [service, setService] = useState<Service | null>(null);
   const [name, setName] = useState("");
   const [street, setStreet] = useState("");
@@ -99,6 +102,29 @@ export function BookForm({ onClose }: { onClose: () => void }) {
   };
   const invalid = (f: Field) => (error?.field === f ? true : undefined);
 
+  /** "Describe the problem": Claude matches the visitor's words to one job in the price book. */
+  const findJob = async () => {
+    if (problem.trim().length < 3) return;
+    setMatching(true);
+    setMatch(null);
+    try {
+      const res = await fetch("/api/call/match", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ problem }) });
+      const body = (await res.json().catch(() => ({}))) as { code?: string; why?: string; safety?: boolean; error?: string };
+      if (!res.ok || !body.code) return setMatch({ why: "", safety: false, error: body.error ?? "We couldn’t match that. Pick the job from the list instead." });
+      if (body.safety) {
+        setService(null);
+        return setMatch({ why: "", safety: true });
+      }
+      const svc = findService(body.code);
+      if (svc) pick(svc);
+      setMatch({ why: body.why ?? "", safety: false });
+    } catch {
+      setMatch({ why: "", safety: false, error: "We couldn’t reach Mike’s Plumbing. Pick the job from the list instead." });
+    } finally {
+      setMatching(false);
+    }
+  };
+
   return (
     <section ref={top} className={s.card} aria-labelledby="book-title">
       <div className={s.head}>
@@ -149,6 +175,47 @@ export function BookForm({ onClose }: { onClose: () => void }) {
             <legend className={s.legend}>
               <Wrench aria-hidden="true" /> What needs fixing
             </legend>
+            <div className={s.describe}>
+              <label htmlFor="problem" className={s.describeLabel}>
+                Describe it in your own words, and AI finds the job and its price in Mike’s price book
+              </label>
+              <div className={s.describeRow}>
+                <textarea
+                  id="problem"
+                  className={s.describeInput}
+                  value={problem}
+                  onChange={(e) => setProblem(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      void findJob();
+                    }
+                  }}
+                  rows={2}
+                  maxLength={400}
+                  placeholder="e.g. my kitchen tap won’t stop dripping"
+                />
+                <button type="button" className={s.findButton} onClick={() => void findJob()} disabled={matching || problem.trim().length < 3}>
+                  <Sparkles aria-hidden="true" /> {matching ? "Finding…" : "Find my job"}
+                </button>
+              </div>
+              {match?.safety ? (
+                <p className={s.safety} role="alert">
+                  <TriangleAlert aria-hidden="true" />
+                  If you smell gas or something is burning, leave the building now and call your gas utility or 911. Don’t book online.
+                </p>
+              ) : match?.error ? (
+                <p className={s.hint}>{match.error}</p>
+              ) : match && service ? (
+                <p className={s.matched}>
+                  <Sparkles aria-hidden="true" />
+                  <span>
+                    <b>{service.name}</b>, {service.kind === "estimate" ? "an estimate visit" : rangeShort(service)}. {match.why}
+                  </span>
+                </p>
+              ) : null}
+            </div>
+            <p className={s.orPick}>or pick it yourself</p>
             <ul className={s.choices}>
               {(results.length ? results : COMMON).map((svc) => (
                 <li key={svc.code}>

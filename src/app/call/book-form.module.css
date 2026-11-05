@@ -484,3 +484,113 @@
     width: 100%;
   }
 }
+
+/* Describe the problem: Claude matches it to a price-book job */
+.describe {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.describeLabel {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.describeRow {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.describeInput {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-btn);
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.describeInput:focus {
+  border-color: var(--brand);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--brand-tint);
+}
+
+.findButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--r-btn);
+  background: var(--brand);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.findButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.findButton svg,
+.matched svg,
+.safety svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
+}
+
+.matched,
+.safety {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+
+.matched {
+  background: var(--brand-tint);
+  color: var(--brand-ink);
+}
+
+.matched svg {
+  margin-top: 2px;
+}
+
+.safety {
+  background: #fdecea;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.orPick {
+  margin: 6px 0 2px;
+  font-size: 13.5px;
+  color: var(--text-3);
+}
+
+@media (max-width: 480px) {
+  .describeRow {
+    flex-direction: column;
+  }
+
+  .findButton {
+    justify-content: center;
+    min-height: 46px;
+  }
+}
