@@ -246,7 +246,7 @@
 .rowLink,
 .row:not(:has(.rowLink)) {
   display: grid;
-  grid-template-columns: 104px minmax(0, 1fr);
+  grid-template-columns: 122px minmax(0, 1fr);
   gap: 6px 12px;
   padding: 14px 16px;
 }
@@ -277,6 +277,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
+  white-space: nowrap;
   font-size: 14px;
   font-weight: 600;
   color: var(--brand-ink);
