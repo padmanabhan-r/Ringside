@@ -65,7 +65,10 @@ function NowCard({ job, now }: { job: DashJob; now: Date }) {
               <MapPin aria-hidden="true" /> {job.address}
             </p>
           ) : null}
-          <StatusPill tone={job.tone}>{job.status}</StatusPill>
+          <span className={s.money1}>
+            <StatusPill tone={job.tone}>{job.pill}</StatusPill>
+            {job.amount ? <span className={s.amountLine}>{job.amount}</span> : null}
+          </span>
         </div>
         <div className={s.nowActions}>
           {canWork(job) ? (
@@ -122,8 +125,18 @@ function JobRow({ job, label, now }: { job: DashJob; label: string; now: Date })
         </span>
       </div>
       <div className={s.rowStatus}>
-        <StatusPill tone={job.tone}>{job.status}</StatusPill>
-        {job.sample ? <span className={s.sampleTag}>Sample</span> : <ChevronRight className={s.rowGo} aria-hidden="true" />}
+        <span className={s.money1}>
+          <StatusPill tone={job.tone}>{job.pill}</StatusPill>
+          {job.amount ? <span className={s.amountLine}>{job.amount}</span> : null}
+        </span>
+        {job.sample ? (
+          <span className={s.sampleTag}>Sample</span>
+        ) : (
+          <span className={s.rowAction}>
+            {job.state === "quoted" ? "Customer link" : job.tone === "ok" && job.pill === "Paid" ? "Receipt" : "Open job"}
+            <ChevronRight aria-hidden="true" />
+          </span>
+        )}
       </div>
     </>
   );
@@ -131,7 +144,7 @@ function JobRow({ job, label, now }: { job: DashJob; label: string; now: Date })
     <li className={s.row}>{body}</li>
   ) : (
     <li className={s.row}>
-      <Link className={s.rowLink} href={`/dashboard/jobs/${job.code}`} aria-label={`${job.problem}, ${job.status}`}>
+      <Link className={s.rowLink} href={job.state === "quoted" ? `/j/${job.code}` : `/dashboard/jobs/${job.code}`} aria-label={`${job.problem}, ${job.status}`}>
         {body}
       </Link>
     </li>

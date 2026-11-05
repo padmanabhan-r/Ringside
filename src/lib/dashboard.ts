@@ -21,7 +21,11 @@ export interface DashJob {
   end: Date | null;
   state: JobState | null;
   tone: Tone;
+  /** The full sentence, for lists and screen readers. */
   status: string;
+  /** Short pill text and the amount line under it, as the comps show them. */
+  pill: string;
+  amount: string;
   heldCents: number;
   waitingCents: number;
   paidCents: number;
@@ -106,28 +110,30 @@ export function describeJob(job: Job & { final_cents: number | null }, pays: Pay
     paidCents: changePaid,
     paidAt: null as Date | null,
   };
-  if (job.state === "cancelled") return { ...base, tone: "none", status: "Cancelled" };
+  if (job.state === "cancelled") return { ...base, tone: "none", status: "Cancelled", pill: "Cancelled", amount: "" };
   if (capture || job.state === "completed" || job.state === "closed") {
     const charged = (capture?.amount_cents ?? job.final_cents ?? 0) + changePaid;
-    return { ...base, tone: "ok", status: `Paid ${formatUsd(charged)}`, paidCents: charged, paidAt: new Date() };
+    return { ...base, tone: "ok", status: `Paid ${formatUsd(charged)}`, pill: "Paid", amount: formatUsd(charged), paidCents: charged, paidAt: new Date() };
   }
   if (pendingChange && hold?.status === "authorized") {
     return {
       ...base,
       tone: "wait",
       status: `Waiting for ${who} to approve ${formatUsd(pendingChange.delta_cents)} extra`,
+      pill: "Extra work waiting",
+      amount: `${formatUsd(pendingChange.delta_cents)} extra · ${formatUsd(hold.amount_cents)} held`,
       heldCents: hold.amount_cents,
       waitingCents: pendingChange.delta_cents,
     };
   }
   if (hold?.status === "authorized") {
-    return { ...base, tone: "ok", status: `Hold approved, up to ${formatUsd(hold.amount_cents)}`, heldCents: hold.amount_cents };
+    return { ...base, tone: "ok", status: `Hold approved, up to ${formatUsd(hold.amount_cents)}`, pill: "Hold approved", amount: `up to ${formatUsd(hold.amount_cents)}`, heldCents: hold.amount_cents };
   }
   if (hold) {
-    return { ...base, tone: "wait", status: `Waiting for ${who} to approve the ${formatUsd(hold.amount_cents)} hold`, waitingCents: hold.amount_cents };
+    return { ...base, tone: "wait", status: `Waiting for ${who} to approve the ${formatUsd(hold.amount_cents)} hold`, pill: "Waiting for approval", amount: `${formatUsd(hold.amount_cents)} hold`, waitingCents: hold.amount_cents };
   }
-  if (job.slot_start) return { ...base, tone: "none", status: "Estimate visit, no payment" };
-  return { ...base, tone: "info", status: "Quoted, not booked yet" };
+  if (job.slot_start) return { ...base, tone: "none", status: "Estimate visit, no payment", pill: "No payment", amount: "Estimate visit" };
+  return { ...base, tone: "info", status: "Quoted, not booked yet", pill: "Quoted", amount: "Not booked yet" };
 }
 
 function describeSample(sample: SampleJob, now: Date): DashJob {
@@ -149,13 +155,13 @@ function describeSample(sample: SampleJob, now: Date): DashJob {
   };
   switch (sample.kind) {
     case "held":
-      return { ...base, tone: "ok", status: `Hold approved, up to ${formatUsd(sample.amountCents)}`, heldCents: sample.amountCents };
+      return { ...base, tone: "ok", status: `Hold approved, up to ${formatUsd(sample.amountCents)}`, pill: "Hold approved", amount: `up to ${formatUsd(sample.amountCents)}`, heldCents: sample.amountCents };
     case "waiting":
-      return { ...base, tone: "wait", status: `Waiting for ${sample.customer} to approve the ${formatUsd(sample.amountCents)} hold`, waitingCents: sample.amountCents };
+      return { ...base, tone: "wait", status: `Waiting for ${sample.customer} to approve the ${formatUsd(sample.amountCents)} hold`, pill: "Waiting for approval", amount: `${formatUsd(sample.amountCents)} hold`, waitingCents: sample.amountCents };
     case "paid":
-      return { ...base, tone: "ok", status: `Paid ${formatUsd(sample.amountCents)}`, paidCents: sample.amountCents, paidAt: end };
+      return { ...base, tone: "ok", status: `Paid ${formatUsd(sample.amountCents)}`, pill: "Paid", amount: formatUsd(sample.amountCents), paidCents: sample.amountCents, paidAt: end };
     case "estimate":
-      return { ...base, tone: "none", status: "Estimate visit, no payment" };
+      return { ...base, tone: "none", status: "Estimate visit, no payment", pill: "No payment", amount: "Estimate visit" };
   }
 }
 
@@ -252,6 +258,7 @@ export async function loadJobDetail(session: string | undefined, code: string): 
 export async function loadAllJobs(session: string | undefined, now = new Date()): Promise<DashJob[]> {
   const live = session ? await sessionJobs(session) : [];
   const described = await Promise.all(live.map(async (job) => describeJob(job, await payments(job.id), await changeOrders(job.id))));
-  const samples = [SAMPLE_NOW, ...SAMPLE_TODAY, ...SAMPLE_EARLIER].map((s) => describeSample(s, now));
+  // The sample tap stands in for "the job Mike is on" only until the visitor has a job of their own.
+  const samples = [...(described.length ? [] : [SAMPLE_NOW]), ...SAMPLE_TODAY, ...SAMPLE_EARLIER].map((s) => describeSample(s, now));
   return [...described, ...samples.sort((a, b) => (b.start?.getTime() ?? 0) - (a.start?.getTime() ?? 0))];
 }

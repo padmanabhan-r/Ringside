@@ -1,6 +1,6 @@
-import { ArrowUpRight, Check, Clock, Lock, MapPin, Wallet } from "lucide-react";
+import { ArrowUpRight, Check, Clock, Lock, MapPin, Wallet, Wrench } from "lucide-react";
 import type { ReactNode } from "react";
-import { BrandMark, StatusPill } from "@/components/brand";
+import { StatusPill } from "@/components/brand";
 import type { CallJobView } from "./types";
 import s from "./call.module.css";
 
@@ -42,7 +42,7 @@ export function BookingCard({ job, recording }: { job: CallJobView | null; recor
         <Step
           icon={
             <span className={s.markDisc}>
-              <BrandMark size={30} />
+              <Wrench aria-hidden="true" />
             </span>
           }
           done={Boolean(title)}

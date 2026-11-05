@@ -247,7 +247,8 @@ export async function loadBooks(session: string | undefined, now = new Date()): 
     if (view.heldCents > 0) money.push({ key: `${job.id}-held`, day, kind: "Held", amount: dollars(view.heldCents) });
   });
 
-  const samples = [SAMPLE_NOW, ...SAMPLE_TODAY, ...SAMPLE_EARLIER];
+  // The sample tap stands in for the visitor's own job only until they have one.
+  const samples = [...(details.length ? [] : [SAMPLE_NOW]), ...SAMPLE_TODAY, ...SAMPLE_EARLIER];
   samples.forEach((sample) => {
     const key = `sample-${sample.key}`;
     const { start } = sampleWindow(sample, now);

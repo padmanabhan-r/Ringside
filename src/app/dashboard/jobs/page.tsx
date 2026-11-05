@@ -35,6 +35,7 @@ export default async function JobsPage() {
               </span>
               <span className={s.end}>
                 <StatusPill tone={job.tone}>{job.status}</StatusPill>
+                {job.code && !job.sample ? <ChevronRight className={s.go} aria-hidden="true" /> : null}
               </span>
             </>
           );
@@ -43,7 +44,6 @@ export default async function JobsPage() {
               {job.code && !job.sample ? (
                 <Link className={s.itemLink} href={`/dashboard/jobs/${job.code}`}>
                   {body}
-                  <ChevronRight className={s.go} aria-hidden="true" />
                 </Link>
               ) : (
                 body

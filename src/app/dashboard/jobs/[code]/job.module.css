@@ -696,7 +696,7 @@
 
 @media (min-width: 1024px) {
   .page {
-    margin-top: 20px;
+    margin-top: 64px;
   }
 
   .head {
@@ -707,5 +707,30 @@
 
   .card {
     padding: 22px 26px;
+  }
+}
+
+/* Wide desks (finish review: the single 720px column left half the screen empty): actions on the left, the job's
+   timeline on the right. */
+@media (min-width: 1200px) {
+  .page {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    align-items: start;
+    max-width: 1180px;
+  }
+
+  .head {
+    grid-column: 1 / -1;
+  }
+
+  .page > section {
+    grid-column: 1;
+  }
+
+  .page > section[aria-labelledby="timeline"] {
+    grid-column: 2;
+    grid-row: 2 / span 4;
+    position: sticky;
+    top: 24px;
   }
 }

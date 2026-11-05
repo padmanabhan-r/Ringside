@@ -1,16 +1,25 @@
 import { Check, Clock, MinusCircle, type LucideIcon } from "lucide-react";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import s from "./brand.module.css";
 
-/** Mike's Plumbing mark: a tap and a falling drop inside an open ring. Draws in currentColor. */
+/**
+ * Mike's Plumbing mark: a solid disc with a tap and a falling drop cut out of it (finish review: the thin outline read
+ * as a refresh arrow). Draws in currentColor: a white disc with the background showing through on the blue header, a
+ * blue disc on white pages.
+ */
 export function BrandMark({ size = 44, title }: { size?: number; title?: string }) {
+  const id = useId();
   return (
-    <svg className={s.mark} width={size} height={size} viewBox="0 0 64 64" fill="none" role={title ? "img" : undefined} aria-hidden={title ? undefined : true} aria-label={title}>
-      <path d="M52.5 17.5A26 26 0 1 0 54 44" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" />
-      <path d="M26 15h12M32 15v6" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-      <path d="M17 31v-4a6 6 0 0 1 6-6h18a8 8 0 0 1 8 8v4h-7v-3a2 2 0 0 0-2-2H23v3z" fill="currentColor" />
-      <path d="M45.5 40c-2.4 3.4-3.6 5.6-3.6 7.2a3.6 3.6 0 0 0 7.2 0c0-1.6-1.2-3.8-3.6-7.2z" fill="currentColor" />
+    <svg className={s.mark} width={size} height={size} viewBox="0 0 64 64" role={title ? "img" : undefined} aria-hidden={title ? undefined : true} aria-label={title}>
+      <mask id={id}>
+        <rect width="64" height="64" fill="#fff" />
+        <path d="M27 15.5h10" stroke="#000" strokeWidth="4.5" strokeLinecap="round" />
+        <path d="M32 15.5v6" stroke="#000" strokeWidth="4.5" strokeLinecap="round" />
+        <path d="M15 33v-5a7 7 0 0 1 7-7h19a9 9 0 0 1 9 9v4h-8v-3a2.5 2.5 0 0 0-2.5-2.5H23v4.5z" fill="#000" />
+        <path d="M46 40.5c-2.6 3.6-3.9 6-3.9 7.7a3.9 3.9 0 0 0 7.8 0c0-1.7-1.3-4.1-3.9-7.7z" fill="#000" />
+      </mask>
+      <circle cx="32" cy="32" r="30" fill="currentColor" mask={`url(#${id})`} />
     </svg>
   );
 }

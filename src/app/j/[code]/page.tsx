@@ -168,13 +168,25 @@ function Track({ steps }: { steps: Step[] }) {
   );
 }
 
-function holdTrack(phase: "hold" | "held" | "done"): Step[] {
-  return [
+/**
+ * The job's progress. The current step names what is being asked of the customer ("Approve the hold", "Approve extra
+ * work") and turns into the past tense only once it has happened (finish review: a "now" step must not claim it's done).
+ */
+function holdTrack(phase: "hold" | "held" | "change" | "done"): Step[] {
+  const steps: Step[] = [
     { label: "Booked", icon: CalendarDays, state: "done" },
-    { label: "Hold approved", icon: phase === "hold" ? Clock : Lock, state: phase === "hold" ? "now" : "done" },
-    { label: "Job done", icon: Wrench, state: phase === "done" ? "done" : phase === "held" ? "now" : "next" },
-    { label: "Receipt", icon: ReceiptText, state: phase === "done" ? "done" : "next" },
+    phase === "hold"
+      ? { label: "Approve the hold", icon: Clock, state: "now" }
+      : { label: "Hold approved", icon: Lock, state: "done" },
   ];
+  if (phase === "change") steps.push({ label: "Approve extra work", icon: Plus, state: "now" });
+  steps.push(
+    phase === "done"
+      ? { label: "Job done", icon: Wrench, state: "done" }
+      : { label: "Mike does the job", icon: Wrench, state: phase === "held" ? "now" : "next" },
+    { label: phase === "done" ? "Receipt sent" : "Receipt", icon: ReceiptText, state: phase === "done" ? "done" : "next" },
+  );
+  return steps;
 }
 
 function ChangeLines({ co, total, tone = "wait" }: { co: ChangeOrderView; total: string; tone?: Tone }) {
@@ -381,7 +393,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
         )}
         {order?.paypal_order_id && clientId && <TestCard />}
         {jobCard()}
-        <Track steps={holdTrack("held")} />
+        <Track steps={holdTrack("change")} />
       </Shell>
     );
   }
