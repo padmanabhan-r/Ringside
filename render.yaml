@@ -20,6 +20,16 @@ services:
         fromDatabase:
           name: ringside-db
           property: connectionString # private-network URL
+      - key: CHANGE_ORDER_MODE
+        value: second_order # PayPal captures at most 115% of a hold, so a bigger change is its own payment
+      - key: APP_BASE_URL
+        value: https://ringside-4bup.onrender.com
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: ELEVENLABS_TOOL_SECRET
+        sync: false # the shared secret the agent's server tools send in x-ringside-tool-secret
 
 databases:
   - name: ringside-db

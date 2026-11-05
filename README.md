@@ -154,7 +154,8 @@ PayPal hold, and the phone line answered by the voice agent.
 
 - PayPal runs in the sandbox only, in USD.
 - A hold can grow by at most 15% at capture, so a larger change order is always a separate payment.
-- Payment links are read out as a short job code rather than sent by text message.
+- After a phone call, the demo emails the PayPal link (or the caller types a short job code). A business registered for US
+  text messaging (A2P 10DLC) can text the link instead.
 
 ## Next steps
 

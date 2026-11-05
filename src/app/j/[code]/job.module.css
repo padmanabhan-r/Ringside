@@ -1,0 +1,281 @@
+/* Customer approval page, built from the approved phone comp (.impeccable/mocks/screens/pay-a.png). Mobile first. */
+.page {
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 18px 32px;
+  font-variant-numeric: tabular-nums;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 0 16px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.brandMark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+}
+
+.brandMark svg {
+  width: 22px;
+  height: 22px;
+}
+
+.brandName {
+  display: block;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.brandPlace {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.main {
+  padding-top: 22px;
+}
+
+.title {
+  margin: 0;
+  font-size: 23px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+.lead,
+.meta {
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: var(--ink-3);
+}
+
+.job {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.trackLabel {
+  margin: 22px 0 14px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.track {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  column-gap: 14px;
+  padding-bottom: 22px;
+}
+
+.step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: 38px;
+  bottom: 2px;
+  border-left: 2px solid var(--idle);
+}
+
+.done::after {
+  border-left-color: var(--green) !important;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eef0ef;
+  border: 2px solid var(--idle);
+  color: #7c858c;
+}
+
+.icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.done .icon,
+.next .icon {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.next .icon {
+  background: var(--green-tint);
+  color: var(--green);
+}
+
+.current .icon {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.stepTitle {
+  margin: 6px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.idle .stepTitle {
+  color: #3a4550;
+}
+
+.stepText {
+  margin: 3px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
+.stepAmount {
+  margin: 2px 0 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+.card {
+  padding: 16px;
+  border: 1px solid #d6d8d9;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 8px 22px rgba(24, 40, 52, 0.08);
+}
+
+.cardTitle {
+  margin: 2px 0 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.lines li,
+.holdRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.holdRow {
+  margin: 0;
+  font-weight: 600;
+}
+
+.holdAmount {
+  font-size: 20px;
+  color: var(--green);
+}
+
+.note {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f3f4f3;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.note svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  color: var(--ink-3);
+}
+
+.approve {
+  margin-top: 16px;
+}
+
+.paypalButtons {
+  min-height: 48px;
+}
+
+.placing {
+  margin: 0;
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--green-tint);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--green);
+  text-align: center;
+}
+
+.error {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: var(--record);
+}
+
+.fallback {
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--ink-2);
+  text-align: center;
+  text-decoration: underline;
+}
+
+.footer {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule-soft);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+
+.footer p {
+  margin: 0;
+}
+
+.mono {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  user-select: all;
+}
