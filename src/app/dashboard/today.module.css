@@ -59,6 +59,11 @@
   white-space: nowrap;
 }
 
+.bookings {
+  display: grid;
+  gap: 10px;
+}
+
 /* Now */
 .now {
   padding: 16px;
@@ -332,6 +337,11 @@
   white-space: normal;
 }
 
+.rowStatus > .sampleTag {
+  align-self: flex-end;
+  margin-left: auto;
+}
+
 .rowGo {
   display: none;
 }
@@ -426,6 +436,7 @@
 
 .figure {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   justify-items: start;
   gap: 4px;
   padding: 0 10px;
@@ -565,6 +576,7 @@
 
 .callBody {
   display: grid;
+  align-content: start;
   gap: 6px;
   min-width: 0;
 }
@@ -637,10 +649,13 @@
 
 /* Desk */
 @media (min-width: 1024px) {
+  /* Clear of the sandbox tag and Mike's name, which share this line from the shell. */
   .title {
     margin: 4px 0 26px;
-    font-size: 54px;
+    padding-right: 260px;
+    font-size: clamp(38px, 3.75vw, 54px);
     letter-spacing: -0.03em;
+    text-wrap: balance;
   }
 
   .titleDesk {
@@ -661,7 +676,7 @@
   .grid {
     grid-template-columns: minmax(0, 1fr) 380px;
     grid-template-areas:
-      "money calls"
+      "money money"
       "bookings calls";
     gap: 26px 28px;
     align-items: start;
@@ -674,7 +689,7 @@
 
   .figure {
     grid-template-columns: 56px minmax(0, 1fr);
-    grid-template-rows: auto auto;
+    grid-template-rows: minmax(0, 1fr) auto;
     align-items: center;
     column-gap: 16px;
     padding: 0 22px;
@@ -710,13 +725,18 @@
 
   .sectionTitle {
     display: block;
-    margin: 0 0 2px;
+    margin: 0;
     font-size: 26px;
+    line-height: 32px;
     font-weight: 800;
   }
 
+  /* Level with the first booking card (title 32px + gap 14px), and sticky so it stays beside a long day. */
   .calls {
     grid-area: calls;
+    position: sticky;
+    top: 28px;
+    margin-top: 46px;
   }
 
   .callsLine {
@@ -858,9 +878,22 @@
     gap: 6px;
   }
 
+  /* Status, amount and action stack flush right, in line with the Now card's buttons. */
   .rowStatus {
     grid-column: 3;
-    justify-content: flex-end;
+    display: grid;
+    justify-items: end;
+    align-content: center;
+    gap: 8px;
+  }
+
+  .rowStatus .money1 {
+    justify-items: end;
+  }
+
+  .rowStatus > .sampleTag,
+  .rowAction {
+    margin-left: 0;
   }
 
   .find {
@@ -869,5 +902,31 @@
 
   .findRow {
     max-width: 460px;
+  }
+}
+
+/* A desk too narrow for bookings and calls side by side (the booking rows need about 680px): one column, with the
+   recent calls under the day, side by side. */
+@media (min-width: 1024px) and (max-width: 1419px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "money"
+      "bookings"
+      "calls";
+  }
+
+  .calls {
+    position: static;
+    margin-top: 0;
+  }
+
+  .callList {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    column-gap: 28px;
+  }
+
+  .call + .call {
+    border-top: 0;
   }
 }
