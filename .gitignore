@@ -52,3 +52,6 @@ docs/
 # Next.js generated files
 next-env.d.ts
 *.tsbuildinfo
+
+# Internal project notes for the coding agent (kept locally, not published)
+CLAUDE.md
