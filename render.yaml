@@ -30,6 +30,10 @@ services:
         sync: false
       - key: ELEVENLABS_TOOL_SECRET
         sync: false # the shared secret the agent's server tools send in x-ringside-tool-secret
+      - key: EMAIL_FROM
+        value: "Mike's Plumbing <bookings@ringside.padmanabhan.xyz>"
+      - key: RESEND_API_KEY
+        sync: false
 
 databases:
   - name: ringside-db

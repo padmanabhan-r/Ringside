@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { findJobByCode, lineItems, payments, type Job, type LineItem, type Payment } from "@/lib/jobs";
 import { formatUsd } from "@/lib/money";
-import { TIME_ZONE, localDate } from "@/lib/slots";
+import { formatWindow } from "@/lib/slots";
 import { HoldApproval } from "./hold-approval";
 import s from "./job.module.css";
 
@@ -13,14 +13,7 @@ export const metadata: Metadata = { title: "Approve your booking · Mike’s Plu
 const DEMO_BUYER = "sb-glfwp53707955@personal.example.com";
 
 function windowText(job: Job): string | undefined {
-  if (!job.slot_start || !job.slot_end) return undefined;
-  const now = new Date();
-  const day =
-    localDate(job.slot_start) === localDate(now)
-      ? "Today"
-      : new Intl.DateTimeFormat("en-US", { timeZone: TIME_ZONE, weekday: "short", month: "short", day: "numeric" }).format(job.slot_start);
-  const hour = (d: Date) => new Intl.DateTimeFormat("en-US", { timeZone: TIME_ZONE, hour: "numeric" }).format(d).replace(" ", " ").toLowerCase();
-  return `${day}, ${hour(job.slot_start)} – ${hour(job.slot_end)}`;
+  return job.slot_start && job.slot_end ? formatWindow(job.slot_start, job.slot_end) : undefined;
 }
 
 function rangeOf(line: LineItem): string {

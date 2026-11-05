@@ -19,7 +19,9 @@ import { formatUsd } from "./money";
 import { approvalUrl, createOrder, type OrderItem } from "./paypal";
 import { PriceBookError, SECTION_TITLES, SERVICE_VISIT, quote, rangeText, searchServices } from "./price-book";
 import { SERVICE_AREA_NAME, checkServiceArea } from "./service-area";
-import { openSlots, slotFromId, TIME_ZONE } from "./slots";
+import { formatWindow, openSlots, slotFromId, TIME_ZONE } from "./slots";
+import { isValidEmail, maskEmail, normaliseEmail, sendHoldEmail, spellEmail } from "./email";
+import { addEvent } from "./jobs";
 
 export class ToolError extends Error {
   override name = "ToolError";
@@ -161,18 +163,46 @@ export const tools = {
     return { job_code: job.job_code, booked_window: slot.start.toISOString(), note: "Held for this customer once they approve the PayPal hold." };
   },
 
+  /** Spells the caller's email back letter by letter so they can confirm it before anything is sent. */
+  async spell_email(args: Args) {
+    const address = normaliseEmail(str(args, "email")!);
+    if (!isValidEmail(address)) return { valid: false, say: "That doesn't sound like a full email address. Ask the caller to say it again, slowly." };
+    return { valid: true, email: address, read_back: spellEmail(address), next: "Read it back exactly, then ask: is that right? Only on a clear yes, call send_hold_link with this email and email_confirmed: true." };
+  },
+
   /**
    * Creates the PayPal hold and returns the link. Only after the amount was read back and the customer said yes:
    * the agent must pass customer_confirmed: true.
    */
   async send_hold_link(args: Args, ctx: ToolContext) {
     if (args.customer_confirmed !== true) throw new ToolError("Read the hold amount back and get a yes first, then call again with customer_confirmed: true");
+    const emailArg = str(args, "email", false);
+    const email = emailArg ? normaliseEmail(emailArg) : undefined;
+    if (email && !isValidEmail(email)) throw new ToolError("That email isn't valid; ask for it again and use spell_email");
+    if (email && args.email_confirmed !== true) throw new ToolError("Spell the email back with spell_email and get a yes, then call again with email_confirmed: true");
+    if (!email && ctx.channel === "phone") throw new ToolError("Ask where to email the PayPal link, spell it back with spell_email, and pass email with email_confirmed: true");
     const job = await requireJob(ctx, args);
     if (!job.slot_start) throw new ToolError("Book a slot first with book_slot");
     const link = `${ctx.baseUrl}/j/${job.job_code}`;
     const existing = (await payments(job.id)).find((p) => p.kind === "hold" && p.status !== "voided");
+    const deliver = async (holdCents: number, rangeText: string) => {
+      if (!email) return "shown on the call page";
+      const sent = await sendHoldEmail({
+        to: email,
+        jobCode: job.job_code,
+        problem: job.problem ?? "Plumbing visit",
+        holdCents,
+        rangeText,
+        link,
+        windowText: job.slot_start && job.slot_end ? formatWindow(job.slot_start, job.slot_end, ctx.now) : undefined,
+      });
+      await addEvent(job.id, sent ? "link_emailed" : "link_email_unavailable", { to: maskEmail(email) });
+      return sent ? `emailed to ${maskEmail(email)}` : "email is not set up; read the job code instead";
+    };
     if (existing?.paypal_order_id) {
-      return { job_code: job.job_code, link, say_code: spokenCode(job.job_code), status: existing.status };
+      const lines0 = (await lineItems(job.id)).filter((l) => l.source === "quote");
+      const range0 = lines0.length ? `${formatUsd(lines0.reduce((n, l) => n + (l.price_low_cents ?? l.unit_price_cents), 0))} to ${formatUsd(existing.amount_cents)}` : formatUsd(existing.amount_cents);
+      return { job_code: job.job_code, link, say_code: spokenCode(job.job_code), status: existing.status, delivery: await deliver(existing.amount_cents, range0) };
     }
     const lines = (await lineItems(job.id)).filter((l) => l.source === "quote");
     if (!lines.length) throw new ToolError("This job has no quote to hold; create_quote first");
@@ -195,11 +225,14 @@ export const tools = {
       cancelUrl: `${link}?paypal=cancelled`,
     });
     await updatePayment(payment.id, { paypal_order_id: order.id, approval_url: approvalUrl(order) ?? null, status: "awaiting_approval" });
+    const low = lines.reduce((n, l) => n + (l.price_low_cents ?? l.unit_price_cents), 0);
+    const delivery = await deliver(total, low === total ? formatUsd(total) : `${formatUsd(low)} to ${formatUsd(total)}`);
     return {
       job_code: job.job_code,
       link,
+      delivery,
       say_code: spokenCode(job.job_code),
-      instructions: "Tell the caller to open the link on the call page, or go to the Ringside site and enter the job code, then approve the hold with PayPal.",
+      instructions: "Tell the caller where the link went (the delivery field) and the job code, and that they approve the hold with PayPal from that link.",
     };
   },
 

@@ -90,3 +90,13 @@ export function slotFromId(id: string, timeZone = TIME_ZONE): { start: Date; end
   if (!window) return undefined;
   return { start: localHour(m[1]!, window[0], timeZone), end: localHour(m[1]!, window[1], timeZone) };
 }
+
+/** How a booked window reads on screen and in email: "Today, 2 pm – 4 pm" or "Thu, Nov 6, 2 pm – 4 pm". */
+export function formatWindow(start: Date, end: Date, now = new Date(), timeZone = TIME_ZONE): string {
+  const day =
+    localDate(start, timeZone) === localDate(now, timeZone)
+      ? "Today"
+      : new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short", month: "short", day: "numeric" }).format(start);
+  const hour = (d: Date) => new Intl.DateTimeFormat("en-US", { timeZone, hour: "numeric" }).format(d).toLowerCase();
+  return `${day}, ${hour(start)} – ${hour(end)}`;
+}
