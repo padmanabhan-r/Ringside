@@ -340,6 +340,43 @@ button.disc:disabled {
   transform: translateY(1px);
 }
 
+/* "No mic? Book without calling": a quiet text action under the call button. */
+.bookLink {
+  flex-basis: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 6px;
+  border: 0;
+  background: none;
+  color: var(--brand-ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.bookLink:hover {
+  color: var(--brand-deep);
+  text-decoration-thickness: 2px;
+}
+
+.bookLink:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.bookLink svg {
+  width: 18px;
+  height: 18px;
+}
+
 .elapsed {
   flex: none;
   display: grid;

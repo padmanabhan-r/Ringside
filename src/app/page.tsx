@@ -92,9 +92,16 @@ export default function Home() {
             </Link>
             <p className={s.doorNote}>
               You’ll talk to an AI assistant, and the call is recorded.{" "}
-              <Link className={s.replayLink} href="/call?replay">
-                No mic? Watch a recorded call
-              </Link>
+              <span className={s.noMic}>
+                No mic?{" "}
+                <Link className={s.replayLink} href="/call?replay">
+                  Watch a recorded call
+                </Link>{" "}
+                or{" "}
+                <Link className={s.replayLink} href="/call?book">
+                  book without calling
+                </Link>
+              </span>
             </p>
           </article>
 

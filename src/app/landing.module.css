@@ -461,9 +461,13 @@
   text-align: center;
 }
 
-/* "No mic? Watch a recorded call": a quiet way in for visitors without a microphone. */
+/* "No mic? Watch a recorded call or book without calling": quiet ways in for visitors without a microphone. */
+.noMic {
+  display: block;
+  margin-top: 2px;
+}
+
 .replayLink {
-  margin-left: 4px;
   color: var(--brand-ink);
   font-weight: 600;
   white-space: nowrap;
@@ -484,12 +488,10 @@
 }
 
 @media (max-width: 640px) {
-  .replayLink {
-    display: block;
-    width: fit-content;
-    margin: 2px auto 0;
-    padding: 6px 4px;
+  .noMic {
+    margin-top: 6px;
     font-size: 14.5px;
+    line-height: 2.1;
   }
 }
 

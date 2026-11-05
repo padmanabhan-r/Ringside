@@ -1,8 +1,9 @@
 "use client";
 
 import { ConversationProvider, useConversation } from "@elevenlabs/react";
-import { Mic, MicOff, Phone, PhoneOff, RotateCcw, SkipForward, Sparkles, Square, Video } from "lucide-react";
+import { CalendarCheck, Mic, MicOff, Phone, PhoneOff, RotateCcw, SkipForward, Sparkles, Square, Video } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { BookForm } from "./book-form";
 import { BookingCard } from "./booking-card";
 import { REPLAY_END, REPLAY_LINES, REPLAY_SPEED, replayJob, type Line } from "./replay";
 import type { CallJobView, CallView } from "./types";
@@ -70,6 +71,8 @@ function Call({
   const [elapsed, setElapsed] = useState(0);
   const [level, setLevel] = useState(0);
   const [pollTick, setPollTick] = useState(0);
+  // "No mic? Book without calling": the booking form in place of the transcript.
+  const [booking, setBooking] = useState(false);
   const startedAt = useRef(0);
   const phaseRef = useRef<Phase>("idle");
   const convRef = useRef(conv);
@@ -86,6 +89,7 @@ function Call({
   // ---- live call --------------------------------------------------------------------------------------------
   const start = useCallback(async () => {
     go("starting");
+    setBooking(false);
     setError(null);
     setLines([]);
     setJob(null);
@@ -235,6 +239,7 @@ function Call({
   const replay = useCallback(
     (fromEnd = false) => {
       if (phaseRef.current === "connected" || phaseRef.current === "starting") return;
+      setBooking(false);
       setError(null);
       setConversationId(null);
       startedAt.current = Date.now() - (fromEnd ? (REPLAY_END / REPLAY_SPEED) * 1000 : 0);
@@ -261,13 +266,22 @@ function Call({
     return () => clearInterval(timer);
   }, [phase, go]);
 
-  // ?replay opens the recorded call straight away (and ?replay=end at its last frame), for links from the landing.
+  // ?replay opens the recorded call straight away (and ?replay=end at its last frame), ?book the booking form: for links
+  // from the landing.
   useEffect(() => {
-    const p = new URLSearchParams(window.location.search).get("replay");
-    if (p === null) return;
-    const t = setTimeout(() => replay(p === "end"), 0);
+    const params = new URLSearchParams(window.location.search);
+    const p = params.get("replay");
+    const book = params.has("book");
+    if (p === null && !book) return;
+    const t = setTimeout(() => (book ? setBooking(true) : replay(p === "end")), 0);
     return () => clearTimeout(t);
   }, [replay]);
+
+  const openBooking = useCallback(() => {
+    if (phaseRef.current === "replaying") go("idle");
+    setError(null);
+    setBooking(true);
+  }, [go]);
 
   // Keep the newest line in view, unless the reader has scrolled up. A jump of several lines (skip to end) always
   // lands on the last one.
@@ -324,6 +338,11 @@ function Call({
                   <button type="button" className={s.primary} onClick={() => void start()}>
                     <Phone aria-hidden="true" /> Start a live call
                   </button>
+                  {!booking ? (
+                    <button type="button" className={s.bookLink} onClick={openBooking}>
+                      <CalendarCheck aria-hidden="true" /> No mic? Book without calling
+                    </button>
+                  ) : null}
                 </>
               )}
             </div>
@@ -384,6 +403,11 @@ function Call({
               <button type="button" className={s.primary} onClick={() => void start()}>
                 <Phone aria-hidden="true" /> {phase === "ended" ? "Call again" : "Start the call"}
               </button>
+              {!booking ? (
+                <button type="button" className={s.bookLink} onClick={openBooking}>
+                  <CalendarCheck aria-hidden="true" /> No mic? Book without calling
+                </button>
+              ) : null}
             </div>
             {phase === "ended" ? <Elapsed seconds={elapsed} label="Call length" /> : null}
           </>
@@ -396,7 +420,9 @@ function Call({
         </p>
       ) : null}
 
-      <div className={s.grid}>
+      {booking ? <BookForm onClose={() => setBooking(false)} /> : null}
+
+      <div className={s.grid} style={booking ? { display: "none" } : undefined}>
         <section className={`${s.card} ${s.transcript}`} aria-labelledby="transcript-title">
           <h2 id="transcript-title" className={s.cardTitle}>
             {isReplay ? "Recorded transcript" : live ? "Live transcript" : "Transcript"}
