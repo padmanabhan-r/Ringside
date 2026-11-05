@@ -15,10 +15,12 @@
 }
 
 .lead {
+  max-width: 68ch;
   margin: -4px 0 4px;
   font-size: 15.5px;
   line-height: 1.5;
   color: var(--text-2);
+  text-wrap: balance;
 }
 
 .group {
@@ -26,6 +28,11 @@
   font-size: 17px;
   font-weight: 800;
   color: var(--text-2);
+}
+
+/* The same 24px above every group heading, the first one too. */
+.lead + .group {
+  margin-top: 6px;
 }
 
 .list {
@@ -87,6 +94,13 @@
   font-weight: 800;
 }
 
+/* A job code reads inline after the job's name. */
+.main .sub {
+  display: inline;
+  margin-left: 4px;
+  font-weight: 700;
+}
+
 .sub {
   display: flex;
   flex-wrap: wrap;
@@ -126,6 +140,18 @@
 .end > span {
   max-width: 100%;
   white-space: normal;
+}
+
+/* An opening row's chevron sits beside its status, and rows without one keep their status in the same column. */
+.end:has(.go) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.list:has(.go) .end:not(:has(.go)) {
+  padding-right: 28px;
 }
 
 .section {
@@ -190,15 +216,33 @@
     grid-column: 2;
     justify-items: start;
   }
+
+  .end:has(.go) {
+    justify-content: space-between;
+  }
+
+  .list:has(.go) .end:not(:has(.go)) {
+    padding-right: 0;
+  }
 }
 
+/* Desk: the same title size as Today and Books, and 24px from the lead to the first list. */
 @media (min-width: 1024px) {
   .page {
-    margin-top: 6px;
+    margin-top: 4px;
   }
 
   .title {
-    font-size: 44px;
+    font-size: 54px;
     letter-spacing: -0.03em;
+  }
+
+  .lead {
+    margin: -6px 0 10px;
+    font-size: 17px;
+  }
+
+  .lead + .group {
+    margin-top: 0;
   }
 }
