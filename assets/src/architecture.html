@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1600px; height: 960px; background: #f2f5f9; color: #0f1b2d; font-family: "Figtree", system-ui, sans-serif; position: relative; overflow: hidden; }
+  h1 { position: absolute; left: 40px; top: 26px; font-size: 34px; font-weight: 800; letter-spacing: -0.02em; }
+  h1 span { color: #1557c0; }
+  .money { position: absolute; left: 40px; top: 74px; display: flex; gap: 10px; align-items: center; font-size: 16px; font-weight: 700; color: #465264; }
+  .money b { padding: 4px 12px; border-radius: 999px; background: #e6f4ea; color: #17692d; font-weight: 700; }
+  .money i { font-style: normal; color: #9aa6b6; }
+  .box { position: absolute; padding: 14px 16px; border-radius: 16px; background: #fff; border: 1px solid #e2e7ee; box-shadow: 0 1px 2px rgba(16,24,40,.05), 0 6px 16px rgba(16,24,40,.07); }
+  .box h2 { font-size: 18px; font-weight: 800; line-height: 1.2; }
+  .box p { margin-top: 4px; font-size: 13.5px; line-height: 1.4; color: #465264; }
+  .box .tag { display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+  .person { background: #fff; border-color: #cfdcf3; }
+  .person h2 { color: #0b3a8a; }
+  .voice { border-color: #d7d0f5; }
+  .voice .tag { background: #efeafc; color: #4b2fa8; }
+  .app { background: linear-gradient(180deg, #0b3a8a, #1557c0); color: #fff; border: 0; }
+  .app h2 { color: #fff; font-size: 22px; }
+  .app > p { color: rgba(255,255,255,.85); }
+  .chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .chip { padding: 9px 11px; border-radius: 11px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); font-size: 13.5px; line-height: 1.3; font-weight: 600; }
+  .chip small { display: block; font-weight: 500; opacity: .82; font-size: 12px; }
+  .paypal { border: 2px solid #1557c0; }
+  .paypal h2 { color: #003087; }
+  .paypal ul { margin: 8px 0 0; padding-left: 18px; font-size: 13.5px; line-height: 1.55; color: #0f1b2d; }
+  .paypal ul small { color: #465264; }
+  .claude .tag { background: #f6e9e1; color: #8a4a26; }
+  .infra { background: #fff; }
+  .infra .tag { background: #e9f0fc; color: #0f47a8; }
+  svg { position: absolute; inset: 0; width: 1600px; height: 960px; pointer-events: none; }
+  .lbl { position: absolute; font-size: 12px; font-weight: 700; color: #5f6b7c; background: #f2f5f9; padding: 1px 6px; border-radius: 6px; }
+</style>
+</head>
+<body>
+  <h1>How <span>Ringside</span> works</h1>
+  <div class="money">The money moves four times, each after a person says yes:
+    <b>Hold at booking</b><i>→</i><b>Extra work approved</b><i>→</i><b>Real cost captured</b><i>→</i><b>Receipt</b>
+  </div>
+
+  <svg viewBox="0 0 1600 960">
+    <defs>
+      <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#7d8aa0"/></marker>
+      <marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#1557c0"/></marker>
+    </defs>
+    <g fill="none" stroke="#7d8aa0" stroke-width="2">
+      <path d="M270 190 C300 190 300 170 330 170" marker-end="url(#a)"/>
+      <path d="M270 210 C300 210 300 285 330 285" marker-end="url(#a)"/>
+      <path d="M580 170 C610 170 610 200 640 200" marker-end="url(#a)"/>
+      <path d="M580 285 C610 285 610 250 640 250" marker-end="url(#a)"/>
+      <path d="M790 330 L790 400" marker-start="url(#a)" marker-end="url(#a)"/>
+      <path d="M270 560 C420 560 470 600 640 600" marker-start="url(#a)" marker-end="url(#a)"/>
+      <path d="M270 850 C420 850 470 735 640 735" marker-start="url(#a)" marker-end="url(#a)"/>
+      <path d="M1220 735 C1245 735 1245 745 1270 745" marker-end="url(#a)"/>
+      <path d="M1220 765 C1250 765 1245 880 1270 880" marker-end="url(#a)"/>
+      <path d="M800 785 L800 815" marker-end="url(#a)"/>
+      <path d="M1060 785 L1060 815" marker-end="url(#a)"/>
+    </g>
+    <g fill="none" stroke="#1557c0" stroke-width="3">
+      <path d="M1220 520 L1270 520" marker-start="url(#p)" marker-end="url(#p)"/>
+      <path d="M270 515 C420 515 450 383 640 383 L1150 383 C1210 383 1230 372 1270 372" stroke-dasharray="7 6" marker-end="url(#p)"/>
+    </g>
+  </svg>
+
+  <div class="box person" style="left:40px; top:140px; width:230px;">
+    <h2>Customer</h2>
+    <p>Calls the business with a problem: a dripping tap, a running toilet.</p>
+  </div>
+  <div class="box person" style="left:40px; top:480px; width:230px;">
+    <h2>Customer’s phone</h2>
+    <p>Opens the job page from the email or a QR code and approves in PayPal, as a guest with a card if they like.</p>
+  </div>
+  <div class="box person" style="left:40px; top:770px; width:230px;">
+    <h2>The owner</h2>
+    <p>Mike’s dashboard on his phone (an installable app with notifications) and on his desk.</p>
+  </div>
+
+  <div class="box" style="left:330px; top:122px; width:250px;">
+    <h2>Twilio number</h2>
+    <p>The business line, connected straight to the agent.</p>
+  </div>
+  <div class="box" style="left:330px; top:236px; width:250px;">
+    <h2>Browser call</h2>
+    <p><code>/call</code> over WebRTC with <code>@elevenlabs/react</code>, or Book without calling.</p>
+  </div>
+
+  <div class="box voice" style="left:640px; top:130px; width:330px;">
+    <h2>ElevenLabs Agent</h2>
+    <p>Speaks as the business’s AI assistant, says it is AI, quotes, books and sends the PayPal link only after a yes. Calls end at six minutes with a goodbye.</p>
+    <span class="tag">LLM gpt-6-luna · voice Chris</span>
+  </div>
+  <span class="lbl" style="left:800px; top:336px;">10 server tools (webhooks, shared secret)</span>
+
+  <div class="box app" style="left:640px; top:400px; width:580px; height:385px;">
+    <h2>Ringside on Render</h2>
+    <p>Next.js 16 · TypeScript · one demo session per visitor · integer cents · a job state machine</p>
+    <div class="chips">
+      <div class="chip">Agent tools<small>price book, service area, slots, quote, booking, hold link</small></div>
+      <div class="chip">Price book &amp; rate card<small>every price checked in code</small></div>
+      <div class="chip">Holds<small>authorize after the customer approves</small></div>
+      <div class="chip">Change orders<small>spoken or picked, a second payment</small></div>
+      <div class="chip">Job done<small>capture the real cost, never above the hold; cancel voids</small></div>
+      <div class="chip">Receipts &amp; close-out<small>PayPal invoice marked paid</small></div>
+      <div class="chip">Customer page <code>/j/&lt;code&gt;</code><small>PayPal buttons, test card for judges</small></div>
+      <div class="chip">Mike’s app &amp; Books<small>installable dashboard; AG Studio + Ask your books</small></div>
+    </div>
+  </div>
+
+  <div class="box infra" style="left:660px; top:815px; width:280px; padding:10px 14px;">
+    <h2 style="font-size:16px;">Render Postgres</h2>
+    <p>Jobs, calls, payments, events</p>
+  </div>
+  <div class="box infra" style="left:960px; top:815px; width:260px; padding:10px 14px;">
+    <h2 style="font-size:16px;">Render Workflows</h2>
+    <p>Close-out, safe to replay</p>
+  </div>
+
+  <div class="box paypal" style="left:1270px; top:300px; width:290px;">
+    <h2>PayPal (sandbox)</h2>
+    <ul>
+      <li>Orders v2: <b>AUTHORIZE</b> hold, <b>CAPTURE</b> extra work <small>(server SDK by APIMatic)</small></li>
+      <li>Payments v2: capture the hold, void</li>
+      <li>Invoicing v2: the receipt</li>
+      <li>Webhooks, verified</li>
+      <li>JS SDK buttons + guest card</li>
+    </ul>
+    <span class="tag" style="background:#e9f0fc;color:#0f47a8;">PayPal-Request-Id on every POST</span>
+  </div>
+  <span class="lbl" style="left:1092px; top:356px; color:#1557c0;">customer approves</span>
+
+  <div class="box claude" style="left:1270px; top:690px; width:290px;">
+    <h2>Claude (Anthropic API)</h2>
+    <p><b>Sonnet 5.5</b>: the owner’s spoken extra work → rate-card lines.<br><b>Haiku 5.5</b>: Ask your books.</p>
+    <span class="tag">structured output · prices from the card</span>
+  </div>
+  <div class="box infra" style="left:1270px; top:860px; width:290px; padding:10px 14px;">
+    <h2 style="font-size:16px;">Resend · Web push</h2>
+    <p>Link by email after a phone call; buzz Mike’s phone</p>
+  </div>
+</body>
+</html>

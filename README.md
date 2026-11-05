@@ -177,6 +177,12 @@ Every business on Ringside runs the same flow; the screens below are the demo bu
 Nobody pays without saying yes, nobody pays more than they approved, and every price comes from the price book, checked
 in code.
 
+## Architecture
+
+<img src="assets/architecture.png" width="100%" alt="Ringside's architecture: a customer calls the Twilio number or the browser call page; the ElevenLabs agent (gpt-6-luna) calls Ringside's ten server tools on Render; Ringside holds, captures and voids through PayPal Orders and Payments (server SDK), sends the receipt with Invoicing and verifies webhooks; Claude Sonnet 5.5 parses spoken change orders and Haiku 5.5 answers Ask your books; Postgres and Render Workflows run underneath; the customer approves in PayPal on the job page and the owner works from the dashboard; Resend and web push carry links and notifications">
+
+The diagram's source is [`assets/src/architecture.html`](assets/src/architecture.html), rendered with headless Chrome.
+
 ## Real runs
 
 Measured against the real PayPal sandbox, the phone line and the Anthropic API on 2026-11-05. Nothing here is scripted.
