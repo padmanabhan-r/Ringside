@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b3a8a">
+<title>Offline · Mike’s Plumbing</title>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 24px; background: #f2f5f9; color: #0f1b2d; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; text-align: center; }
+  .card { max-width: 360px; padding: 28px 24px; border-radius: 16px; background: #fff; box-shadow: 0 6px 16px rgba(16, 24, 40, 0.08); }
+  img { width: 72px; height: 72px; border-radius: 18px; }
+  h1 { margin: 16px 0 8px; font-size: 22px; }
+  p { margin: 0 0 18px; font-size: 16px; line-height: 1.5; color: #465264; }
+  button { min-height: 50px; padding: 0 22px; border: 0; border-radius: 12px; background: #1557c0; color: #fff; font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+  <main class="card">
+    <img src="/icons/icon-192.png" alt="Mike’s Plumbing">
+    <h1>You’re offline</h1>
+    <p>Mike’s jobs and payments need a connection, so nothing here is stale. It opens again as soon as you’re back online.</p>
+    <button type="button" onclick="location.reload()">Try again</button>
+  </main>
+</body>
+</html>

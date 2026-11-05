@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: { default: "Mike’s Plumbing", template: "%s · Mike’s Plumbing" },
   description: "Mike’s jobs, holds and payments, run by Ringside. A PayPal sandbox prototype; the business is fictional.",
   appleWebApp: { capable: true, title: "Mike’s Plumbing", statusBarStyle: "black-translucent" },
+  icons: { icon: "/icons/icon-192.png", apple: "/icons/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = { themeColor: "#0b3a8a", viewportFit: "cover" };
