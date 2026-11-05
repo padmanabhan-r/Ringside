@@ -5,12 +5,12 @@ import { findJobByCode, lineItems, payments, type Job, type LineItem, type Payme
 import { formatUsd } from "@/lib/money";
 import { formatWindow } from "@/lib/slots";
 import { HoldApproval } from "./hold-approval";
+import { TestCard } from "./test-card";
 import s from "./job.module.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Approve your booking · Mike’s Plumbing", robots: { index: false } };
 
-const DEMO_BUYER = "sb-glfwp53707955@personal.example.com";
 
 function windowText(job: Job): string | undefined {
   return job.slot_start && job.slot_end ? formatWindow(job.slot_start, job.slot_end) : undefined;
@@ -37,9 +37,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       <main className={s.main}>{children}</main>
       <footer className={s.footer}>
         <p>PayPal sandbox. Fictional business. No real money moves.</p>
-        <p>
-          Approve as the demo buyer: <span className={s.mono}>{DEMO_BUYER}</span>
-        </p>
+        <p>Payments run on the PayPal sandbox with test cards; nothing is charged.</p>
       </footer>
     </div>
   );
@@ -128,6 +126,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
                 <Info aria-hidden="true" />
                 Nothing is charged now. Mike charges the real cost when the job is done, never more than the hold.
               </p>
+              {hold?.paypal_order_id && process.env.PAYPAL_CLIENT_ID && <TestCard />}
               {hold?.paypal_order_id && process.env.PAYPAL_CLIENT_ID ? (
                 <Suspense>
                   <HoldApproval code={job.job_code} orderId={hold.paypal_order_id} clientId={process.env.PAYPAL_CLIENT_ID} approvalUrl={hold.approval_url} />

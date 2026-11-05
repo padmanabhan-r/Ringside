@@ -185,6 +185,11 @@
   border-top: 1px solid var(--rule-soft);
 }
 
+.lines li span:last-child {
+  flex: none;
+  white-space: nowrap;
+}
+
 .lines li,
 .holdRow {
   display: flex;
@@ -278,4 +283,54 @@
   color: var(--ink);
   overflow-wrap: anywhere;
   user-select: all;
+}
+
+.testCard {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px dashed var(--green);
+  border-radius: 10px;
+  background: var(--green-tint);
+}
+
+.testCardTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+.testCardText {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.testCardNumber {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 8px;
+  padding: 9px 12px;
+  border: 1px solid #b9cfc4;
+  border-radius: 8px;
+  background: var(--surface);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  gap: 10px;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.testCardNumber svg {
+  width: 16px;
+  height: 16px;
+  color: var(--green);
+}
+
+.testCardNumber:hover {
+  border-color: var(--green);
 }
