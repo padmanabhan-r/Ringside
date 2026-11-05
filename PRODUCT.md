@@ -8,8 +8,8 @@ web
 
 ## Users
 
-- **Primary: the owner of a one-person trades business** (plumber, electrician, HVAC, handyman). Demo persona: Mike, of Mike's Plumbing in Springfield
-  (fictional). He is the business, the dispatcher and the cashier. The phone rings while he is under a sink; later,
+- **Primary: the owner of a one-person trades business** (plumber, electrician, HVAC, handyman). Demo persona: Mike, of Mike's Plumbing in Saginaw,
+  Michigan (fictional business). He is the business, the dispatcher and the cashier. The phone rings while he is under a sink; later,
   on site, the job grows and the customer has to agree to pay more before the work is done. He uses Ringside on his
   phone, on site, with busy or wet hands.
 - **Customers:** homeowners calling with a plumbing problem. They talk to the agent (phone or browser), approve a
@@ -51,10 +51,17 @@ not an invoicing agent; an invoice exists only for a leftover balance the hold c
 ## Capabilities and Constraints
 
 - **PayPal sandbox only**, USD, US sandbox merchant and buyer. No real money moves.
-- **Rate card** (fictional, USD): call-out $79; labour $23.75 per 15 minutes ($95/h); faucet cartridge $35; shut-off
-  valve $48; P-trap kit $22; emergency surcharge $60. Prices come only from the rate card.
-- **Demo amounts:** hold $174.00 (call-out + 1 hour). Change order $119.25 (shut-off valve + 45 minutes), paid as a
-  second PayPal order because PayPal captures at most 115% of a hold.
+- **Price book** (fictional business, illustrative US-market ranges, USD): catalogue jobs priced as ranges (service
+  calls, drains, leaks and pipes, toilets, faucets and sinks, showers, water heaters, sewer and outdoor, emergency,
+  water treatment, gas). The agent quotes the range and holds the **top of the range** with PayPal; the owner captures
+  the real cost, never more than the hold. An unknown problem gets a $99 service-visit hold, credited toward the
+  repair. Major projects get an estimate visit with no payment. A gas smell or danger gets safety instructions, not a
+  booking. On-site extras use fixed-price add-ons (parts, and labour at $23.75 per 15 minutes) so the change order's
+  second payment is exact.
+- **Service area:** the Saginaw Tri-Cities, Michigan (Saginaw, Bay City, Midland). The business line is a 989 number.
+- **Demo amounts:** faucet leak repair, $125–$250, held at $250.00. Change order $119.25 (shut-off valve + 45 minutes),
+  paid as a second PayPal payment because PayPal captures at most 115% of a hold. At job done the owner captures the
+  real repair cost from the hold.
 - **Job states:** new call → quoted → booked → in progress ⇄ change pending → completed → closed; or cancelled.
 - **Hard rules:** no capture without the owner's confirmed "job done"; the agent never captures or refunds; every amount
   is read back and confirmed with a "yes" before a link; integer-cent money.

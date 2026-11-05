@@ -12,11 +12,13 @@ import {
   startPayment,
   updatePayment,
   bookedSlots,
+  setState,
   type Job,
 } from "./jobs";
 import { formatUsd } from "./money";
-import { approvalUrl, createOrder } from "./paypal";
-import { ITEM_CODES, RATE_CARD, RateCardError, priceLineItems, totalOf, type PricedItem } from "./rate-card";
+import { approvalUrl, createOrder, type OrderItem } from "./paypal";
+import { PriceBookError, SECTION_TITLES, SERVICE_VISIT, quote, rangeText, searchServices } from "./price-book";
+import { SERVICE_AREA_NAME, checkServiceArea } from "./service-area";
 import { openSlots, slotFromId, TIME_ZONE } from "./slots";
 
 export class ToolError extends Error {
@@ -40,20 +42,6 @@ const str = (args: Args, key: string, required = true): string | undefined => {
   return undefined;
 };
 
-function spokenLines(items: readonly PricedItem[]): string {
-  return items
-    .map((i) => {
-      if (i.itemCode === "labour_hr") {
-        const minutes = i.qty * 15;
-        const hours = minutes / 60;
-        const length = Number.isInteger(hours) ? `${hours} hour${hours === 1 ? "" : "s"}` : `${minutes} minutes`;
-        return `${length} of labour ${formatUsd(i.totalCents)}`;
-      }
-      return `${i.name.toLowerCase()} ${formatUsd(i.totalCents)}`;
-    })
-    .join(", ");
-}
-
 /** Spells a job code for speech: "M P, 4 1 2 7". */
 function spokenCode(code: string): string {
   const [prefix, digits] = code.split("-");
@@ -68,22 +56,37 @@ async function requireJob(ctx: ToolContext, args: Args): Promise<Job> {
 }
 
 export const tools = {
-  /** Services, prices and the quoting rules. */
-  async get_rate_card() {
+  /** The pricing rules and the price book's sections. */
+  async get_price_book() {
     return {
       currency: "USD",
-      items: ITEM_CODES.map((code) => ({
-        item_code: code,
-        name: RATE_CARD[code].name,
-        price: formatUsd(RATE_CARD[code].unitPriceCents),
-        per: RATE_CARD[code].unit,
-      })),
+      service_area: SERVICE_AREA_NAME,
+      sections: SECTION_TITLES,
       rules: [
-        "Every quote is the call-out fee plus estimated labour in 15-minute blocks plus likely parts.",
-        "Add the emergency surcharge only when the caller needs a visit today.",
-        "The hold the customer approves equals the quote; Mike captures only what the job really costs.",
+        "Find the job with find_services and quote its range. Never present a range as a final price.",
+        `If the problem is unclear, offer the standard service visit (${rangeText(SERVICE_VISIT)}), credited toward the repair.`,
+        "The PayPal hold is the top of the range: the most the customer can be charged for that job. Mike charges the real cost when the job is done.",
+        "Emergencies use the emergency services, which are their own prices, not a fee added to a normal job.",
+        "Major jobs (marked estimate) get an in-person estimate visit with no payment; use book_estimate_visit.",
+        "If the caller smells gas or is in danger, tell them to leave the building and call their gas utility or 911. Do not book.",
+        "Check the service area before quoting. Outside it, do not book or take payment.",
       ],
     };
+  },
+
+  /** Catalogue jobs that match what the caller describes. */
+  async find_services(args: Args) {
+    const matches = searchServices(str(args, "query")!);
+    return {
+      services: matches.map((m) => ({ code: m.code, name: m.name, price: rangeText(m), hold: formatUsd(m.highCents), kind: m.kind })),
+      fallback: { code: SERVICE_VISIT.code, name: SERVICE_VISIT.name, price: rangeText(SERVICE_VISIT) },
+    };
+  },
+
+  /** Whether an address is inside Mike's service area. */
+  async check_service_area(args: Args) {
+    const answer = checkServiceArea({ zip: str(args, "zip", false), city: str(args, "city", false) });
+    return { answer, service_area: SERVICE_AREA_NAME, next: answer === "unknown" ? "Ask for the ZIP code." : answer === "outside" ? "Apologise: Mike only works in this area. Do not book or take payment." : "Go ahead and quote." };
   },
 
   /** The next open two-hour windows. */
@@ -94,31 +97,56 @@ export const tools = {
     return { time_zone: TIME_ZONE, slots: slots.map((s) => ({ slot_id: s.id, label: s.label })) };
   },
 
-  /** Saves the job and prices it from the rate card. */
+  /** Saves the job and quotes it from the price book: a range, held at the top. */
   async create_quote(args: Args, ctx: ToolContext) {
-    let items: PricedItem[];
+    const zip = str(args, "zip", false);
+    const area = checkServiceArea({ zip, city: str(args, "city", false) });
+    if (area !== "inside") throw new ToolError(area === "outside" ? "Outside the service area: do not book or take payment." : "Check the service area first: ask for the ZIP code.");
+    let q;
     try {
-      items = priceLineItems(args.items);
+      q = quote(args.service_codes);
     } catch (error) {
-      if (error instanceof RateCardError) throw new ToolError(error.message);
+      if (error instanceof PriceBookError) throw new ToolError(error.message);
       throw error;
     }
-    if (!items.some((i) => i.itemCode === "callout")) throw new ToolError("A quote must include the call-out fee (item_code callout)");
     const job = await createQuotedJob({
       demoSessionId: ctx.demoSessionId,
       channel: ctx.channel,
       customerName: str(args, "customer_name", false),
       address: str(args, "address", false),
+      zip,
       problem: str(args, "problem")!,
-      items,
+      lines: q.services.map((s) => ({ code: s.code, name: s.name, lowCents: s.lowCents, highCents: s.highCents })),
     });
     if (ctx.conversationId) await linkCall({ conversationId: ctx.conversationId, demoSessionId: ctx.demoSessionId, channel: ctx.channel, jobId: job.id, outcome: "quoted" });
-    const total = totalOf(items);
+    const what = q.services.map((s) => `${s.name.toLowerCase()}, ${rangeText(s)}`).join("; ");
     return {
       job_code: job.job_code,
-      hold_amount: formatUsd(total),
-      read_back: `The hold would be ${formatUsd(total)}: ${spokenLines(items)}. Nothing is charged until Mike finishes the job.`,
+      range: q.lowCents === q.holdCents ? formatUsd(q.holdCents) : `${formatUsd(q.lowCents)} to ${formatUsd(q.holdCents)}`,
+      hold_amount: formatUsd(q.holdCents),
+      read_back: `That's ${what}. PayPal will hold up to ${formatUsd(q.holdCents)}; nothing is charged now, and Mike charges only the real cost when the job is done.`,
     };
+  },
+
+  /** Books an in-person estimate for a major job: no quote, no payment. */
+  async book_estimate_visit(args: Args, ctx: ToolContext) {
+    const area = checkServiceArea({ zip: str(args, "zip", false), city: str(args, "city", false) });
+    if (area !== "inside") throw new ToolError(area === "outside" ? "Outside the service area: do not book." : "Check the service area first: ask for the ZIP code.");
+    const slot = slotFromId(str(args, "slot_id")!);
+    if (!slot || slot.start.getTime() < ctx.now.getTime()) throw new ToolError("Use a slot_id from check_availability");
+    const job = await createQuotedJob({
+      demoSessionId: ctx.demoSessionId,
+      channel: ctx.channel,
+      customerName: str(args, "customer_name", false),
+      address: str(args, "address", false),
+      zip: str(args, "zip", false),
+      problem: `Estimate visit: ${str(args, "problem")!}`,
+      lines: [],
+    });
+    await setSlot(job, slot.start, slot.end);
+    await setState(job, "booked", { estimateVisit: true });
+    if (ctx.conversationId) await linkCall({ conversationId: ctx.conversationId, demoSessionId: ctx.demoSessionId, channel: ctx.channel, jobId: job.id, outcome: "booked_hold" });
+    return { job_code: job.job_code, say_code: spokenCode(job.job_code), note: "Estimate visit booked. No payment until Mike approves the scope and price." };
   },
 
   /** Records the chosen visit window for a quoted job. */
@@ -146,8 +174,15 @@ export const tools = {
     if (existing?.paypal_order_id) {
       return { job_code: job.job_code, link, say_code: spokenCode(job.job_code), status: existing.status };
     }
-    const items = priceLineItems((await lineItems(job.id)).filter((l) => l.source === "quote").map((l) => ({ item_code: l.item_code, qty: l.qty })));
-    const total = totalOf(items);
+    const lines = (await lineItems(job.id)).filter((l) => l.source === "quote");
+    if (!lines.length) throw new ToolError("This job has no quote to hold; create_quote first");
+    const items: OrderItem[] = lines.map((l) => ({
+      name: `${l.name ?? l.item_code} (up to ${formatUsd(l.unit_price_cents)})`.slice(0, 127),
+      qty: l.qty,
+      unitPriceCents: l.unit_price_cents,
+      totalCents: l.unit_price_cents * l.qty,
+    }));
+    const total = items.reduce((sum, i) => sum + i.totalCents, 0);
     const payment = existing ?? (await startPayment(job.id, "hold", total));
     const order = await createOrder({
       intent: "AUTHORIZE",

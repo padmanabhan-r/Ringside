@@ -4,7 +4,6 @@
 // is formatted for PayPal; the agent never calls capture or refund (only owner-confirmed routes and the close-out do).
 
 import { type Cents, fromPayPalValue, toPayPalValue } from "./money";
-import type { PricedItem } from "./rate-card";
 
 const BASE = "https://api-m.sandbox.paypal.com";
 export const BRAND_NAME = "Mike's Plumbing";
@@ -107,9 +106,17 @@ export interface Order {
   }[];
 }
 
+/** One line on a PayPal order: always priced from the price book or the add-on card, never by the model. */
+export interface OrderItem {
+  name: string;
+  qty: number;
+  unitPriceCents: Cents;
+  totalCents: Cents;
+}
+
 export interface OrderInput {
   intent: "AUTHORIZE" | "CAPTURE";
-  items: readonly PricedItem[];
+  items: readonly OrderItem[];
   totalCents: Cents;
   jobCode: string;
   description: string;

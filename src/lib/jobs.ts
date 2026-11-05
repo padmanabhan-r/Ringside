@@ -3,7 +3,6 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { db } from "./db";
 import { assertTransition, type JobState } from "./job-state";
 import type { Cents } from "./money";
-import type { PricedItem } from "./rate-card";
 
 export interface Job {
   id: string;
@@ -22,8 +21,18 @@ export interface Job {
 export interface LineItem {
   source: "quote" | "change_order";
   item_code: string;
+  name: string | null;
   qty: number;
   unit_price_cents: number;
+  price_low_cents: number | null;
+}
+
+/** A quote line from the price book: held at the top of its range. */
+export interface QuoteLine {
+  code: string;
+  name: string;
+  lowCents: Cents;
+  highCents: Cents;
 }
 
 export interface Payment {
@@ -54,8 +63,9 @@ export async function createQuotedJob(input: {
   channel: Job["channel"];
   customerName?: string;
   address?: string;
+  zip?: string;
   problem: string;
-  items: readonly PricedItem[];
+  lines: readonly QuoteLine[];
 }): Promise<Job> {
   const sql = db();
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -63,16 +73,16 @@ export async function createQuotedJob(input: {
     try {
       return await sql.begin(async (tx) => {
         const [job] = await tx<Job[]>`
-          insert into jobs (demo_session_id, job_code, channel, customer_name, address, problem, state)
-          values (${input.demoSessionId}, ${code}, ${input.channel}, ${input.customerName ?? null}, ${input.address ?? null}, ${input.problem}, 'quoted')
+          insert into jobs (demo_session_id, job_code, channel, customer_name, address, zip, problem, state)
+          values (${input.demoSessionId}, ${code}, ${input.channel}, ${input.customerName ?? null}, ${input.address ?? null}, ${input.zip ?? null}, ${input.problem}, 'quoted')
           returning *`;
         if (!job) throw new Error("insert returned no job");
-        for (const item of input.items) {
-          await tx`insert into line_items (job_id, source, item_code, qty, unit_price_cents)
-                   values (${job.id}, 'quote', ${item.itemCode}, ${item.qty}, ${item.unitPriceCents})`;
+        for (const line of input.lines) {
+          await tx`insert into line_items (job_id, source, item_code, name, qty, unit_price_cents, price_low_cents)
+                   values (${job.id}, 'quote', ${line.code}, ${line.name}, 1, ${line.highCents}, ${line.lowCents})`;
         }
         await tx`insert into events (job_id, type, payload)
-                 values (${job.id}, 'quoted', ${tx.json({ items: input.items.map((i) => ({ code: i.itemCode, qty: i.qty })), totalCents: input.items.reduce((s, i) => s + i.totalCents, 0) })})`;
+                 values (${job.id}, 'quoted', ${tx.json({ services: input.lines.map((l) => l.code), holdCents: input.lines.reduce((s, l) => s + l.highCents, 0) })})`;
         return job;
       });
     } catch (error) {
@@ -95,7 +105,7 @@ export async function findJobByCode(jobCode: string): Promise<Job | undefined> {
 }
 
 export async function lineItems(jobId: string): Promise<LineItem[]> {
-  return db()<LineItem[]>`select source, item_code, qty, unit_price_cents from line_items where job_id = ${jobId} order by created_at, id`;
+  return db()<LineItem[]>`select source, item_code, name, qty, unit_price_cents, price_low_cents from line_items where job_id = ${jobId} order by created_at, id`;
 }
 
 export async function payments(jobId: string): Promise<Payment[]> {
