@@ -74,9 +74,11 @@
 
 /* The amount: the figure the customer is agreeing to, with the reassurance right under it. */
 
+/* Every card with a leading icon uses the same 48px icon column, so icons share a centre line and the text in each
+   card starts at the same edge down the page. */
 .amount {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: 48px minmax(0, 1fr);
   gap: 14px;
   padding: 22px 20px;
 }
@@ -154,11 +156,12 @@
 
 .jobTop {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: 48px minmax(0, 1fr);
   gap: 14px;
 }
 
 .jobIcon {
+  justify-self: center;
   width: 36px;
   height: 36px;
   margin-top: 1px;
@@ -522,15 +525,16 @@
 
 .test {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: 48px minmax(0, 1fr);
   gap: 14px;
-  padding: 18px;
+  padding: 20px;
   border-radius: var(--r-card);
   border: 1px solid color-mix(in srgb, var(--brand) 22%, white);
   background: var(--brand-tint);
 }
 
 .testIcon {
+  justify-self: center;
   display: grid;
   place-items: center;
   width: 40px;
@@ -714,7 +718,7 @@
 
 .notFound {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: 48px minmax(0, 1fr);
   gap: 14px;
   font-size: 16px;
   line-height: 1.5;
@@ -726,6 +730,7 @@
 }
 
 .notFoundIcon {
+  justify-self: center;
   width: 32px;
   height: 32px;
   color: var(--text-3);
