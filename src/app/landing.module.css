@@ -1,7 +1,7 @@
 /* Landing: the judges' demo hub, field-service world (comp .impeccable/mocks/screens2/landing-c.png). */
 
 .page {
-  --paypal: #0070e0;
+  --paypal: #005ea6; /* PayPal blue, darkened to pass 4.5:1 on the green and white panels */
   --amber-text: color-mix(in srgb, var(--wait) 55%, var(--wait-ink));
   --door-call: #f4f8fe;
   --door-call-line: #d3e1f6;
@@ -1327,3 +1327,32 @@
   }
 }
 
+
+/* Phones: the doors sit below the first screen, so the hero carries their two buttons too. Hidden elsewhere. */
+.quickDoors {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .quickDoors {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 4px 0 16px;
+  }
+
+  .quickButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 0 10px;
+    border-radius: var(--r-btn);
+    color: #fff;
+    font-size: 15.5px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+  }
+}

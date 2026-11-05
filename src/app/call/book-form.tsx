@@ -44,6 +44,7 @@ export function BookForm({ onClose }: { onClose: () => void }) {
   const [slot, setSlot] = useState("");
   const [slots, setSlots] = useState<Slot[] | null>(null);
   const [slotsError, setSlotsError] = useState<string | null>(null);
+  const [onDay, setOnDay] = useState(true);
   const [day, setDay] = useState(() => DAYS[0]!.date);
   const [part, setPart] = useState<"any" | "morning" | "afternoon">("any");
   const [readBack, setReadBack] = useState<string | null>(null);
@@ -62,11 +63,12 @@ export function BookForm({ onClose }: { onClose: () => void }) {
     const q = new URLSearchParams({ day, part });
     fetch(`/api/call/book?${q}`, { cache: "no-store" })
       .then(async (res) => {
-        const body = (await res.json().catch(() => ({}))) as { slots?: Slot[]; error?: string };
+        const body = (await res.json().catch(() => ({}))) as { slots?: Slot[]; onDay?: boolean; error?: string };
         if (stop) return;
         if (!res.ok || !body.slots) return setSlotsError(body.error ?? "We couldn’t load Mike’s calendar. Try again in a moment.");
         setSlotsError(null);
         setSlots(body.slots);
+        setOnDay(body.onDay !== false);
         setSlot((cur) => (body.slots?.some((w) => w.id === cur) ? cur : body.slots?.[0]?.id || ""));
       })
       .catch(() => !stop && setSlotsError("We couldn’t load Mike’s calendar. Try again in a moment."));
@@ -318,6 +320,8 @@ export function BookForm({ onClose }: { onClose: () => void }) {
             </div>
             {slots ? (
               slots.length ? (
+                <>
+                {!onDay ? <p className={s.hint}>Nothing is open then. The closest windows after it:</p> : null}
                 <ul className={s.slots}>
                   {slots.map((w) => (
                     <li key={w.id}>
@@ -328,6 +332,7 @@ export function BookForm({ onClose }: { onClose: () => void }) {
                     </li>
                   ))}
                 </ul>
+                </>
               ) : (
                 <p className={s.hint}>Mike’s week is full at that time. Try another day or time.</p>
               )

@@ -47,6 +47,15 @@ export default function Home() {
             <p className={s.lede}>
               <b>Ringside is call-to-cash for small service businesses: it turns a phone call into a paid job.</b>
             </p>
+            {/* Phones only: the two doors' buttons, so the first screen has a way in (the doors follow further down). */}
+            <div className={s.quickDoors}>
+              <Link className={`${s.quickButton} ${s.buttonCall}`} href="/call">
+                Call Mike’s Plumbing
+              </Link>
+              <Link className={`${s.quickButton} ${s.buttonDash}`} href="/dashboard">
+                Mike’s dashboard
+              </Link>
+            </div>
             <p className={s.difference}>
               <b>AI phone agents usually stop at the booking. Ringside carries the call to the payment:</b> a quote from the
               price book, a <span className={s.paypal}>PayPal</span> hold before the visit, extra work approved on the spot,

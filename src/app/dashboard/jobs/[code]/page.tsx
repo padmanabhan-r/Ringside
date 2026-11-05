@@ -197,7 +197,12 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
         <section className={s.card}>
           <h2 className={s.cardTitle}>Waiting for {who} to approve the hold</h2>
           <p className={s.cardSub}>Add charges and Job done open once {who} approves the {formatUsd(hold.amount_cents)} hold with PayPal.</p>
-          <CustomerLink code={job.job_code} note={`${who} approves on this page, from the booking email, or by scanning this code.`} />
+          <CustomerLink code={job.job_code} note={`${who} approves on this page${job.channel === "phone" ? ", from the link in the email we sent," : ""} or by scanning this code.`} />
+          <p className={s.demoHint}>
+            <b>Trying Ringside?</b> Play the customer: open their page and approve with PayPal’s test card{" "}
+            <span className={s.demoCard}>4012 0000 3333 0026</span>, any future expiry and code. Add charges and Job done open here
+            straight after.
+          </p>
         </section>
       ) : null}
 
@@ -226,7 +231,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
                   </li>
                 ))}
               </ul>
-              <CustomerLink code={job.job_code} note={`${who} approves it on the same page as the booking: scan this code on site or open the link from the booking email.`} />
+              <CustomerLink code={job.job_code} note={`${who} approves it on the same page as the booking: scan this code on site${job.channel === "phone" ? " or open the link in the email we sent" : " or open their booking page"}.`} />
             </div>
           ) : working ? (
             <AddCharges code={job.job_code} customer={who} items={PRICE_ITEMS} draft={draft ? { id: draft.id, transcript: draft.transcript, delta_cents: draft.delta_cents, lines: draft.lines } : undefined} />

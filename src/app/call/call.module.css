@@ -187,6 +187,16 @@ button.disc:disabled {
   text-transform: uppercase;
 }
 
+/* After the replay ends the tag stops looking live: no red dot, neutral colours. */
+.recTag.recDone {
+  background: var(--none-tint);
+  color: var(--text-2);
+}
+
+.recTag.recDone::before {
+  display: none;
+}
+
 .recTag::before {
   content: "";
   width: 7px;

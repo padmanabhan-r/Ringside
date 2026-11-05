@@ -312,7 +312,7 @@ function Call({
             <div className={s.status}>
               <p className={s.statusTitle}>
                 {phase === "replayed" ? "Recorded call finished" : "Playing a recorded call"}
-                <span className={s.recTag}>Recording</span>
+                <span className={phase === "replayed" ? `${s.recTag} ${s.recDone}` : s.recTag}>{phase === "replayed" ? "Recorded" : "Recording"}</span>
               </p>
               <p className={s.statusNote}>A past test call, played back. Not live: nothing here dials Mike or touches PayPal.</p>
               <div className={s.progress} aria-hidden="true">
@@ -348,7 +348,7 @@ function Call({
                 </>
               )}
             </div>
-            <Elapsed seconds={elapsed} label="Recording" />
+            <Elapsed seconds={elapsed} label={phase === "replayed" ? "Call length" : "Recording"} />
           </>
         ) : live || phase === "starting" ? (
           <>
@@ -451,14 +451,14 @@ function Call({
               <p className={s.emptyLead}>{phase === "starting" || live ? "The assistant is picking up…" : "What you and the assistant say shows up here as you talk."}</p>
               <p className={s.emptyHint}>
                 Try: “My kitchen tap won’t stop dripping. I’m in Saginaw, 48602.” The assistant quotes from Mike’s price book,
-                offers a visit window, and puts a PayPal hold link on this page.
+                asks when suits you, and puts a PayPal hold link on this page.
               </p>
             </div>
           )}
-          {!live && phase !== "starting" ? (
+          {!live && phase !== "starting" && !isReplay ? (
             <div className={s.noMic}>
               <button type="button" className={s.link} onClick={() => replay()}>
-                <Video aria-hidden="true" /> {isReplay ? "Watch the recorded call again" : "No mic? Watch a recorded call."}
+                <Video aria-hidden="true" /> No mic? Watch a recorded call.
               </button>
             </div>
           ) : null}

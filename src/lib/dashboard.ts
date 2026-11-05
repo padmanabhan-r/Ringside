@@ -178,8 +178,8 @@ function rank(job: DashJob): number {
 
 export interface Today {
   now: DashJob;
-  /** "Now" for the job Mike is on, "Next up" when the Now card's visit is still to come. */
-  nowLabel: "Now" | "Next up";
+  /** "Now" for the job Mike is on, "Next up" when the visit is later today, "Tomorrow" or "Coming up" after that. */
+  nowLabel: "Now" | "Next up" | "Tomorrow" | "Coming up";
   /** The rest of the day in time order, each with where it sits against the clock. */
   others: (DashJob & { label: string })[];
   earlier: DashJob[];
@@ -203,8 +203,12 @@ export async function loadToday(session: string | undefined, now = new Date()): 
   const sorted = [...open.slice(1), ...planned.filter((j) => !beforeToday(j))].sort((a, b) => (a.start?.getTime() ?? Infinity) - (b.start?.getTime() ?? Infinity));
   const earlier = [...SAMPLE_EARLIER.map((s) => describeSample(s, now)), ...planned.filter(beforeToday)];
   const onJob = nowJob.state === "in_progress" || nowJob.state === "change_pending";
-  const nowLabel = !onJob && nowJob.start && nowJob.start > now ? "Next up" : "Now";
-  const others = withLabels(sorted, now, nowLabel === "Now");
+  // A visitor's own booking leads the page even when it's on a later day; then today's first upcoming row is still "Next".
+  const tomorrow = localDate(new Date(now.getTime() + 86_400_000));
+  const nowDay = nowJob.start ? localDate(nowJob.start) : today;
+  const upcoming = !onJob && nowJob.start !== null && nowJob.start > now;
+  const nowLabel = !upcoming ? "Now" : nowDay === today ? "Next up" : nowDay === tomorrow ? "Tomorrow" : "Coming up";
+  const others = withLabels(sorted, now, nowLabel !== "Next up");
 
   const onScreen = [nowJob, ...others];
   const money = {
@@ -216,10 +220,10 @@ export async function loadToday(session: string | undefined, now = new Date()): 
 }
 
 /** Each of today's rows placed against the clock: earlier today, now, next, later today, tomorrow. */
-function withLabels(rows: DashJob[], now: Date, nowCardIsCurrent: boolean): (DashJob & { label: string })[] {
+function withLabels(rows: DashJob[], now: Date, nextIsFree: boolean): (DashJob & { label: string })[] {
   const today = localDate(now);
   const tomorrow = localDate(new Date(now.getTime() + 86_400_000));
-  let nextGiven = !nowCardIsCurrent;
+  let nextGiven = !nextIsFree;
   return rows.map((job) => {
     let label = "Not booked yet";
     if (job.start && job.end) {

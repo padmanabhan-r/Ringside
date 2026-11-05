@@ -28,12 +28,22 @@ function context(req: NextRequest, demoSessionId: string, conversationId?: strin
  * The windows still open for this visit: the agent's own availability check, so the form offers what the call would,
  * for the day and time of day the visitor picks.
  */
+async function findOpen(ctx: ToolContext, want: { day?: string; time_of_day?: string } = {}) {
+  const { slots, on_requested_day } = await tools.check_availability({ ...want, limit: 5 }, ctx);
+  // The agent pads a short day with the next days' windows; the form shows only the day picked when it has openings.
+  const day = on_requested_day ? slots[0]?.slot_id.slice(0, 10) : undefined;
+  const shown = day ? slots.filter((s) => s.slot_id.startsWith(day)) : slots;
+  return {
+    onDay: want.day ? Boolean(on_requested_day) : true,
+    slots: shown.map((s) => {
+      const w = slotFromId(s.slot_id)!;
+      return { id: s.slot_id, label: formatWindow(w.start, w.end, ctx.now) };
+    }),
+  };
+}
+
 async function openSlots(ctx: ToolContext, want: { day?: string; time_of_day?: string } = {}) {
-  const { slots } = await tools.check_availability({ ...want, limit: 5 }, ctx);
-  return slots.map((s) => {
-    const w = slotFromId(s.slot_id)!;
-    return { id: s.slot_id, label: formatWindow(w.start, w.end, ctx.now) };
-  });
+  return (await findOpen(ctx, want)).slots;
 }
 
 /** The chosen window's own day, so a window later in the week validates against that day's openings. */
@@ -47,7 +57,7 @@ export async function GET(req: NextRequest) {
   try {
     const q = new URL(req.url).searchParams;
     const want = { day: q.get("day") ?? undefined, time_of_day: q.get("part") ?? undefined };
-    return session.attach(NextResponse.json({ slots: await openSlots(context(req, session.id), want) }));
+    return session.attach(NextResponse.json(await findOpen(context(req, session.id), want)));
   } catch (error) {
     console.error("book form slots:", error);
     return session.attach(NextResponse.json({ error: "We couldn’t load Mike’s calendar. Try again in a moment." }, { status: 500 }));

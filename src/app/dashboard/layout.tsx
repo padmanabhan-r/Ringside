@@ -46,7 +46,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <Avatar />
         </div>
       </header>
-      <div className={s.main}>
+      <main className={s.main}>
         <div className={s.deskBar}>
           <SandboxTag />
           <span className={s.deskUser}>
@@ -57,7 +57,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         <p className={s.demoNote}>
           Demo: in real use only Mike signs in here. Payments run on the PayPal sandbox; the business is fictional.
         </p>
-      </div>
+      </main>
       <Nav variant="tabs" />
     </div>
   );
