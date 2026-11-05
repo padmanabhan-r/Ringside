@@ -1,0 +1,10 @@
+# Until the app exists this checks the docs and scans for secrets.
+# When the Next.js app lands (Thu Nov 5 build), add typecheck, lint and offline tests (recorded PayPal responses).
+name: CI
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: bash scripts/check-docs.sh
