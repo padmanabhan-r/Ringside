@@ -15,7 +15,23 @@ if (!url) {
 const dir = new URL("../db/migrations/", import.meta.url);
 const sql = postgres(url, { max: 1, onnotice: () => {} });
 
+// A database created in the same Blueprint sync can still be starting when the first deploy runs this.
+const STARTING = new Set(["ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN", "ETIMEDOUT", "CONNECT_TIMEOUT", "57P03"]);
+async function waitForDatabase(deadline = Date.now() + 120_000) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await sql`select 1`;
+      return;
+    } catch (error) {
+      if (!STARTING.has(error.code) || Date.now() > deadline) throw error;
+      console.log(`database not ready (${error.code}), retry ${attempt} in 5 s`);
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+  }
+}
+
 try {
+  await waitForDatabase();
   await sql`select pg_advisory_lock(hashtext('ringside-migrate'))`;
   await sql`create table if not exists schema_migrations (name text primary key, applied_at timestamptz not null default now())`;
   const applied = new Set((await sql`select name from schema_migrations`).map((row) => row.name));
