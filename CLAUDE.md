@@ -62,8 +62,9 @@ Padmanabhan ([@padmanabhan-r](https://github.com/padmanabhan-r)), solo, IST. **R
 - **UI runs through Impeccable, comp-first.** No screen is built before its comp is approved; builds follow Impeccable's
   build phases; the complete UI gets Impeccable's finish review before the feature freeze. Comps and plates are
   generated with ElevenLabs (global instructions), with real product content.
-- One feature per branch/PR; small, reviewable changes. Commit with the `commit` skill. After submitting, `main` is
-  frozen until winners are announced.
+- **Commit straight to `main` and push** after each small feature: no branches or PRs unless the owner asks for one.
+  Keep CI green on `main`. Commit with the `commit` skill. After submitting, `main` is frozen until winners are
+  announced.
 
 ### Agent context
 
