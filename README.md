@@ -47,10 +47,11 @@
 
 </div>
 
-Ringside is the AI front desk for one-person trades: the plumber, electrician or HVAC tech who is the business, the
-dispatcher and the cashier at once. It answers the call while they are under a sink, quotes from their own rate card,
-holds the customer's money with PayPal, gets the customer's yes when the job grows on site, and captures the final
-amount when the work is done. The demo business is Mike's Plumbing, which is fictional.
+Ringside is the AI front desk for small service businesses: the plumber, electrician, HVAC tech, cleaner or locksmith
+who is the business, the dispatcher and the cashier at once. It answers the call while they are on a job, quotes from
+their own price book, holds the customer's money with PayPal, gets the customer's yes when the job grows on site, and
+captures the final amount when the work is done. The demo business is Mike's Plumbing, which is fictional. Ringside is
+a prototype built for the PayPal AI Hackathon and runs on the PayPal sandbox.
 
 ## How it works
 
