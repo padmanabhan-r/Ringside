@@ -80,7 +80,7 @@ export async function paypal(method, path, { body, requestId, record = true } = 
   const res = await fetch(`${BASE}${path}`, {
     method,
     headers,
-    body: method === "POST" ? JSON.stringify(body ?? {}) : undefined,
+    body: method === "GET" ? undefined : JSON.stringify(body ?? {}),
   });
   const ms = Date.now() - started;
   const text = await res.text();

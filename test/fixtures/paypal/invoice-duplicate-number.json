@@ -1,0 +1,23 @@
+{
+  "status": 422,
+  "body": {
+    "name": "UNPROCESSABLE_ENTITY",
+    "message": "The requested action could not be performed, semantically incorrect, or failed business validation.",
+    "debug_id": "f2066001da456",
+    "details": [
+      {
+        "field": "/detail/invoice_number",
+        "value": "R-SBX-E4867CA6-A",
+        "location": "body",
+        "issue": "DUPLICATE_INVOICE_NUMBER",
+        "description": "Invoice number is duplicate."
+      }
+    ],
+    "links": [
+      {
+        "href": "https://developer.paypal.com/docs/api/invoicing/#errors",
+        "method": "GET"
+      }
+    ]
+  }
+}

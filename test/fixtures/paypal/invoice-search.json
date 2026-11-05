@@ -1,0 +1,79 @@
+{
+  "status": 200,
+  "body": {
+    "items": [
+      {
+        "id": "INV2-TEST-0000-0000-0002",
+        "status": "DRAFT",
+        "detail": {
+          "reference": "MP-0000",
+          "currency_code": "USD",
+          "note": "Thanks for choosing Mike's Plumbing. This receipt is already paid: nothing more is due.",
+          "memo": "Ringside receipt",
+          "invoice_number": "R-SBX-E4867CA6-A",
+          "invoice_date": "2026-11-05",
+          "viewed_by_recipient": false,
+          "group_draft": false,
+          "metadata": {
+            "create_time": "2026-11-05T11:16:41Z"
+          }
+        },
+        "primary_recipients": [
+          {
+            "billing_info": {
+              "name": {
+                "given_name": "Dana",
+                "surname": "Reyes",
+                "full_name": "Dana Reyes"
+              },
+              "email_address": "buyer@example.com"
+            }
+          }
+        ],
+        "amount": {
+          "currency_code": "USD",
+          "value": "169.25"
+        },
+        "due_amount": {
+          "currency_code": "USD",
+          "value": "169.25"
+        },
+        "links": [
+          {
+            "href": "https://api.sandbox.paypal.com/v2/invoicing/invoices/INV2-TEST-0000-0000-0002",
+            "rel": "self",
+            "method": "GET"
+          },
+          {
+            "href": "https://api.sandbox.paypal.com/v2/invoicing/invoices/INV2-TEST-0000-0000-0002/send",
+            "rel": "send",
+            "method": "POST"
+          },
+          {
+            "href": "https://api.sandbox.paypal.com/v2/invoicing/invoices/INV2-TEST-0000-0000-0002",
+            "rel": "replace",
+            "method": "PUT"
+          },
+          {
+            "href": "https://api.sandbox.paypal.com/v2/invoicing/invoices/INV2-TEST-0000-0000-0002",
+            "rel": "delete",
+            "method": "DELETE"
+          },
+          {
+            "href": "https://api.sandbox.paypal.com/v2/invoicing/invoices/INV2-TEST-0000-0000-0002/payments",
+            "rel": "record-payment",
+            "method": "POST"
+          }
+        ],
+        "unilateral": false
+      }
+    ],
+    "links": [
+      {
+        "href": "https://api.sandbox.paypal.com/v2/invoicing/search-invoice?page=1&page_size=5&total_required=false",
+        "rel": "self",
+        "method": "POST"
+      }
+    ]
+  }
+}

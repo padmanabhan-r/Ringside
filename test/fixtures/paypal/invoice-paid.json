@@ -1,0 +1,157 @@
+{
+  "status": 200,
+  "body": {
+    "id": "INV2-TEST-0000-0000-0001",
+    "status": "MARKED_AS_PAID",
+    "detail": {
+      "reference": "MP-0000",
+      "currency_code": "USD",
+      "note": "Thanks for choosing Mike's Plumbing. This receipt is already paid: nothing more is due.",
+      "memo": "Ringside receipt",
+      "category_code": "SHIPPABLE",
+      "invoice_number": "R-SBX-1BD21193-E",
+      "invoice_date": "2026-11-05",
+      "payment_term": {
+        "term_type": "DUE_ON_RECEIPT"
+      },
+      "viewed_by_recipient": false,
+      "group_draft": false,
+      "metadata": {
+        "create_time": "2026-11-05T11:18:07Z",
+        "last_update_time": "2026-11-05T11:18:11Z",
+        "first_sent_time": "2026-11-05T11:18:08Z",
+        "last_sent_time": "2026-11-05T11:18:08Z",
+        "created_by_flow": "REGULAR_SINGLE",
+        "recipient_view_url": "https://www.sandbox.paypal.com/invoice/p/#TEST000000000001",
+        "invoicer_view_url": "https://www.sandbox.paypal.com/invoice/details/INV2-TEST-0000-0000-0001",
+        "caller_type": "API_V2_INVOICE",
+        "spam_info": {}
+      },
+      "archived": false
+    },
+    "invoicer": {
+      "business_name": "Mike's Plumbing",
+      "address": {
+        "address_line_1": "1200 Court St",
+        "admin_area_2": "Saginaw",
+        "admin_area_1": "MI",
+        "postal_code": "48602",
+        "country_code": "US"
+      },
+      "website": "ringside-4bup.onrender.com"
+    },
+    "primary_recipients": [
+      {
+        "billing_info": {
+          "name": {
+            "given_name": "Dana",
+            "surname": "Reyes",
+            "full_name": "Dana Reyes"
+          },
+          "email_address": "buyer@example.com"
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "ITEM-TEST00000001",
+        "name": "Kitchen tap repair (MP-0000)",
+        "description": "Call-out fee, labour",
+        "quantity": "1",
+        "unit_amount": {
+          "currency_code": "USD",
+          "value": "50.00"
+        }
+      },
+      {
+        "id": "ITEM-TEST00000002",
+        "name": "Extra work: shut-off valve",
+        "quantity": "1",
+        "unit_amount": {
+          "currency_code": "USD",
+          "value": "119.25"
+        }
+      }
+    ],
+    "configuration": {
+      "tax_calculated_after_discount": false,
+      "tax_inclusive": false,
+      "allow_tip": false,
+      "allow_only_pay_by_bank": false,
+      "allow_vba_payments": false,
+      "save_item_for_future": true,
+      "template_id": "TEMP-TEST00000001"
+    },
+    "amount": {
+      "breakdown": {
+        "item_total": {
+          "currency_code": "USD",
+          "value": "169.25"
+        },
+        "discount": {
+          "invoice_discount": {
+            "amount": {
+              "currency_code": "USD",
+              "value": "0.00"
+            }
+          },
+          "item_discount": {
+            "currency_code": "USD",
+            "value": "0.00"
+          }
+        },
+        "tax_total": {
+          "currency_code": "USD",
+          "value": "0.00"
+        }
+      },
+      "currency_code": "USD",
+      "value": "169.25"
+    },
+    "due_amount": {
+      "currency_code": "USD",
+      "value": "0.00"
+    },
+    "payments": {
+      "paid_amount": {
+        "currency_code": "USD",
+        "value": "169.25"
+      },
+      "transactions": [
+        {
+          "type": "EXTERNAL",
+          "payment_id": "EXTR-TEST00000001",
+          "payment_date": "2026-11-05",
+          "payment_date_time": "2026-11-05T03:18:10Z",
+          "method": "PAYPAL",
+          "note": "PayPal capture CAPJOB00000000001",
+          "amount": {
+            "currency_code": "USD",
+            "value": "50.00"
+          }
+        },
+        {
+          "type": "EXTERNAL",
+          "payment_id": "EXTR-TEST00000002",
+          "payment_date": "2026-11-05",
+          "payment_date_time": "2026-11-05T03:18:11Z",
+          "method": "PAYPAL",
+          "note": "PayPal capture CAPCHG00000000001",
+          "amount": {
+            "currency_code": "USD",
+            "value": "119.25"
+          }
+        }
+      ]
+    },
+    "links": [
+      {
+        "href": "https://api.sandbox.paypal.com/v2/invoicing/invoices/INV2-TEST-0000-0000-0001",
+        "rel": "self",
+        "method": "GET"
+      }
+    ],
+    "unilateral": false,
+    "settings": {}
+  }
+}

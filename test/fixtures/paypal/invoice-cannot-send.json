@@ -1,0 +1,23 @@
+{
+  "status": 422,
+  "body": {
+    "name": "UNPROCESSABLE_ENTITY",
+    "message": "The requested action could not be performed, semantically incorrect, or failed business validation.",
+    "debug_id": "f46231948f156",
+    "details": [
+      {
+        "field": "invoiceId",
+        "value": "INV2-TEST-0000-0000-0003",
+        "location": "path",
+        "issue": "CANNOT_SEND_INVOICE",
+        "description": "Only DRAFT and UNPAID invoices can be sent."
+      }
+    ],
+    "links": [
+      {
+        "href": "https://developer.paypal.com/docs/api/invoicing/#errors",
+        "method": "GET"
+      }
+    ]
+  }
+}
