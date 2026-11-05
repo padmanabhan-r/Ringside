@@ -110,7 +110,7 @@ Measured against the real PayPal sandbox and the real phone line on 2026-11-05.
 | Close-out | Render Workflows flow (being built) | Capture, invoice, close; a replay after a failure reuses PayPal's original response |
 | Jobs and state | Postgres 18; a job state machine | Jobs, calls, line items, payments and events, each scoped to a demo session ([`db/migrations/`](db/migrations/001_init.sql), [`src/lib/job-state.ts`](src/lib/job-state.ts)) |
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Geist, lucide-react | The landing page now; the call page, the customer's approval page and the owner's screens next ([`src/app/`](src/app/page.tsx)) |
-| Owner dashboard | AG Grid on desktop (being built) | Mike's day, every call with its cost and outcome, and each job's money |
+| Owner dashboard | Installable PWA, phone first; Mike's Books on desktop in AG Studio with its agent framework (being built) | Today's jobs with Add charges and Job done, every call with its cost and outcome, each job's money, and "Ask your books" |
 | Hosting | Render web service and Render Postgres from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
 | Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 62 tests, including the PayPal client against recorded sandbox responses ([`test/`](test/paypal.test.ts)) |
 
@@ -167,8 +167,9 @@ price book and creates the PayPal hold, and the approval page where the customer
 
 - **The browser call page:** the same agent in the browser, with the live job card and the link on screen.
 - **The change order on the approval page:** approve the extra with PayPal's buttons.
-- **The owner's on-site screen:** speak the change order, confirm the lines, say job done.
-- **The board:** Mike's day, every call with its outcome and cost, each job's money and invoice.
+- **Mike's app:** an installable PWA for his phone: today's jobs, speak the change order, confirm the lines, say job done, and a notification when a booking or a hold comes in.
+- **Mike's Books:** an AG Studio dashboard of jobs, payments and calls on the desktop, with an "Ask your books" agent.
+- **PayPal's official server SDK** for the order and payment calls.
 - **The close-out on Render Workflows:** capture, invoice and close, safe to replay.
 - **The demo video and the public demo,** usable through the end of judging.
 
