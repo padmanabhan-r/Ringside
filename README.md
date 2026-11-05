@@ -39,7 +39,7 @@
     <td align="center" width="145">
       <img src="assets/logos/claude.svg" width="56" height="56" alt="Claude"><br>
       <b>Claude</b><br>
-      <sub>The change orders. Turns what Mike says on site into priced lines from his rate card.</sub>
+      <sub>The change orders. Turns what Mike says on site into priced lines from his rate card and price book.</sub>
     </td>
     <td align="center" width="145">
       <img src="assets/logos/aggrid.png" width="56" height="56" alt="AG Grid"><br>
@@ -70,7 +70,7 @@
 ![Render](https://img.shields.io/badge/Render-Web_·_Postgres_·_Workflows-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Render SDK](https://img.shields.io/badge/Render_SDK-1.3-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Resend](https://img.shields.io/badge/Resend-email-0f1b2d?style=flat-square&logo=resend&labelColor=0f1b2d)
-![Vitest](https://img.shields.io/badge/Vitest-5_·_140_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
+![Vitest](https://img.shields.io/badge/Vitest-5_·_144_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
 ![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-0f1b2d?style=flat-square&logo=githubactions&labelColor=0f1b2d)
 
 </div>
@@ -143,7 +143,8 @@ Every business on Ringside runs the same flow; the screens below are the demo bu
 
 3. **The change order.** On site, Mike taps the mic and says "add a shut-off valve and 45 more minutes" (or types it,
    or picks from his price list). Claude turns it into rate-card lines; the code prices them from the card: $48.00 plus
-   three 15-minute blocks of $23.75, $119.25. Mike checks the lines and sends them, and the customer approves a second
+   three 15-minute blocks of $23.75, $119.25. A whole job from the price book can go on too, such as a new flapper, at a
+   price Mike sets inside that job's range. Mike checks the lines and sends them, and the customer approves a second
    PayPal payment for exactly that amount, from the same page as the booking or a QR code on Mike's phone. PayPal lets a
    hold grow by 15% at most, so extra work is always its own payment.
 
@@ -207,11 +208,11 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Phone line | Twilio US number, imported into ElevenLabs | Callers dial the business and land straight on the agent ([`scripts/gates/setup-voice.mjs`](scripts/gates/setup-voice.mjs)) |
 | Voice agent | ElevenLabs Agents; LLM `gpt-6-luna` with low reasoning, hosted by ElevenLabs; voice "Chris"; calls capped at 6 minutes | Answers as Mike's AI assistant; its ten server tools read the price book, check the service area, find open windows, save the quote, book it and send the PayPal link only after a yes. Near the time limit every tool reply tells it to wrap up ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`scripts/agent/configure.mjs`](scripts/agent/configure.mjs)) |
 | Browser call | `@elevenlabs/react` over WebRTC, a server-issued conversation token | The same agent in the browser with a live transcript and a booking card that fills in; the conversation is registered to the visitor's session before the first tool call; a recorded call, and **Book without calling**: describe the problem in your own words and Claude Haiku 5.5 matches it to a job in the price book (or pick it yourself), then the same read-back and the agent's own quote, booking and hold tools ([`src/app/call/`](src/app/call/page.tsx)) |
-| Prices | Mike's price book (125 jobs as USD ranges) and a rate card of add-ons, money in integer cents | A quote holds the top of its range; extra work is parts and labour in 15-minute blocks of $23.75 ([`src/lib/price-book.ts`](src/lib/price-book.ts), [`src/lib/rate-card.ts`](src/lib/rate-card.ts)) |
+| Prices | Mike's price book (125 jobs as USD ranges) and a rate card of add-ons, money in integer cents | A quote holds the top of its range; extra work is parts and labour in 15-minute blocks of $23.75, or a whole job at Mike's price inside its range ([`src/lib/price-book.ts`](src/lib/price-book.ts), [`src/lib/rate-card.ts`](src/lib/rate-card.ts)) |
 | Service area | The Saginaw Tri-Cities by ZIP and city | Callers outside it get no booking and no payment ([`src/lib/service-area.ts`](src/lib/service-area.ts)) |
 | Payments | PayPal Orders v2 (`AUTHORIZE`, `CAPTURE`) and Payments v2 (capture, void), through the server SDK | The hold, the change order's second payment, the final capture; every POST carries a stored `PayPal-Request-Id` ([`src/lib/paypal.ts`](src/lib/paypal.ts), [`src/lib/holds.ts`](src/lib/holds.ts), [`src/lib/change-orders.ts`](src/lib/change-orders.ts), [`src/lib/job-done.ts`](src/lib/job-done.ts)) |
 | Customer page | Next.js page with PayPal's JavaScript SDK buttons and guest card checkout | Approve the hold, approve or decline extra work, see the charge and receipt ([`src/app/j/[code]/page.tsx`](src/app/j/[code]/page.tsx)) |
-| Change-order parser | Claude Sonnet 5.5 (`claude-sonnet-5-5`, Anthropic API), structured output with a strict JSON schema | Names rate-card items and quantities only; the code takes every price from the card and rejects unknown items, prices from the model and quantities past the card's limits ([`src/lib/change-order-parser.ts`](src/lib/change-order-parser.ts)) |
+| Change-order parser | Claude Sonnet 5.5 (`claude-sonnet-5-5`, Anthropic API), structured output with a strict JSON schema | Names rate-card items, quantities and price-book jobs only; the code takes every price from the card or the job's range and rejects unknown items, prices from the model and quantities past the card's limits ([`src/lib/change-order-parser.ts`](src/lib/change-order-parser.ts), [`src/lib/change-pricing.ts`](src/lib/change-pricing.ts)) |
 | Mike's app | Next.js, installable PWA, the browser's speech recognition | Today with the job he's on first, the job screen with Add charges, Job done and Cancel job (which voids the PayPal hold and releases the money), a QR code for on-site approval, find a phone booking by its job code ([`src/app/dashboard/`](src/app/dashboard/page.tsx)) |
 | Receipts | PayPal Invoicing v2 | After the capture, an invoice for the job and any extra work, recorded as paid: emailed when PayPal has the payer's email, otherwise a link. Repeat-safe through the invoice's own state ([`src/lib/receipts.ts`](src/lib/receipts.ts)) |
 | Close-out | Render Workflows (`@renderinc/sdk`) | Receipt, then close the job; retried by Render, every step idempotent; runs inline when no workflow key is set ([`workflows/close-out.ts`](workflows/close-out.ts), [`src/lib/close-out.ts`](src/lib/close-out.ts)) |
@@ -222,7 +223,7 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Demo sessions | A cookie per visitor; Postgres 18; a job state machine | Each visitor sees only their own jobs plus labelled sample jobs that can't be charged ([`src/lib/dashboard.ts`](src/lib/dashboard.ts), [`src/lib/job-state.ts`](src/lib/job-state.ts), [`db/migrations/`](db/migrations/001_init.sql)) |
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Figtree, lucide-react | Landing page, call page, customer page, Mike's app ([`src/app/`](src/app/page.tsx)) |
 | Hosting | Render web service, Render Postgres and a Render workflow from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
-| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 140 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
+| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 144 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
 
 PayPal runs in the sandbox only: the server refuses to start unless `PAYPAL_ENV=sandbox`.
 
