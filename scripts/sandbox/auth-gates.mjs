@@ -115,9 +115,17 @@ const CASES = {
       `same PayPal-Request-Id replayed: ${result(again)} → capture ${again.json?.id}` +
         (again.json?.id && again.json.id === first.json?.id ? " (same capture: idempotent)" : " (DIFFERENT capture)"),
     );
-    const last = await capture(authId, 5000, true);
+    const closeOut = { requestId: randomUUID(), invoiceId: `gate-${randomUUID()}` };
+    const last = await capture(authId, 5000, true, closeOut);
     note("partial", `capture $50.00, final: ${result(last)} → ${last.json?.status}`);
     note("partial", `authorization is now ${await authStatus(authId)}`);
+    // The closeJob case: Render replays the flow after the final capture went through.
+    const lastAgain = await capture(authId, 5000, true, closeOut);
+    note(
+      "partial",
+      `final capture replayed with the same PayPal-Request-Id: ${result(lastAgain)} → capture ${lastAgain.json?.id}` +
+        (lastAgain.json?.id && lastAgain.json.id === last.json?.id ? " (same capture: idempotent)" : " (DIFFERENT or refused)"),
+    );
     const extra = await capture(authId, 1000, true);
     note("partial", `capture $10.00 after the final one: ${result(extra)}`);
     note("partial", `order holds ${await capturedTotal(orderId)} (expected 2 captures, $150.00)`);
