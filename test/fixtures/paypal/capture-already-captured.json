@@ -1,0 +1,21 @@
+{
+  "status": 422,
+  "body": {
+    "name": "UNPROCESSABLE_ENTITY",
+    "message": "The requested action could not be performed, semantically incorrect, or failed business validation.",
+    "debug_id": "f43969332a4b0",
+    "details": [
+      {
+        "issue": "AUTHORIZATION_ALREADY_CAPTURED",
+        "description": "Authorization has already been captured."
+      }
+    ],
+    "links": [
+      {
+        "href": "https://developer.paypal.com/docs/api/payments/v2/#error-AUTHORIZATION_ALREADY_CAPTURED",
+        "rel": "information_link",
+        "encType": "application/json"
+      }
+    ]
+  }
+}

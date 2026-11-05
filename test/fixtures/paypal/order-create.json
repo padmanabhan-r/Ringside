@@ -1,0 +1,56 @@
+{
+  "status": 200,
+  "body": {
+    "id": "8NC00352S1876083D",
+    "intent": "AUTHORIZE",
+    "status": "PAYER_ACTION_REQUIRED",
+    "purchase_units": [
+      {
+        "reference_id": "gate-overcapture",
+        "amount": {
+          "currency_code": "USD",
+          "value": "174.00",
+          "breakdown": {
+            "item_total": {
+              "currency_code": "USD",
+              "value": "174.00"
+            }
+          }
+        },
+        "description": "Ringside gate: overcapture",
+        "items": [
+          {
+            "name": "Call-out fee",
+            "unit_amount": {
+              "currency_code": "USD",
+              "value": "79.00"
+            },
+            "quantity": "1",
+            "sku": "callout"
+          },
+          {
+            "name": "Labour, per hour",
+            "unit_amount": {
+              "currency_code": "USD",
+              "value": "95.00"
+            },
+            "quantity": "1",
+            "sku": "labour_hr"
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "href": "https://api.sandbox.paypal.com/v2/checkout/orders/8NC00352S1876083D",
+        "rel": "self",
+        "method": "GET"
+      },
+      {
+        "href": "https://www.sandbox.paypal.com/checkoutnow?token=8NC00352S1876083D",
+        "rel": "payer-action",
+        "method": "GET"
+      }
+    ]
+  }
+}

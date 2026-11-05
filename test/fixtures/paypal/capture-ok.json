@@ -1,0 +1,54 @@
+{
+  "status": 201,
+  "body": {
+    "id": "22K379082D805984S",
+    "amount": {
+      "currency_code": "USD",
+      "value": "200.10"
+    },
+    "final_capture": true,
+    "seller_protection": {
+      "status": "ELIGIBLE",
+      "dispute_categories": [
+        "ITEM_NOT_RECEIVED",
+        "UNAUTHORIZED_TRANSACTION"
+      ]
+    },
+    "seller_receivable_breakdown": {
+      "gross_amount": {
+        "currency_code": "USD",
+        "value": "200.10"
+      },
+      "paypal_fee": {
+        "currency_code": "USD",
+        "value": "7.47"
+      },
+      "net_amount": {
+        "currency_code": "USD",
+        "value": "192.63"
+      },
+      "exchange_rate": {}
+    },
+    "invoice_id": "gate-96f4fc4b-5608-4820-a6b4-ca9d406ca076",
+    "status": "COMPLETED",
+    "create_time": "2026-11-05T07:20:50Z",
+    "update_time": "2026-11-05T07:20:50Z",
+    "links": [
+      {
+        "href": "https://api.sandbox.paypal.com/v2/payments/captures/22K379082D805984S",
+        "rel": "self",
+        "method": "GET"
+      },
+      {
+        "href": "https://api.sandbox.paypal.com/v2/payments/captures/22K379082D805984S/refund",
+        "rel": "refund",
+        "method": "POST"
+      },
+      {
+        "href": "https://api.sandbox.paypal.com/v2/payments/authorizations/570359775G5052929",
+        "rel": "up",
+        "method": "GET"
+      }
+    ]
+  }
+}

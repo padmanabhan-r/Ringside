@@ -1,0 +1,126 @@
+{
+  "status": 201,
+  "body": {
+    "id": "8NC00352S1876083D",
+    "intent": "AUTHORIZE",
+    "status": "COMPLETED",
+    "purchase_units": [
+      {
+        "reference_id": "gate-overcapture",
+        "amount": {
+          "currency_code": "USD",
+          "value": "174.00",
+          "breakdown": {
+            "item_total": {
+              "currency_code": "USD",
+              "value": "174.00"
+            },
+            "shipping": {
+              "currency_code": "USD",
+              "value": "0.00"
+            },
+            "handling": {
+              "currency_code": "USD",
+              "value": "0.00"
+            },
+            "insurance": {
+              "currency_code": "USD",
+              "value": "0.00"
+            },
+            "shipping_discount": {
+              "currency_code": "USD",
+              "value": "0.00"
+            }
+          }
+        },
+        "description": "Ringside gate: overcapture",
+        "items": [
+          {
+            "name": "Call-out fee",
+            "unit_amount": {
+              "currency_code": "USD",
+              "value": "79.00"
+            },
+            "tax": {
+              "currency_code": "USD",
+              "value": "0.00"
+            },
+            "quantity": "1",
+            "sku": "callout"
+          },
+          {
+            "name": "Labour, per hour",
+            "unit_amount": {
+              "currency_code": "USD",
+              "value": "95.00"
+            },
+            "tax": {
+              "currency_code": "USD",
+              "value": "0.00"
+            },
+            "quantity": "1",
+            "sku": "labour_hr"
+          }
+        ],
+        "payments": {
+          "authorizations": [
+            {
+              "status": "CREATED",
+              "id": "570359775G5052929",
+              "amount": {
+                "currency_code": "USD",
+                "value": "174.00"
+              },
+              "seller_protection": {
+                "status": "ELIGIBLE",
+                "dispute_categories": [
+                  "ITEM_NOT_RECEIVED",
+                  "UNAUTHORIZED_TRANSACTION"
+                ]
+              },
+              "expiration_time": "2026-12-04T07:20:44Z",
+              "links": [
+                {
+                  "href": "https://api.sandbox.paypal.com/v2/payments/authorizations/570359775G5052929",
+                  "rel": "self",
+                  "method": "GET"
+                },
+                {
+                  "href": "https://api.sandbox.paypal.com/v2/payments/authorizations/570359775G5052929/capture",
+                  "rel": "capture",
+                  "method": "POST"
+                },
+                {
+                  "href": "https://api.sandbox.paypal.com/v2/payments/authorizations/570359775G5052929/void",
+                  "rel": "void",
+                  "method": "POST"
+                },
+                {
+                  "href": "https://api.sandbox.paypal.com/v2/payments/authorizations/570359775G5052929/reauthorize",
+                  "rel": "reauthorize",
+                  "method": "POST"
+                },
+                {
+                  "href": "https://api.sandbox.paypal.com/v2/checkout/orders/8NC00352S1876083D",
+                  "rel": "up",
+                  "method": "GET"
+                }
+              ],
+              "create_time": "2026-11-05T07:20:44Z",
+              "update_time": "2026-11-05T07:20:44Z"
+            }
+          ]
+        }
+      }
+    ],
+    "create_time": "2026-11-05T07:11:56Z",
+    "update_time": "2026-11-05T07:20:44Z",
+    "links": [
+      {
+        "href": "https://api.sandbox.paypal.com/v2/checkout/orders/8NC00352S1876083D",
+        "rel": "self",
+        "method": "GET"
+      }
+    ]
+  }
+}
