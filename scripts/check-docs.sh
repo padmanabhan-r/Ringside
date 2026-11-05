@@ -17,7 +17,7 @@ while IFS= read -r md; do
       echo "broken link: $md -> $target"
       status=1
     fi
-  done < <(grep -oE '\]\([^)]+\)' "$md" | sed -E 's/^\]\((.*)\)$/\1/' | grep -vE '^(https?:|mailto:|#)' || true)
+  done < <(grep -oE '\]\([^)]+\)' "$md" | sed -E 's/^\]\((.*)\)$/\1/' | grep -vE '^(https?:|mailto:|tel:|#)' || true)
 done < <(git ls-files '*.md')
 
 # 2. No secrets in tracked files. This script holds the patterns, and the lockfile's integrity hashes look key-shaped, so both are excluded.

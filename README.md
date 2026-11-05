@@ -75,18 +75,26 @@
 
 </div>
 
-Ringside is the AI front desk for small service businesses: the plumber, electrician, HVAC tech, cleaner or locksmith
-who is the business, the dispatcher and the cashier at once. It answers the call while they are on a job, quotes from
-their own price book, holds the customer's money with PayPal, gets the customer's yes when the job grows on site, and
-charges the real cost when the work is done. The demo business is Mike's Plumbing, which is fictional. Ringside is a
-prototype built for the PayPal AI Hackathon and runs on the PayPal sandbox.
+**Ringside is AI front-desk software for small service businesses**: the plumber, electrician, HVAC tech, cleaner or
+locksmith who is the business, the dispatcher and the cashier at once. A business signs up and gets its own AI phone
+agent, its price book, PayPal payments and a dashboard on its phone. Ringside answers the business's calls while the
+owner is on a job, quotes from the price book, holds the customer's money with PayPal, gets the customer's yes when the
+job grows on site, and charges the real cost when the work is done.
 
-**For the judges:** open the [live demo](https://ringside-4bup.onrender.com), call Mike's Plumbing in the browser (or on
-the phone number in the submission form), approve the hold with PayPal's sandbox test card `4012 0000 3333 0026` (any
-future expiry and code), then open Mike's dashboard to add charges and finish the job. No PayPal account is needed. No
-mic? The call page plays a recorded call.
+**The demo runs one example business on Ringside: Mike's Plumbing**, a fictional one-person plumber in Saginaw,
+Michigan. Its customers, jobs and calls are fictional too. Ringside is a prototype built for the PayPal AI Hackathon and
+runs on the PayPal sandbox.
+
+<img src="assets/screens/landing.jpg" width="100%" alt="Ringside's landing page: 'Ringside is AI front-desk software for small service businesses', then the demo business, Mike's Plumbing, with two doors: call it as a customer, or open the owner's dashboard; below, the call, the hold, the charge and the change order on one job">
+
+**For the judges:** open the [live demo](https://ringside-4bup.onrender.com) and try Ringside as the demo business's
+customer: call Mike's Plumbing in the browser or on **[+1 (989) 534-9779](tel:+19895349779)**, then approve the hold with
+PayPal's sandbox test card `4012 0000 3333 0026` (any future expiry and code; no PayPal account needed). Then open the
+owner's dashboard to add charges and finish the job. No mic? The call page plays a recorded call.
 
 ## How it works
+
+Every business on Ringside runs the same flow; the screens below are the demo business, Mike's Plumbing.
 
 1. **The call.** A customer in Mike's area (the Saginaw Tri-Cities, Michigan) phones the business or calls from the
    browser. The ElevenLabs agent says it is an AI assistant answering for Mike, finds the job in Mike's price book,

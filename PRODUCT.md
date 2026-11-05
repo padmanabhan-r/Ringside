@@ -78,6 +78,9 @@ not an invoicing agent; an invoice exists only for a leftover balance the hold c
 ## Brand Commitments
 
 - Product name: **Ringside**.
+- **Ringside is a SaaS product, not a plumbing service** (owner, 2026-11-05): small service businesses sign up and
+  get their own AI phone agent, price book, PayPal payments and dashboard. Everything public shows Ringside first and
+  Mike's Plumbing only as the fictional example business running on it.
 - **Positioning: Ringside is for every small service business** (owner, 2026-11-05): plumbers, electricians, HVAC,
   handymen, cleaners, locksmiths and others who quote, do the job and charge the real cost. It is not a plumbing app;
   Mike's Plumbing is only the labelled demo business.

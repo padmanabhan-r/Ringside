@@ -17,7 +17,7 @@ function TryIt() {
   return (
     <section className={s.tryIt} aria-labelledby="try-title">
       <h2 id="try-title" className={s.tryTitle}>
-        Trying Ringside? This is what Mike sees.
+        Trying Ringside? This is the dashboard every business gets, shown for the fictional Mike’s Plumbing.
       </h2>
       <ol className={s.trySteps}>
         <li>

@@ -250,6 +250,39 @@
   display: block;
 }
 
+/* The demo business, introduced inside Ringside's page (owner, 2026-11-05: Ringside first, Mike's Plumbing as the
+   fictional example) */
+.demoHead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  color: var(--text-2);
+  font-size: 16px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.demoHead p {
+  margin: 0;
+}
+
+.demoHead b {
+  color: var(--text);
+}
+
+.demoMark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--brand-tint);
+  color: var(--brand);
+}
+
 /* Doors */
 .doors {
   display: grid;
@@ -1178,6 +1211,18 @@
 
   .mikes {
     display: none;
+  }
+}
+
+/* Ringside owns the hero at every width: one centred column. */
+.hero {
+  display: block;
+}
+
+@media (min-width: 1024px) and (min-height: 600px) {
+  .demoHead {
+    margin: 0;
+    font-size: clamp(14px, 1.9vh, 16px);
   }
 }
 

@@ -40,35 +40,35 @@ export default function Home() {
 
       <main className={s.main} id="landing-main" suppressHydrationWarning>
         <section className={s.hero} aria-labelledby="headline">
-          <div className={s.mikes}>
-            <span className={s.mikesMark}>
-              <BrandMark size={96} />
-            </span>
-            <span className={s.mikesText}>
-              <span className={s.mikesName}>
-                Mike’s <span>Plumbing</span>
-              </span>
-              <span className={s.mikesPlace}>Saginaw, Michigan</span>
-            </span>
-          </div>
           <div className={s.heroText}>
             <h1 id="headline" className={s.headline}>
               <span>Your phone, answered.</span> <span>Your job, paid.</span>
             </h1>
             <p className={s.lede}>
               <span className={s.ledeLine}>
-                <b>Ringside is the AI front desk for small service businesses.</b>
+                <b>Ringside is AI front-desk software for small service businesses.</b>
               </span>{" "}
-              It answers the call, quotes from the price book, holds the payment with <b className={s.paypal}>PayPal</b>, and
-              charges the real cost when the job is done.
+              It answers their calls, quotes from their price book, holds the payment with <b className={s.paypal}>PayPal</b>,
+              and charges the real cost when the job is done.
             </p>
             <p className={s.forWho}>
-              For plumbers, electricians, HVAC techs, handymen, cleaners and locksmiths. Mike’s Plumbing is the demo.
+              For plumbers, electricians, HVAC techs, handymen, cleaners and locksmiths: anyone who quotes a job, does it,
+              then gets paid.
             </p>
           </div>
         </section>
 
-        <section className={s.doors} aria-label="Try the demo">
+        <div className={s.demoHead}>
+          <span className={s.demoMark} aria-hidden="true">
+            <BrandMark size={30} />
+          </span>
+          <p>
+            <b>See it running for a fictional business, Mike’s Plumbing:</b> a one-person plumber in Saginaw, Michigan, set up
+            on Ringside. Be his customer, or be Mike.
+          </p>
+        </div>
+
+        <section className={s.doors} aria-label="Try Ringside with the demo business">
           <article className={`${s.door} ${s.doorCall}`}>
             <span className={s.doorIcon} aria-hidden="true">
               <Phone strokeWidth={2.4} />
