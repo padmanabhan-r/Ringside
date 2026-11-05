@@ -1,83 +1,648 @@
-/* Customer approval page, built from the approved phone comp (.impeccable/mocks/screens/pay-a.png). Mobile first. */
+/* The customer's approval page, field-service world: a Mike's Plumbing band, then one column of white cards on the
+   pale ground. Amount first, then the job, PayPal's own buttons, the testing note and the step track. Phone first;
+   the column stays centred on a desk. */
+
 .page {
-  min-height: 100vh;
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 0 18px 32px;
-  font-variant-numeric: tabular-nums;
-}
-
-.brand {
+  min-height: 100dvh;
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 18px 0 16px;
-  border-bottom: 1px solid var(--rule-soft);
+  flex-direction: column;
 }
 
-.brandMark {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--green);
+.band {
+  display: flex;
+  justify-content: center;
+  padding: calc(var(--safe-top) + 22px) 16px 48px;
+  background:
+    radial-gradient(120% 140% at 15% 0%, color-mix(in srgb, var(--brand) 82%, white) 0%, transparent 55%),
+    linear-gradient(165deg, var(--brand) 0%, var(--brand-deep) 100%);
   color: #fff;
 }
 
-.brandMark svg {
-  width: 22px;
-  height: 22px;
-}
-
-.brandName {
-  display: block;
-  font-size: 19px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.brandPlace {
-  display: block;
-  font-size: 13px;
-  color: var(--ink-3);
-}
-
-.main {
-  padding-top: 22px;
+.sheet {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 520px;
+  margin: -26px auto 0;
+  padding: 26px 16px calc(var(--safe-bottom) + 24px);
+  border-radius: 26px 26px 0 0;
+  background: var(--bg);
 }
 
 .title {
-  margin: 0;
-  font-size: 23px;
-  line-height: 1.2;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  color: var(--ink);
+  margin: 0 4px 6px;
+  font-size: clamp(30px, 8.6vw, 38px);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  text-wrap: balance;
 }
 
-.lead,
-.meta {
+/* Cards */
+
+.card {
+  padding: 20px;
+  border-radius: var(--r-card);
+  border: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.cardNote {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--text-3);
+}
+
+/* The amount: the figure the customer is agreeing to, with the reassurance right under it. */
+
+.amount {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  padding: 22px 20px;
+}
+
+.amount[data-tone="ok"] {
+  --tone: var(--ok);
+  --figure: var(--ok);
+  --tone-ink: var(--ok-ink);
+}
+
+.amount[data-tone="wait"] {
+  --tone: var(--wait);
+  --figure: var(--wait-ink);
+  --tone-ink: var(--wait-ink);
+}
+
+.amount[data-tone="none"] {
+  --tone: color-mix(in srgb, var(--none-ink) 78%, white);
+  --figure: var(--none-ink);
+  --tone-ink: var(--text);
+}
+
+.amountIcon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: var(--tone);
+  color: #fff;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--tone) 35%, transparent);
+}
+
+.amountIcon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+  margin: 0;
+  line-height: 1;
+  color: var(--figure);
+}
+
+.figureNum {
+  font-size: clamp(36px, 10.5vw, 50px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.figureUnit {
+  font-size: clamp(19px, 5.4vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.amountText {
+  margin: 12px 0 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.amountText strong {
+  font-weight: 700;
+  color: var(--tone-ink);
+}
+
+/* The job */
+
+.jobTop {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+}
+
+.jobIcon {
+  width: 36px;
+  height: 36px;
+  margin-top: 1px;
+  color: var(--brand);
+}
+
+.jobTitle {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.jobMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 6px 0 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.when {
+  font-weight: 700;
+  color: var(--brand-ink);
+}
+
+.where {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-2);
+}
+
+.where svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--text-3);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 16px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.facts > div {
+  min-width: 0;
+}
+
+.facts > div + div {
+  padding-left: 16px;
+  border-left: 1px solid var(--line);
+}
+
+.facts dt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.factIcon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--none-tint);
+  color: var(--none-ink);
+}
+
+.factIcon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.factIconOk {
+  background: var(--ok-tint);
+  color: var(--ok-ink);
+}
+
+.facts dd {
+  margin: 8px 0 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+
+.code {
+  color: var(--brand-ink);
+}
+
+.price {
+  color: var(--ok-ink);
+}
+
+/* Line items (change order, payments) */
+
+.lines {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lines li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.lines small {
+  display: block;
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.lineAmount {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  padding-top: 14px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.totalRow span:last-child {
+  color: var(--wait-ink);
+}
+
+.totalOk span:last-child {
+  color: var(--ok-ink);
+}
+
+.totalNone span:last-child {
+  color: var(--text-3);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+.heldRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--bg);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.heldRow small {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-3);
+}
+
+/* PayPal */
+
+.payTitle {
+  margin: 8px 4px -2px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.pay {
+  display: grid;
+  gap: 10px;
+}
+
+.paypalButtons {
+  min-height: 146px;
+}
+
+.paypalButtons[hidden] {
+  display: none;
+}
+
+.working {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 146px;
+  margin: 0;
+  border-radius: var(--r-card);
+  background: var(--card);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--brand-ink);
+}
+
+.working svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .working svg {
+    animation: spin 0.9s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fallback {
+  justify-self: center;
+  padding: 6px 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brand-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+.error {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--danger) 9%, white);
+  font-size: 15px;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--danger) 80%, black);
+}
+
+.notice {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: var(--r-card);
+  background: var(--wait-tint);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--wait-ink);
+}
+
+/* Buttons */
+
+.btnPrimary,
+.btnSecondary,
+.btnQuiet,
+.btnDecline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 18px;
+  border-radius: var(--r-btn);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btnPrimary {
+  border: 0;
+  background: var(--brand);
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  background: var(--brand-deep);
+}
+
+.btnSecondary {
+  border: 1.5px solid color-mix(in srgb, var(--text-3) 45%, white);
+  background: var(--card);
+  color: var(--text);
+}
+
+.btnSecondary:hover {
+  border-color: var(--text-3);
+  background: color-mix(in srgb, var(--bg) 60%, white);
+}
+
+.confirm {
+  padding: 16px;
+  border-radius: var(--r-card);
+  border: 1.5px solid color-mix(in srgb, var(--text-3) 35%, white);
+  background: var(--card);
+}
+
+.confirmTitle {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.confirmText {
   margin: 6px 0 0;
   font-size: 15px;
-  color: var(--ink-3);
+  line-height: 1.45;
+  color: var(--text-2);
 }
 
-.job {
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--rule-soft);
+.confirmActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
 }
 
-.trackLabel {
-  margin: 22px 0 14px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-3);
+.btnQuiet {
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  color: var(--text);
 }
+
+.btnQuiet:hover {
+  border-color: color-mix(in srgb, var(--text-3) 45%, white);
+}
+
+.btnDecline {
+  border: 0;
+  background: var(--text);
+  color: #fff;
+}
+
+.btnDecline:hover {
+  background: color-mix(in srgb, var(--text) 85%, white);
+}
+
+/* Testing note */
+
+.test {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  padding: 18px;
+  border-radius: var(--r-card);
+  border: 1px solid color-mix(in srgb, var(--brand) 22%, white);
+  background: var(--brand-tint);
+}
+
+.testIcon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+}
+
+.testIcon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.testTitle {
+  margin: 2px 0 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--brand-ink);
+}
+
+.testText {
+  margin: 4px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--brand-deep) 45%, var(--text));
+}
+
+.testText b {
+  font-weight: 700;
+}
+
+.cardNumber {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 44px;
+  margin: 8px 0 6px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--brand) 30%, white);
+  background: #fff;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--brand-ink);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cardNumber:hover {
+  border-color: var(--brand);
+}
+
+.cardNumber svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+
+/* What happens next */
+
+.nextList {
+  display: grid;
+  gap: 14px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nextList li {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+.nextIcon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--brand-tint);
+  color: var(--brand-ink);
+}
+
+.nextIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.keepOpen {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--text-3);
+}
+
+/* Step track */
 
 .track {
+  display: grid;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -86,251 +651,147 @@
 .step {
   position: relative;
   display: grid;
-  grid-template-columns: 36px 1fr;
-  column-gap: 14px;
-  padding-bottom: 22px;
+  justify-items: center;
+  align-content: start;
+  gap: 8px;
+  padding: 0 2px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-wrap: balance;
 }
 
-.step:not(:last-child)::after {
+.step + .step::before {
   content: "";
   position: absolute;
-  left: 17px;
-  top: 38px;
-  bottom: 2px;
-  border-left: 2px solid var(--idle);
+  top: 22px;
+  right: calc(50% + 30px);
+  left: calc(-50% + 30px);
+  border-top: 2px dashed color-mix(in srgb, var(--text-3) 35%, white);
 }
 
-.done::after {
-  border-left-color: var(--green) !important;
-}
-
-.icon {
+.dot {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: #eef0ef;
-  border: 2px solid var(--idle);
-  color: #7c858c;
-}
-
-.icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.done .icon,
-.next .icon {
-  background: var(--green);
-  border-color: var(--green);
   color: #fff;
 }
 
-.next .icon {
-  background: var(--green-tint);
-  color: var(--green);
+.dot svg {
+  width: 22px;
+  height: 22px;
 }
 
-.current .icon {
-  background: var(--green);
-  border-color: var(--green);
-  color: #fff;
+.done {
+  color: var(--brand-ink);
 }
 
-.stepTitle {
-  margin: 6px 0 0;
+.done .dot {
+  background: var(--brand);
+}
+
+.now {
+  color: var(--wait-ink);
+}
+
+.now .dot {
+  background: var(--wait);
+  box-shadow: 0 0 0 5px var(--wait-tint);
+}
+
+.next .dot {
+  background: color-mix(in srgb, var(--none-ink) 62%, white);
+}
+
+.step.next {
+  color: var(--text-3);
+}
+
+/* Not found */
+
+.notFound {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
   font-size: 16px;
-  font-weight: 600;
-  color: var(--ink);
+  line-height: 1.5;
+  color: var(--text-2);
 }
 
-.idle .stepTitle {
-  color: #3a4550;
-}
-
-.stepText {
-  margin: 3px 0 0;
-  font-size: 14px;
-  line-height: 1.45;
-  color: var(--ink-3);
-}
-
-.stepAmount {
-  margin: 2px 0 0;
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--green);
-}
-
-.card {
-  padding: 16px;
-  border: 1px solid #d6d8d9;
-  border-radius: 12px;
-  background: var(--surface);
-  box-shadow: 0 8px 22px rgba(24, 40, 52, 0.08);
-}
-
-.cardTitle {
-  margin: 2px 0 12px;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.lines {
+.notFound p {
   margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--rule-soft);
 }
 
-.lines li span:last-child {
-  flex: none;
-  white-space: nowrap;
+.notFoundIcon {
+  width: 32px;
+  height: 32px;
+  color: var(--text-3);
 }
 
-.lines li,
-.holdRow {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--rule-soft);
-  font-size: 15px;
-  color: var(--ink);
-}
-
-.holdRow {
-  margin: 0;
-  font-weight: 600;
-}
-
-.holdAmount {
-  font-size: 20px;
-  color: var(--green);
-}
-
-.note {
-  display: flex;
-  gap: 8px;
-  margin: 12px 0 0;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: #f3f4f3;
-  font-size: 13.5px;
-  line-height: 1.45;
-  color: var(--ink-2);
-}
-
-.note svg {
-  flex: none;
-  width: 16px;
-  height: 16px;
-  margin-top: 2px;
-  color: var(--ink-3);
-}
-
-.approve {
-  margin-top: 16px;
-}
-
-.paypalButtons {
-  min-height: 48px;
-}
-
-.placing {
-  margin: 0;
-  padding: 14px;
-  border-radius: 8px;
-  background: var(--green-tint);
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--green);
-  text-align: center;
-}
-
-.error {
-  margin: 10px 0 0;
-  font-size: 14px;
-  color: var(--record);
-}
-
-.fallback {
-  display: block;
-  margin-top: 12px;
-  font-size: 14px;
-  color: var(--ink-2);
-  text-align: center;
-  text-decoration: underline;
-}
+/* Footer */
 
 .footer {
-  margin-top: 8px;
-  padding-top: 16px;
-  border-top: 1px solid var(--rule-soft);
-  font-size: 12.5px;
-  line-height: 1.6;
-  color: var(--ink-3);
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 18px 8px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--text-3);
 }
 
 .footer p {
+  max-width: 36ch;
   margin: 0;
+  text-wrap: balance;
 }
 
-.mono {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  color: var(--ink);
-  overflow-wrap: anywhere;
-  user-select: all;
-}
-
-.testCard {
-  margin-top: 14px;
-  padding: 12px 14px;
-  border: 1px dashed var(--green);
-  border-radius: 10px;
-  background: var(--green-tint);
-}
-
-.testCardTitle {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--green);
-}
-
-.testCardText {
-  margin: 4px 0 0;
-  font-size: 13px;
-  line-height: 1.45;
-  color: var(--ink-2);
-}
-
-.testCardNumber {
+.footerRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: 8px;
-  padding: 9px 12px;
-  border: 1px solid #b9cfc4;
-  border-radius: 8px;
-  background: var(--surface);
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  gap: 10px;
-  font-size: 15px;
-  letter-spacing: 0.02em;
-  color: var(--ink);
-  cursor: pointer;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-2);
 }
 
-.testCardNumber svg {
-  width: 16px;
-  height: 16px;
-  color: var(--green);
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-.testCardNumber:hover {
-  border-color: var(--green);
+/* The one authored moment: the amount's badge settles in when the page lands on a new state. */
+@media (prefers-reduced-motion: no-preference) {
+  .amountIcon {
+    animation: settle 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes settle {
+  from {
+    transform: scale(0.82);
+    filter: blur(2px);
+  }
+}
+
+@media (min-width: 720px) {
+  .band {
+    padding-top: 30px;
+    padding-bottom: 58px;
+  }
+
+  .sheet {
+    padding: 30px 24px 32px;
+    border-radius: 26px;
+    margin-bottom: 0;
+  }
 }
