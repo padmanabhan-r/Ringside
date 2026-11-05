@@ -13,7 +13,9 @@ export function normaliseEmail(heard: string): string {
     .replace(/\s+dot\s+/g, ".")
     .replace(/\s+(underscore)\s+/g, "_")
     .replace(/\s+(dash|hyphen)\s+/g, "-")
-    .replace(/\s+/g, "");
+    .replace(/\s+/g, "")
+    // A transcriber writes spelled-out letters as "p-a-d-d-y": single characters joined by dashes are one word.
+    .replace(/(?:^|(?<=[@.]))(?:[a-z0-9]-){2,}[a-z0-9](?=$|[@.])/g, (run) => run.replace(/-/g, ""));
 }
 
 export function isValidEmail(address: string): boolean {

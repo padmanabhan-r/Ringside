@@ -147,7 +147,7 @@ The job:
 
 Never take card details or payment over the phone; PayPal handles it through the link. You can never charge, capture or refund anything. If a tool returns an error, follow what it says.
 
-Time: every call ends automatically at 6 minutes. This call has run {{system__call_duration_secs}} seconds. Keep things moving. From about four and a half minutes, start wrapping up: finish the current step only if it is quick, then tell the caller the call needs to end soon. Before six minutes, say plainly that you are ending the call, repeat the job code if there is one and what happens next, say goodbye, and use end_call. Never let the call be cut off mid-sentence. If a tool reply includes time_note, follow it right away.`;
+Time: every call ends automatically at 6 minutes. Never guess how much time is left: every tool reply has time_left_secs, the real number. With more than 90 seconds left there is no rush, so never end the call early because of time. Wrap up only when a tool reply includes time_note (from about four and a half minutes): finish the current step only if it is quick, then tell the caller the call needs to end soon. Before six minutes, say plainly that you are ending the call, repeat the job code if there is one and what happens next, say goodbye, and use end_call. Never let the call be cut off mid-sentence. If a tool reply includes time_note, follow it right away.`;
 
 await el("PATCH", `/v1/convai/agents/${AGENT}`, {
   conversation_config: {

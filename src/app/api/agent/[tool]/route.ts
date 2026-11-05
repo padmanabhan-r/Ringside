@@ -35,6 +35,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ too
   };
 
   // Calls end at 6 minutes (scripts/agent/configure.mjs): near the end, every tool reply tells the agent to wrap up.
+  const MAX_CALL_SECONDS = 360;
   const elapsed = typeof args.call_duration_secs === "number" ? args.call_duration_secs : Number(args.call_duration_secs);
   const timeNote =
     elapsed >= 320
@@ -42,9 +43,18 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ too
       : elapsed >= 270
         ? "About a minute and a half left on this call. Wrap up: finish this step only if it is quick, then tell the caller the call is ending soon."
         : undefined;
+  // The model must never guess the time: every reply says how much is left, and a pending hold says to keep waiting
+  // (2026-11-05: twice it hung up at ~3 minutes "because time was short" while the caller was paying).
+  const left = Number.isFinite(elapsed) ? Math.max(0, MAX_CALL_SECONDS - Math.round(elapsed)) : undefined;
   try {
     const result = await tools[tool](args, ctx);
-    return NextResponse.json(timeNote ? { ...result, time_note: timeNote } : result);
+    const waiting = tool === "check_hold" && (result as { hold_status?: string }).hold_status === "awaiting_approval" && !timeNote;
+    return NextResponse.json({
+      ...result,
+      ...(left !== undefined ? { time_left_secs: left } : {}),
+      ...(waiting ? { next: `Not approved yet. Say one short line that you're here when they're ready, then wait quietly. ${left !== undefined ? `${left} seconds are left, so` : "There is time:"} don't end the call.` } : {}),
+      ...(timeNote ? { time_note: timeNote } : {}),
+    });
   } catch (error) {
     if (error instanceof ToolError) return NextResponse.json({ error: error.message }, { status: 200 });
     if (error instanceof PayPalError) {

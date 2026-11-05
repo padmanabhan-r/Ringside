@@ -56,3 +56,11 @@ describe("service area", () => {
     expect(checkServiceArea({})).toBe("unknown");
   });
 });
+
+describe("searchServices: callers' own words", () => {
+  it("finds the faucet leak repair for a dripping tap (2026-11-05 call quoted the $99 visit instead)", () => {
+    expect(searchServices("My tap is dripping.")[0]?.code).toBe("faucet_leak_repair");
+    expect(searchServices("my loo is blocked")[0]?.code).toBe("toilet_clog_removal");
+    expect(searchServices("water heater leaking")[0]?.code).toBe("water_heater_leak_repair");
+  });
+});

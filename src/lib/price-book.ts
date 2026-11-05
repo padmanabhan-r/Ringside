@@ -248,8 +248,30 @@ export function rangeText(s: Service): string {
 }
 
 /** Keyword search the agent uses to find the right catalogue job for what the caller describes. */
+/** Words callers use for the price book's words ("my tap is dripping" → faucet, leak). */
+const SYNONYMS: Record<string, string[]> = {
+  tap: ["faucet"],
+  taps: ["faucet"],
+  spigot: ["faucet", "hose bib"],
+  drip: ["leak"],
+  dripping: ["leak"],
+  drips: ["leak"],
+  leaking: ["leak"],
+  leaky: ["leak"],
+  blocked: ["clog"],
+  clogged: ["clog"],
+  backed: ["clog"],
+  loo: ["toilet"],
+  commode: ["toilet"],
+  geyser: ["water heater"],
+  boiler: ["water heater"],
+  pipes: ["pipe"],
+  burst: ["pipe", "leak"],
+};
+
 export function searchServices(query: string, limit = 6): Service[] {
-  const words = query.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
+  const said = query.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
+  const words = [...new Set(said.flatMap((w) => [w, ...(SYNONYMS[w] ?? []).flatMap((x) => x.split(" "))]))].filter((w) => w.length > 2);
   if (!words.length) return [];
   const scored = SERVICES.map((s) => {
     const name = s.name.toLowerCase();

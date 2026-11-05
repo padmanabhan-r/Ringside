@@ -38,3 +38,12 @@ describe("caller email", () => {
     expect(html).not.toContain("<script");
   });
 });
+
+describe("spelled-out addresses", () => {
+  it("joins letters a transcriber wrote with dashes, and keeps real hyphens (2026-11-05 call)", () => {
+    expect(normaliseEmail("M-I-K-E-7-7@example.com")).toBe("mike77@example.com");
+    expect(normaliseEmail("j-a-n-e.doe@example.com")).toBe("jane.doe@example.com");
+    expect(normaliseEmail("mary-jane@example.com")).toBe("mary-jane@example.com");
+    expect(normaliseEmail("a-b@example.com")).toBe("a-b@example.com");
+  });
+});
