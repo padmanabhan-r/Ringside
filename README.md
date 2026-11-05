@@ -52,9 +52,6 @@ dispatcher and the cashier at once. It answers the call while they are under a s
 holds the customer's money with PayPal, gets the customer's yes when the job grows on site, and captures the final
 amount when the work is done. The demo business is Mike's Plumbing, which is fictional.
 
-A solo entry to the [PayPal AI Hackathon](https://paypalaihackathon.devpost.com), "Build what's next with PayPal and
-AI", by [Padmanabhan](https://padmanabhan.xyz).
-
 ## How it works
 
 1. **The call.** A customer phones the business (a Twilio number) or calls from the browser. The ElevenLabs agent says
