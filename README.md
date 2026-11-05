@@ -95,15 +95,16 @@ owner's dashboard to add charges and finish the job. No mic? **Book without call
 
 ## How it's different
 
-AI phone agents for trades are everywhere now, typically $99 to $299 a month[^price], and they stop at the booking.
-Field-service suites take payments, as office paperwork after the job. Ringside carries the call all the way to the
-payment.
+AI phone agents for trades are everywhere now, typically $99 to $299 a month[^price], and most stop at the booking; a
+few text a deposit link. Field-service suites take payments, as office paperwork after the job. Ringside carries the
+whole job to the payment: a hold, not a charge, before the visit, extra work approved on site, and only the real cost
+captured.
 
 | | Most AI phone agents for trades | Field-service suites | Ringside |
 |---|---|---|---|
 | Answers the call around the clock | Yes | As an add-on | Yes |
 | Quotes a price on the call, from the business's own price book | Usually not | No | Yes, a range, read back to the caller |
-| Secures the payment before the visit | No | Usually not | Yes, a PayPal hold for the top of the range |
+| Secures the payment before the visit | Rarely; a few text a deposit link | Usually not | Yes, a PayPal hold for the top of the range, not a charge |
 | Extra work found on site, approved and paid before work goes on | No | A change order, usually billed later | Yes: the owner says it, the customer approves it in PayPal |
 | Charges the real cost, never more than the customer approved | No | An invoice after the job | Yes, captured from the hold; the rest is released |
 | Receipt | No | Yes | Yes, a PayPal invoice marked paid |
@@ -117,7 +118,9 @@ Every business on Ringside runs the same flow; the screens below are the demo bu
 1. **The call.** A customer in Mike's area (the Saginaw Tri-Cities, Michigan) phones the business or calls from the
    browser. The ElevenLabs agent says it is an AI assistant answering for Mike, finds the job in Mike's price book,
    quotes its range (a dripping faucet is $125 to $250), asks which day and time suit the caller, and offers Mike's open windows then. Calls end at six minutes, and the
-   agent says goodbye before that.
+   agent says goodbye before that. Without a call, **Book without calling** lets the customer describe the problem in
+   their own words: Claude Haiku 5.5 picks the one job in the price book that fits, a repair before a replacement, and
+   the form shows its range, a day and time to choose, and the same read-back before the hold.
 
 <img src="assets/screens/call.jpg" width="100%" alt="The browser call page: the transcript on the left; on the right the booking card with the faucet leak repair at $125 to $250, ZIP 48602 in the service area, today 10 am to 12 pm, and an Approve with PayPal button for a hold up to $250.00">
 
@@ -213,6 +216,7 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Payments | PayPal Orders v2 (`AUTHORIZE`, `CAPTURE`) and Payments v2 (capture, void), through the server SDK | The hold, the change order's second payment, the final capture; every POST carries a stored `PayPal-Request-Id` ([`src/lib/paypal.ts`](src/lib/paypal.ts), [`src/lib/holds.ts`](src/lib/holds.ts), [`src/lib/change-orders.ts`](src/lib/change-orders.ts), [`src/lib/job-done.ts`](src/lib/job-done.ts)) |
 | Customer page | Next.js page with PayPal's JavaScript SDK buttons and guest card checkout | Approve the hold, approve or decline extra work, see the charge and receipt ([`src/app/j/[code]/page.tsx`](src/app/j/[code]/page.tsx)) |
 | Change-order parser | Claude Sonnet 5.5 (`claude-sonnet-5-5`, Anthropic API), structured output with a strict JSON schema | Names rate-card items, quantities and price-book jobs only; the code takes every price from the card or the job's range and rejects unknown items, prices from the model and quantities past the card's limits ([`src/lib/change-order-parser.ts`](src/lib/change-order-parser.ts), [`src/lib/change-pricing.ts`](src/lib/change-pricing.ts)) |
+| Problem matcher | Claude Haiku 5.5 (`claude-haiku-5-5`), structured output whose only allowed answer is a price-book code | Book without calling: "my kitchen tap won't stop dripping" becomes one job from the book; the job, its range and the hold always come from the book, a gas smell gets safety advice instead of a booking, and matches are limited per visitor and per day ([`src/lib/problem-matcher.ts`](src/lib/problem-matcher.ts)) |
 | Mike's app | Next.js, installable PWA, the browser's speech recognition | Today with the job he's on first, the job screen with Add charges, Job done and Cancel job (which voids the PayPal hold and releases the money), a QR code for on-site approval, find a phone booking by its job code ([`src/app/dashboard/`](src/app/dashboard/page.tsx)) |
 | Receipts | PayPal Invoicing v2 | After the capture, an invoice for the job and any extra work, recorded as paid: emailed when PayPal has the payer's email, otherwise a link. Repeat-safe through the invoice's own state ([`src/lib/receipts.ts`](src/lib/receipts.ts)) |
 | Close-out | Render Workflows (`@renderinc/sdk`) | Receipt, then close the job; retried by Render, every step idempotent; runs inline when no workflow key is set ([`workflows/close-out.ts`](workflows/close-out.ts), [`src/lib/close-out.ts`](src/lib/close-out.ts)) |
@@ -230,18 +234,23 @@ PayPal runs in the sandbox only: the server refuses to start unless `PAYPAL_ENV=
 ## Run it yourself
 
 You need Node 24, Docker (for a local Postgres), a PayPal developer account with a sandbox app on a US business
-account, an Anthropic API key for the change-order parser, and, for the voice parts, an ElevenLabs account and a Twilio
-number.
+account, an Anthropic API key for the change-order parser and the problem matcher, and, for the voice parts, an
+ElevenLabs account and a Twilio number. The agent's tools and PayPal's webhooks call your app, so they need a public
+HTTPS address: your deployed URL, or a tunnel (Cloudflare Tunnel, ngrok) to `localhost:3000` while you develop.
+With a database and no API keys the site still runs: the pages, the sample day and the recorded call work, and the parts that need a
+key say so.
 
 ```bash
 git clone https://github.com/padmanabhan-r/Ringside && cd Ringside
 npm ci
 cp .env.example .env          # fill in the values below
 docker run -d --name ringside-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=ringside \
-  -p 127.0.0.1:5432:5432 postgres:18
+  -p 127.0.0.1:5432:5432 postgres:18   # if 5432 is taken, map another port and change DATABASE_URL
+# DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/ringside
 node --env-file=.env scripts/migrate.mjs
-node --env-file=.env scripts/agent/configure.mjs     # tools and prompt on your ElevenLabs agent
-node --env-file=.env scripts/paypal/create-webhook.mjs   # prints PAYPAL_WEBHOOK_ID
+node --env-file=.env scripts/gates/setup-voice.mjs   # creates the agent, connects your Twilio number, saves ELEVENLABS_AGENT_ID
+node --env-file=.env scripts/agent/configure.mjs     # the agent's prompt, ten tools, call limits and tool secret
+node --env-file=.env scripts/paypal/create-webhook.mjs   # needs the https APP_BASE_URL; prints PAYPAL_WEBHOOK_ID
 npm run dev                   # http://localhost:3000
 ```
 
@@ -251,12 +260,13 @@ npm run dev                   # http://localhost:3000
 | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | The PayPal sandbox app's credentials |
 | `PAYPAL_WEBHOOK_ID` | Verifying PayPal webhook deliveries |
 | `DATABASE_URL` | Postgres |
-| `APP_BASE_URL` | The public address in links the agent and the app hand out |
-| `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | The voice agent and the browser call |
-| `ELEVENLABS_TOOL_SECRET` | Authenticating the agent's tool calls |
-| `ELEVENLABS_AGENT_LLM` | The agent's model (optional; default `gpt-6-luna`) |
+| `APP_BASE_URL` | The public HTTPS address: links the agent and the app hand out, the agent's tool calls, PayPal's webhooks |
+| `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | The voice agent and the browser call. No phone line? Create an agent in the ElevenLabs dashboard and set its ID instead of running `setup-voice.mjs` |
+| `ELEVENLABS_TOOL_SECRET` | A long random string you choose: `configure.mjs` stores it in ElevenLabs and the agent sends it with every tool call |
+| `ELEVENLABS_AGENT_LLM`, `ELEVENLABS_AGENT_REASONING` | The agent's model and reasoning effort (optional; default `gpt-6-luna`, `low`) |
 | `TWILIO_PHONE_NUMBER`, `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET`, `TWILIO_AUTH_TOKEN` | Importing the phone line into ElevenLabs (setup only) |
-| `LLM_API_KEY`, `LLM_MODEL` | The change-order parser (Anthropic API key; default `claude-sonnet-5-5`) |
+| `TWILIO_TEST_CALLER_ID` | A verified phone of yours for `scripts/gates/test-call.mjs` (optional: a Twilio number can't call itself) |
+| `LLM_API_KEY`, `LLM_MODEL` | Anthropic API key for the change-order parser, Ask your books and the problem matcher; `LLM_MODEL` is the parser's model (optional; default `claude-sonnet-5-5`) |
 | `RESEND_API_KEY`, `EMAIL_FROM` | Emailing the PayPal link to phone callers (optional: without them the agent reads out the job code) |
 | `AG_STUDIO_LICENSE_KEY` | AG Studio's licence (without it, a trial watermark shows) |
 | `BOOKS_LLM_MODEL` | Ask your books' model (optional; default `claude-haiku-5-5`) |
@@ -271,7 +281,8 @@ each one comes from.
 
 Working end to end in the sandbox: the phone and browser calls, the quote from the price book, the PayPal hold and its
 approval (PayPal or guest card), the spoken change order as a second payment, job done with the final capture, the
-receipt invoice and the close-out, Mike's installable app, and Mike's Books with its agent, on the live site.
+receipt invoice and the close-out, Mike's installable app, and Mike's Books with its agent. Each step is checked
+against the real APIs, and all of it is deployed on the live site.
 
 - PayPal runs in the sandbox only, in USD.
 - A hold can grow by at most 15% at capture, so extra work is always a separate payment.
@@ -281,9 +292,21 @@ receipt invoice and the close-out, Mike's installable app, and Mike's Books with
 - The Books chart's value axis shows plain numbers: AG Studio's built-in chart doesn't format it as dollars.
 - Speaking the extra work uses the browser's speech recognition; where a browser lacks it, Mike types or picks it.
 
+## The business
+
+Ringside is a subscription: about $49 a month per business, with calls included up to a limit, and PayPal's usual fees
+on payments. A business signs up, connects its own PayPal account so the money goes straight to it, loads its price
+book from a trade template or an AI import of its price list, and forwards its phone number. The demo runs one
+business on one sandbox merchant.
+
 ## Next steps
 
-- **The demo video,** and the public demo kept up through the end of judging.
+- **Multiparty onboarding:** PayPal partner approval so each business is paid into its own PayPal account. Sandbox
+  orders already accept another seller as the payee; seller sign-up through the Partner Referrals API needs a
+  Platform app, the next step.
+- **Billing:** the subscription through PayPal's Subscriptions API.
+- **Onboarding:** sign-up, Connect with PayPal, a price book from a template or an AI import, and call forwarding.
+- **A pilot with local trades,** after the demo video and with the public demo kept up through the end of judging.
 
 ## Repository
 
