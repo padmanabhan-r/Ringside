@@ -1,0 +1,32 @@
+# Render Blueprint: the Ringside web service and its Postgres database.
+# Secrets are added with sync: false as features need them (prompted in the dashboard, never in git).
+services:
+  - type: web
+    runtime: node
+    name: ringside
+    region: oregon
+    plan: 0.5c-512mb # $7/mo, always on: judges must never hit a cold start
+    buildCommand: npm ci && npm run build
+    preDeployCommand: npm run db:migrate
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 24.22.1
+      - key: PAYPAL_ENV
+        value: sandbox # the server refuses to start on anything else
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ringside-db
+          property: connectionString # private-network URL
+
+databases:
+  - name: ringside-db
+    region: oregon
+    plan: 0.1c-256mb # $6/mo; free Postgres would be deleted mid-judging
+    diskSizeGB: 1 # $0.30/mo; the default would be 15 GB
+    postgresMajorVersion: "18"
+    databaseName: ringside
+    user: ringside
+    ipAllowList: [] # private network only

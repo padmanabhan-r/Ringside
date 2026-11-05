@@ -31,6 +31,9 @@ Built on the PayPal sandbox only: no real money moves.
 
 | Path | What it is |
 |---|---|
+| [src/](src/lib/rate-card.ts) | The Next.js app: rate card, cents math, job state machine, health check |
+| [db/migrations/](db/migrations/001_init.sql) | The Postgres schema, applied on every deploy by `npm run db:migrate` |
+| [render.yaml](render.yaml) | The Render Blueprint: web service and database |
 | [devlog.md](devlog.md) | Build log |
 | [scripts/gates/](scripts/gates/test-call.mjs) | Checks run against the real services before building on them |
 | [.env.example](.env.example) | Every environment variable, with where it comes from |
