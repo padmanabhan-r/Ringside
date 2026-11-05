@@ -322,22 +322,24 @@ function Call({
             <span className={s.divider} aria-hidden="true" />
             <div className={s.actions}>
               {phase === "replaying" ? (
-                <>
+                <div className={s.buttons}>
                   <button type="button" className={s.ghost} onClick={() => replay(true)}>
                     <SkipForward aria-hidden="true" /> Skip to end
                   </button>
                   <button type="button" className={s.ghost} onClick={() => go("idle")}>
                     <Square aria-hidden="true" /> Stop
                   </button>
-                </>
+                </div>
               ) : (
                 <>
-                  <button type="button" className={s.ghost} onClick={() => replay()}>
-                    <RotateCcw aria-hidden="true" /> Watch again
-                  </button>
-                  <button type="button" className={s.primary} onClick={() => void start()}>
-                    <Phone aria-hidden="true" /> Start a live call
-                  </button>
+                  <div className={s.buttons}>
+                    <button type="button" className={s.ghost} onClick={() => replay()}>
+                      <RotateCcw aria-hidden="true" /> Watch again
+                    </button>
+                    <button type="button" className={s.primary} onClick={() => void start()}>
+                      <Phone aria-hidden="true" /> Start a live call
+                    </button>
+                  </div>
                   {!booking ? (
                     <button type="button" className={s.bookLink} onClick={openBooking}>
                       <CalendarCheck aria-hidden="true" /> No mic? Book without calling
@@ -372,9 +374,11 @@ function Call({
             </div>
             <span className={s.divider} aria-hidden="true" />
             <div className={s.actions}>
-              <button type="button" className={s.end} onClick={end} disabled={phase === "starting"}>
-                <PhoneOff aria-hidden="true" /> End call
-              </button>
+              <div className={s.buttons}>
+                <button type="button" className={s.end} onClick={end} disabled={phase === "starting"}>
+                  <PhoneOff aria-hidden="true" /> End call
+                </button>
+              </div>
             </div>
             <Elapsed seconds={elapsed} label="Elapsed" />
           </>
@@ -400,9 +404,11 @@ function Call({
             </div>
             <span className={s.divider} aria-hidden="true" />
             <div className={s.actions}>
-              <button type="button" className={s.primary} onClick={() => void start()}>
-                <Phone aria-hidden="true" /> {phase === "ended" ? "Call again" : "Start the call"}
-              </button>
+              <div className={s.buttons}>
+                <button type="button" className={s.primary} onClick={() => void start()}>
+                  <Phone aria-hidden="true" /> {phase === "ended" ? "Call again" : "Start the call"}
+                </button>
+              </div>
               {!booking ? (
                 <button type="button" className={s.bookLink} onClick={openBooking}>
                   <CalendarCheck aria-hidden="true" /> No mic? Book without calling

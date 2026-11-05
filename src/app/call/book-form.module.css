@@ -1,6 +1,6 @@
 /* "Book without calling": the call's booking as a short form, in the call page's field-service look. */
 .card {
-  padding: 28px 32px 30px;
+  padding: 26px 28px 28px;
   border-radius: var(--r-card);
   background: var(--card);
   box-shadow: var(--shadow-card);
@@ -58,13 +58,13 @@
 
 .form {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-areas:
     "what where"
     "what when"
     "foot foot";
-  gap: 22px 36px;
-  margin-top: 22px;
+  gap: 30px 40px;
+  margin-top: 24px;
 }
 
 .form > .group:nth-child(1) {
@@ -601,7 +601,17 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 10px;
+}
+
+.parts {
+  margin-bottom: 4px;
+}
+
+/* On a wide form the open windows sit two to a row, so this column ends level with the price list beside it. */
+@media (min-width: 901px) {
+  .slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .dayChip,

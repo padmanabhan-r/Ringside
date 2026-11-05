@@ -74,7 +74,7 @@
 .main {
   flex: 1;
   display: grid;
-  gap: 20px;
+  gap: 24px;
   align-content: start;
 }
 
@@ -97,7 +97,7 @@
   display: flex;
   align-items: center;
   gap: 28px;
-  padding: 22px 40px 22px 32px;
+  padding: 22px 28px;
   min-height: 132px;
 }
 
@@ -265,9 +265,15 @@ button.disc:disabled {
 }
 
 .actions {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.buttons {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  justify-content: center;
   gap: 10px;
 }
 
@@ -342,7 +348,6 @@ button.disc:disabled {
 
 /* "No mic? Book without calling": a quiet text action under the call button. */
 .bookLink {
-  flex-basis: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -413,17 +418,24 @@ button.disc:disabled {
 }
 
 /* ---- transcript + booking ---- */
+/* Two equal columns of one height: the booking card sets the row and the transcript fills it, scrolling inside, so
+   neither column leaves a gap under the other. Once lines arrive the row is at least 520px tall. */
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(360px, 1fr);
-  gap: 28px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
   align-items: stretch;
+}
+
+.grid:has(.lines) {
+  grid-template-rows: minmax(520px, auto);
 }
 
 .transcript {
   display: flex;
   flex-direction: column;
-  padding: 26px 28px 20px;
+  padding: 26px 28px 16px;
+  contain: size;
 }
 
 .lines {
@@ -432,7 +444,8 @@ button.disc:disabled {
   padding: 0 4px 0 0;
   display: grid;
   gap: 18px;
-  max-height: max(380px, calc(100dvh - 330px));
+  flex: 1 1 0;
+  min-height: 0;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
@@ -515,9 +528,10 @@ button.disc:disabled {
 }
 
 .empty {
+  flex: 1 1 auto;
   display: grid;
   gap: 10px;
-  align-content: start;
+  align-content: center;
   margin-top: 18px;
   padding: 22px 24px;
   border-radius: 12px;
@@ -587,15 +601,13 @@ button.disc:disabled {
 }
 
 .side {
-  position: sticky;
-  top: 20px;
-  align-self: start;
   display: grid;
-  gap: 14px;
 }
 
 .booking {
-  padding: 26px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 28px 28px;
 }
 
 .bookingHead {
@@ -723,11 +735,13 @@ button.disc:disabled {
   border: 2px dashed #c3cbd6;
 }
 
+/* The hold sits at the foot of the card, level with the transcript's foot. */
 .holdArea {
   display: grid;
   gap: 12px;
   justify-items: stretch;
-  margin-top: 22px;
+  margin-top: auto;
+  padding-top: 22px;
 }
 
 .holdArea > span:first-child:not(.approve) {
@@ -860,13 +874,14 @@ a.approve:active {
   padding-top: 28px;
   color: var(--text-2);
   font-size: 14px;
+  text-align: center;
 }
 
 /* ---- narrower screens ---- */
 @media (max-width: 1100px) {
   .bar {
     flex-wrap: wrap;
-    padding: 20px 24px;
+    padding: 20px 28px;
     gap: 18px 24px;
   }
 
@@ -874,12 +889,26 @@ a.approve:active {
     display: none;
   }
 
-  .grid {
+  .grid,
+  .grid:has(.lines) {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  .transcript {
+    contain: none;
+  }
+
+  .lines {
+    flex: none;
+    max-height: max(380px, calc(100dvh - 330px));
+  }
+
+  .empty {
+    flex: none;
   }
 
   .side {
-    position: static;
     order: -1;
   }
 
@@ -959,16 +988,17 @@ a.approve:active {
 
   .actions {
     grid-column: 1 / -1;
+    justify-items: stretch;
   }
 
-  .actions > button {
+  .buttons > button {
     flex: 1 1 auto;
   }
 
   .elapsed {
     grid-column: 1 / -1;
     grid-auto-flow: column;
-    justify-content: start;
+    justify-content: center;
     align-items: baseline;
     gap: 8px;
     min-width: 0;
