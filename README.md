@@ -115,7 +115,7 @@ Measured against the real PayPal sandbox and the real phone line on 2026-11-05.
 | Part | Built with | What it does |
 |---|---|---|
 | Phone line | Twilio US number, imported into ElevenLabs | Callers dial the business and land straight on the agent ([`scripts/gates/setup-voice.mjs`](scripts/gates/setup-voice.mjs)) |
-| Voice agent | ElevenLabs Agents; LLM `deepseek-v41-flash` (hosted by ElevenLabs); voice "Chris" on `eleven_v4_turbo` | Answers as Mike's AI assistant, gathers the job, quotes and books |
+| Voice agent | ElevenLabs Agents; LLM `deepseek-v41-flash` (hosted by ElevenLabs); voice "Chris" on `eleven_v4_turbo` | Answers as Mike's AI assistant and gathers the job; its server tools read the rate card, find open windows, save the quote, book it and send the PayPal hold link only after the customer says yes ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`src/lib/slots.ts`](src/lib/slots.ts)) |
 | Prices | The rate card in code, money in integer cents | Every price comes from here; labour is billed in 15-minute blocks of $23.75 ([`src/lib/rate-card.ts`](src/lib/rate-card.ts), [`src/lib/money.ts`](src/lib/money.ts)) |
 | Payments | PayPal Orders v2 (`AUTHORIZE`, `CAPTURE`), Payments v2 (capture, void), Webhooks | The hold, the change order's second payment, the capture; every POST carries a stored `PayPal-Request-Id` ([`src/lib/paypal.ts`](src/lib/paypal.ts)) |
 | Invoices | PayPal Invoicing v2 (being built) | The receipt at job done, or a payable invoice for a leftover balance |
@@ -125,7 +125,7 @@ Measured against the real PayPal sandbox and the real phone line on 2026-11-05.
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Geist, lucide-react | The landing page now; the call page, the customer's approval page and the owner's screens next ([`src/app/`](src/app/page.tsx)) |
 | Schedule board | Bryntum Scheduler Community (being built) | Mike's day, every call with its cost and outcome, and each job's money |
 | Hosting | Render web service and Render Postgres from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
-| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 45 tests, including the PayPal client against recorded sandbox responses ([`test/`](test/paypal.test.ts)) |
+| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 49 tests, including the PayPal client against recorded sandbox responses ([`test/`](test/paypal.test.ts)) |
 
 PayPal runs in the sandbox only: the server refuses to start unless `PAYPAL_ENV=sandbox`.
 
@@ -167,7 +167,8 @@ each one comes from.
 ## Status and limits
 
 Working today: the landing page on Render with its Postgres, the PayPal sandbox flow (hold, change payment, capture,
-void, idempotent retries) through the PayPal client, and the phone line answered by the voice agent.
+void, idempotent retries) through the PayPal client, the agent's tools quoting from the rate card and creating the
+PayPal hold, and the phone line answered by the voice agent.
 
 - PayPal runs in the sandbox only, in USD.
 - A hold can grow by at most 15% at capture, so a larger change order is always a separate payment.
@@ -175,8 +176,8 @@ void, idempotent retries) through the PayPal client, and the phone line answered
 
 ## Next steps
 
-- **The call page and the agent's tools:** quote, book and send the hold link during the call, in the browser and on
-  the phone.
+- **The call page, and the tools on the live agent:** quote, book and send the hold link during the call, in the
+  browser and on the phone.
 - **The customer's approval page:** approve the hold and the change order with PayPal's buttons.
 - **The owner's on-site screen:** speak the change order, confirm the lines, say job done.
 - **The board:** Mike's day, every call with its outcome and cost, each job's money and invoice.
