@@ -16,30 +16,35 @@
 
 <table align="center">
   <tr>
-    <td align="center" width="170">
+    <td align="center" width="145">
       <img src="assets/logos/paypal.svg" width="56" height="56" alt="PayPal"><br>
       <b>PayPal</b><br>
       <sub>The money. A hold at booking, a second payment for extra work, the real cost captured at job done, an invoice as the receipt.</sub>
     </td>
-    <td align="center" width="170">
+    <td align="center" width="145">
       <img src="assets/logos/elevenlabs.svg" width="56" height="56" alt="ElevenLabs"><br>
       <b>ElevenLabs</b><br>
       <sub>The voice. Answers the phone and the browser call, quotes from the price book and sends the PayPal link.</sub>
     </td>
-    <td align="center" width="170">
+    <td align="center" width="145">
       <img src="assets/logos/twilio.svg" width="56" height="56" alt="Twilio"><br>
       <b>Twilio</b><br>
       <sub>The phone line. The business's US number, connected straight to the agent.</sub>
     </td>
-    <td align="center" width="170">
+    <td align="center" width="145">
       <img src="assets/logos/render.svg" width="56" height="56" alt="Render"><br>
       <b>Render</b><br>
       <sub>The platform. Runs the app and its Postgres, and the job close-out on Render Workflows.</sub>
     </td>
-    <td align="center" width="170">
+    <td align="center" width="145">
       <img src="assets/logos/claude.svg" width="56" height="56" alt="Claude"><br>
       <b>Claude</b><br>
       <sub>The change orders. Turns what Mike says on site into priced lines from his rate card.</sub>
+    </td>
+    <td align="center" width="145">
+      <img src="assets/logos/aggrid.png" width="56" height="56" alt="AG Grid"><br>
+      <b>AG Grid</b><br>
+      <sub>The books. Mike's week of jobs, payments and calls in AG Studio, with an "Ask your books" agent.</sub>
     </td>
   </tr>
 </table>
@@ -50,6 +55,23 @@
 ![Postgres](https://img.shields.io/badge/Postgres-18-0f1b2d?style=flat-square&logo=postgresql)
 ![Node](https://img.shields.io/badge/Node-24-0f1b2d?style=flat-square&logo=nodedotjs)
 ![PWA](https://img.shields.io/badge/PWA-installable-0f1b2d?style=flat-square&logo=pwa)
+
+![PayPal Orders v2](https://img.shields.io/badge/PayPal-Orders_v2_·_Payments_v2_·_Invoicing_v2_·_Webhooks-003087?style=flat-square&logo=paypal&labelColor=0f1b2d)
+![PayPal Server SDK](https://img.shields.io/badge/PayPal_Server_SDK-2.5_%28APIMatic%29-003087?style=flat-square&logo=paypal&labelColor=0f1b2d)
+![PayPal JS SDK](https://img.shields.io/badge/PayPal_JS_SDK-buttons_·_guest_card-003087?style=flat-square&logo=paypal&labelColor=0f1b2d)
+
+![ElevenLabs Agents](https://img.shields.io/badge/ElevenLabs-Agents_·_React_SDK_1.19-0f1b2d?style=flat-square&logo=elevenlabs&labelColor=0f1b2d)
+![gpt-5-nano](https://img.shields.io/badge/agent_LLM-gpt--5--nano-0f1b2d?style=flat-square&labelColor=0f1b2d)
+![Claude Sonnet 5.5](https://img.shields.io/badge/Claude-Sonnet_5.5_·_Haiku_5.5-cc785c?style=flat-square&logo=anthropic&labelColor=0f1b2d)
+![Anthropic SDK](https://img.shields.io/badge/Anthropic_SDK-1.1-cc785c?style=flat-square&logo=anthropic&labelColor=0f1b2d)
+![Twilio](https://img.shields.io/badge/Twilio-Voice-f22f46?style=flat-square&logo=twilio&labelColor=0f1b2d)
+
+![AG Studio](https://img.shields.io/badge/AG_Studio-3.0_·_AG_Grid_36.2_·_Agent_Framework-0f1b2d?style=flat-square&labelColor=0f1b2d)
+![Render](https://img.shields.io/badge/Render-Web_·_Postgres_·_Workflows-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
+![Render SDK](https://img.shields.io/badge/Render_SDK-1.3-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
+![Resend](https://img.shields.io/badge/Resend-email-0f1b2d?style=flat-square&logo=resend&labelColor=0f1b2d)
+![Vitest](https://img.shields.io/badge/Vitest-5_·_85_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
+![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-0f1b2d?style=flat-square&logo=githubactions&labelColor=0f1b2d)
 
 </div>
 
@@ -136,6 +158,8 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Close-out | Render Workflows (`@renderinc/sdk`) | Receipt, then close the job; retried by Render, every step idempotent; runs inline when no workflow key is set ([`workflows/close-out.ts`](workflows/close-out.ts), [`src/lib/close-out.ts`](src/lib/close-out.ts)) |
 | Webhooks | PayPal Webhooks, signature verified | An approval completes even if the customer closes the page; captures, voids and paid invoices are recorded ([`src/app/api/paypal/webhook/route.ts`](src/app/api/paypal/webhook/route.ts)) |
 | Link by email | Resend | After a phone call, the link goes to the email the caller confirmed letter by letter; the address is not stored ([`src/lib/email.ts`](src/lib/email.ts)) |
+| Mike's Books | AG Studio 3.0 (AG Grid 36.2, AG Charts 14.2) with the Studio Agent Framework; Claude Haiku 5.5 through a server proxy (being built today) | Mike's week on the desk: figure tiles, money by day, a payment-timeline widget per job, the jobs grid, and "Ask your books" answering from his data (`src/app/dashboard/books/`) |
+| PayPal server SDK | `@paypal/paypal-server-sdk` 2.5, generated by APIMatic, written with APIMatic's PayPal context plugin (being moved over today) | Orders and Payments calls through PayPal's official SDK, request IDs unchanged; Invoicing and webhook checks stay on REST, which the SDK doesn't cover |
 | Demo sessions | A cookie per visitor; Postgres 18; a job state machine | Each visitor sees only their own jobs plus labelled sample jobs that can't be charged ([`src/lib/dashboard.ts`](src/lib/dashboard.ts), [`src/lib/job-state.ts`](src/lib/job-state.ts), [`db/migrations/`](db/migrations/001_init.sql)) |
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Figtree, lucide-react | Landing page, call page, customer page, Mike's app ([`src/app/`](src/app/page.tsx)) |
 | Hosting | Render web service, Render Postgres and a Render workflow from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
