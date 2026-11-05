@@ -1,1 +1,1 @@
-Ringside: AI front-desk software for small service businesses. Your phone, answered. Your job, paid. Demo business: Mike's Plumbing (fictional), PayPal sandbox.
+Ringside: call-to-cash for small service businesses. Your phone, answered. Your job, paid. Demo business: Mike's Plumbing (fictional), PayPal sandbox.

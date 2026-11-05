@@ -237,6 +237,22 @@
   text-wrap: balance;
 }
 
+.difference {
+  max-width: 108ch;
+  margin: 12px auto 0;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--ok-tint);
+  color: var(--ok-ink);
+  font-size: 15.5px;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+.difference b {
+  font-weight: 700;
+}
+
 .forWho {
   margin: 10px auto 0;
   max-width: 62ch;
@@ -1204,7 +1220,11 @@
   }
 
   .headline {
-    font-size: clamp(2rem, 6.6vh, 4rem);
+    font-size: clamp(2rem, 6vh, 3.7rem);
+  }
+
+  .lede {
+    max-width: 80ch;
   }
 
   .lede {
@@ -1293,6 +1313,12 @@
 }
 
 @media (min-width: 1024px) and (min-height: 600px) {
+  .difference {
+    margin-top: clamp(6px, 1.2vh, 12px);
+    padding: clamp(6px, 1vh, 10px) 16px;
+    font-size: clamp(14px, 1.9vh, 15.5px);
+  }
+
   .demoBox {
     margin: 0 auto;
     padding: clamp(8px, 1.4vh, 14px) 24px;

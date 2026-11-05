@@ -8,13 +8,13 @@ import s from "./landing.module.css";
 
 const GITHUB = "https://github.com/padmanabhan-r/ringside";
 
-// One screen on any desk (owner, 2026-11-05): before the first paint, scale the page down just enough to fit the window,
-// never below 80% so text stays readable (a very short window scrolls instead). Phones keep their natural flow.
-const FIT_SCRIPT = `(function(){var m=document.getElementById("landing-main");if(!m)return;function fit(){m.style.zoom="";if(innerWidth<1024)return;var top=m.getBoundingClientRect().top+scrollY,need=document.documentElement.scrollHeight-top,z=(innerHeight-top)/need;if(z<1)m.style.zoom=String(Math.max(0.8,z*0.995));}fit();addEventListener("resize",fit);})();`;
+// One screen on any desk (owner, 2026-11-05): before the first paint, scale the whole page down just enough to fit the
+// window, never below 74% so text stays readable (a very short window scrolls instead). Phones keep their natural flow.
+const FIT_SCRIPT = `(function(){var m=document.getElementById("landing-page");if(!m)return;function fit(){m.style.zoom="";if(innerWidth<1024)return;var need=document.documentElement.scrollHeight,z=innerHeight/need;if(z<1)m.style.zoom=String(Math.max(0.74,z*0.985));}fit();addEventListener("resize",fit);})();`;
 
 export default function Home() {
   return (
-    <div className={`fs ${s.page}`}>
+    <div className={`fs ${s.page}`} id="landing-page" suppressHydrationWarning>
       <p className={s.notice}>
         <Info aria-hidden="true" className={s.noticeIcon} strokeWidth={2.25} />
         <span>Prototype built for the PayPal AI Hackathon</span>
@@ -38,22 +38,19 @@ export default function Home() {
         </div>
       </header>
 
-      <main className={s.main} id="landing-main" suppressHydrationWarning>
+      <main className={s.main} id="landing-main">
         <section className={s.hero} aria-labelledby="headline">
           <div className={s.heroText}>
             <h1 id="headline" className={s.headline}>
               <span>Your phone, answered.</span> <span>Your job, paid.</span>
             </h1>
             <p className={s.lede}>
-              <span className={s.ledeLine}>
-                <b>Ringside is AI front-desk software for small service businesses.</b>
-              </span>{" "}
-              It answers their calls, quotes from their price book, holds the payment with <b className={s.paypal}>PayPal</b>,
-              and charges the real cost when the job is done.
+              <b>Ringside is call-to-cash for small service businesses: it turns a phone call into a paid job.</b>
             </p>
-            <p className={s.forWho}>
-              For plumbers, electricians, HVAC techs, handymen, cleaners and locksmiths: anyone who quotes a job, does it,
-              then gets paid.
+            <p className={s.difference}>
+              <b>AI phone agents usually stop at the booking. Ringside carries the call to the payment:</b> a quote from the
+              price book, a <span className={s.paypal}>PayPal</span> hold before the visit, extra work approved on the spot,
+              and the real cost captured when the job is done.
             </p>
           </div>
         </section>

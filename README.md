@@ -75,22 +75,40 @@
 
 </div>
 
-**Ringside is AI front-desk software for small service businesses**: the plumber, electrician, HVAC tech, cleaner or
-locksmith who is the business, the dispatcher and the cashier at once. A business signs up and gets its own AI phone
-agent, its price book, PayPal payments and a dashboard on its phone. Ringside answers the business's calls while the
-owner is on a job, quotes from the price book, holds the customer's money with PayPal, gets the customer's yes when the
-job grows on site, and charges the real cost when the work is done.
+**Ringside is call-to-cash for small service businesses: it turns a phone call into a paid job.** It is built for the
+plumber, electrician, HVAC tech, cleaner or locksmith who is the business, the dispatcher and the cashier at once. A
+business signs up and gets its own AI phone agent, its price book, PayPal payments and a dashboard on its phone. Ringside
+answers the business's calls while the owner is on a job, quotes from the price book, holds the customer's money with
+PayPal before the visit, gets the customer's yes when the job grows on site, and charges the real cost when the work is
+done.
 
 **The demo runs one example business on Ringside: Mike's Plumbing**, a fictional one-person plumber in Saginaw,
 Michigan. Its customers, jobs and calls are fictional too. Ringside is a prototype built for the PayPal AI Hackathon and
 runs on the PayPal sandbox.
 
-<img src="assets/screens/landing.jpg" width="100%" alt="Ringside's landing page: 'Ringside is AI front-desk software for small service businesses', then the demo business, Mike's Plumbing, with two doors: call it as a customer, or open the owner's dashboard; below, the call, the hold, the charge and the change order on one job">
+<img src="assets/screens/landing.jpg" width="100%" alt="Ringside's landing page: 'Ringside is call-to-cash for small service businesses: it turns a phone call into a paid job', how it differs from AI phone agents that stop at the booking, then the demo business, Mike's Plumbing, with two doors: call it as a customer, or open the owner's dashboard; below, the call, the hold, the charge and the change order on one job">
 
 **For the judges:** open the [live demo](https://ringside-4bup.onrender.com) and try Ringside as the demo business's
 customer: call Mike's Plumbing in the browser or on **[+1 (989) 534-9779](tel:+19895349779)**, then approve the hold with
 PayPal's sandbox test card `4012 0000 3333 0026` (any future expiry and code; no PayPal account needed). Then open the
 owner's dashboard to add charges and finish the job. No mic? **Book without calling** on the call page runs the same quote and PayPal hold from a short form, and a recorded call shows the conversation.
+
+## How it's different
+
+AI phone agents for trades are everywhere now, typically $99 to $299 a month[^price], and they stop at the booking.
+Field-service suites take payments, as office paperwork after the job. Ringside carries the call all the way to the
+payment.
+
+| | Most AI phone agents for trades | Field-service suites | Ringside |
+|---|---|---|---|
+| Answers the call around the clock | Yes | As an add-on | Yes |
+| Quotes a price on the call, from the business's own price book | Usually not | No | Yes, a range, read back to the caller |
+| Secures the payment before the visit | No | Usually not | Yes, a PayPal hold for the top of the range |
+| Extra work found on site, approved and paid before work goes on | No | A change order, usually billed later | Yes: the owner says it, the customer approves it in PayPal |
+| Charges the real cost, never more than the customer approved | No | An invoice after the job | Yes, captured from the hold; the rest is released |
+| Receipt | No | Yes | Yes, a PayPal invoice marked paid |
+
+[^price]: Typical small-business pricing from [The AI Savvy's 2026 overview](https://theaisavvy.com/blog/ai-receptionist-for-plumbers-and-hvac-companies/california/san-diego); a few start lower with call limits.
 
 ## How it works
 

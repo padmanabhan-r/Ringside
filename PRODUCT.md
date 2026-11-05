@@ -20,7 +20,7 @@ web
 
 ## Product Purpose
 
-Ringside is an AI field-service employee for small service businesses. It answers the call, quotes from the rate
+Ringside is call-to-cash for small service businesses: it turns a phone call into a paid job. (Owner, 2026-11-05: never pitch it as an "AI front desk" or "receptionist"; those are the crowded category. The difference is the money: a PayPal hold before the visit, extra work approved on the spot, the real cost captured.) It answers the call, quotes from the rate
 card, books a slot, holds the money with a PayPal authorization, gets the customer's approval when the job grows on
 site, and captures the final amount when the owner says the job is done.
 
