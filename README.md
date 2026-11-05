@@ -35,7 +35,8 @@ Built on the PayPal sandbox only: no real money moves.
 | [db/migrations/](db/migrations/001_init.sql) | The Postgres schema, applied on every deploy by `npm run db:migrate` |
 | [render.yaml](render.yaml) | The Render Blueprint: web service and database |
 | [devlog.md](devlog.md) | Build log |
-| [scripts/gates/](scripts/gates/test-call.mjs) | Checks run against the real services before building on them |
+| [scripts/sandbox/](scripts/sandbox/auth-gates.mjs) | PayPal sandbox checks: the API token, authorization holds, partial and over-captures, replayed requests |
+| [scripts/gates/](scripts/gates/test-call.mjs) | A scripted test call to the phone line and the voice agent |
 | [.env.example](.env.example) | Every environment variable, with where it comes from |
 
 ## License
