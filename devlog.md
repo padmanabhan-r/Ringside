@@ -175,8 +175,8 @@ rewrote the README for the app as built.
 - Phone callers get the PayPal link by email; texting it needs US A2P 10DLC registration.
 - No real PayPal webhook delivery is recorded yet, and no live run of the Render Workflows close-out is recorded; the
   close-out runs inline when the workflow isn't configured.
-- Earlier research noted an OpenAI shutdown of the gpt-5 family on Dec 11 (per ElevenLabs' changelog), before the
-  demo must stop running on Dec 15; the agent's `gpt-6-luna` has not been re-checked against it.
+- The agent briefly ran on `gpt-5-nano`; OpenAI shuts the gpt-5 family down on Dec 11 (per ElevenLabs' changelog), before
+  the demo stops on Dec 15, so it moved to `gpt-6-luna`, the cheapest model not on a deprecation list.
 - Speaking extra work uses the browser's speech recognition; where it is missing, Mike types or picks.
 - The Books chart's value axis shows plain numbers, not dollars.
 
