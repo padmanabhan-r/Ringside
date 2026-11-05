@@ -1,7 +1,7 @@
 import { ArrowRight, Check, Clock, Info, LayoutDashboard, Mail, MapPin, Mic, Phone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { BrandMark, StatusPill } from "@/components/brand";
+import { MikesWordmark, StatusPill } from "@/components/brand";
 import { BUSINESS_LINE } from "@/lib/business";
 import { PayPalMonogram, PayPalWordmark, RingsideMark } from "./_landing/marks";
 import s from "./landing.module.css";
@@ -58,14 +58,15 @@ export default function Home() {
           </div>
         </section>
 
-        <div className={s.demoHead}>
-          <span className={s.demoMark} aria-hidden="true">
-            <BrandMark size={30} />
+        <div className={s.demoBox}>
+          <span className={s.demoLogo}>
+            <MikesWordmark size={46} />
           </span>
-          <p>
-            <b>See it running for a fictional business, Mike’s Plumbing:</b> a one-person plumber in Saginaw, Michigan, set up
-            on Ringside. Be his customer, or be Mike.
-          </p>
+          <span className={s.demoDivider} aria-hidden="true" />
+          <div className={s.demoText}>
+            <span className={s.demoTag}>Demo business · fictional</span>
+            <p>A one-person plumber in Saginaw, Michigan, running on Ringside. Be his customer, or be Mike.</p>
+          </div>
         </div>
 
         <section className={s.doors} aria-label="Try Ringside with the demo business">
