@@ -1,6 +1,7 @@
 import { ChevronRight, Clock, DollarSign, Globe, Lock, MapPin, Phone, User } from "lucide-react";
 import Link from "next/link";
 import { StatusPill } from "@/components/brand";
+import { BUSINESS_LINE } from "@/lib/business";
 import { callsToday, loadToday, type DashCall, type DashJob } from "@/lib/dashboard";
 import { formatUsd } from "@/lib/money";
 import { currentSession } from "@/lib/session";
@@ -10,6 +11,30 @@ import s from "./today.module.css";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Today" };
+
+/** For judges and visitors: what this screen is and how to put a live job on it. Shown until they have one. */
+function TryIt() {
+  return (
+    <section className={s.tryIt} aria-labelledby="try-title">
+      <h2 id="try-title" className={s.tryTitle}>
+        Trying Ringside? This is what Mike sees.
+      </h2>
+      <ol className={s.trySteps}>
+        <li>
+          <b>Call Mike’s Plumbing.</b>{" "}
+          <Link href="/call">Talk in your browser</Link> or ring <a href={BUSINESS_LINE.tel}>{BUSINESS_LINE.display}</a>.
+        </li>
+        <li>
+          <b>Approve the hold</b> with PayPal’s test card <span className={s.card}>4012 0000 3333 0026</span>. No PayPal account
+          needed.
+        </li>
+        <li>
+          <b>Come back here.</b> Your job shows up as Now: add charges, then say job done.
+        </li>
+      </ol>
+    </section>
+  );
+}
 
 function canWork(job: DashJob): boolean {
   return !job.sample && (job.state === "booked" || job.state === "in_progress" || job.state === "change_pending");
@@ -68,12 +93,6 @@ function NowCard({ job, now }: { job: DashJob; now: Date }) {
           )}
         </div>
       </div>
-      {job.sample ? (
-        <p className={s.sampleNote}>
-          This is Mike’s sample day. Call Mike’s Plumbing and approve the hold to put your own live job here, with real Add
-          charges and Job done.
-        </p>
-      ) : null}
     </article>
   );
 }
@@ -158,6 +177,7 @@ export default async function TodayPage() {
         <span className={s.titleDesk}>Today, </span>
         {day}
       </h1>
+      {!today.hasLive ? <TryIt /> : null}
 
       <div className={s.grid}>
         <section className={s.bookings} aria-label="Today’s bookings">

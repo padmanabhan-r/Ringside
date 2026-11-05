@@ -22,6 +22,43 @@
   gap: 14px;
 }
 
+/* Try it: for judges and visitors until they have a live job */
+.tryIt {
+  margin: 0 0 14px;
+  padding: 16px;
+  border-radius: var(--r-card);
+  background: var(--brand-tint);
+  border: 1px solid #cfdcf3;
+}
+
+.tryTitle {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--brand-ink);
+}
+
+.trySteps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 22px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.trySteps a {
+  color: var(--brand-ink);
+  font-weight: 700;
+}
+
+.card {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
 /* Now */
 .now {
   padding: 16px;
@@ -582,6 +619,17 @@
 
   .titleDesk {
     display: inline;
+  }
+
+  .tryIt {
+    margin-bottom: 24px;
+    padding: 18px 24px;
+  }
+
+  .trySteps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    padding-left: 18px;
   }
 
   .grid {
