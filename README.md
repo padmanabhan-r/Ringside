@@ -11,47 +11,30 @@
 
 <table align="center">
   <tr>
-    <td align="center" width="200">
+    <td align="center" width="170">
       <img src="assets/logos/paypal.svg" width="56" height="56" alt="PayPal"><br>
       <b>PayPal</b><br>
       <sub>The money. Holds the payment at booking, takes a second payment for the change order, captures at job done.</sub>
     </td>
-    <td align="center" width="200">
+    <td align="center" width="170">
       <img src="assets/logos/elevenlabs.svg" width="56" height="56" alt="ElevenLabs"><br>
-      <b>ElevenLabs Agents</b><br>
+      <b>ElevenLabs</b><br>
       <sub>The voice. Answers the phone and the browser call, gathers the job and quotes it.</sub>
     </td>
-    <td align="center" width="200">
+    <td align="center" width="170">
       <img src="assets/logos/twilio.svg" width="56" height="56" alt="Twilio"><br>
       <b>Twilio</b><br>
       <sub>The phone line. The business's US number, connected straight to the agent.</sub>
     </td>
-    <td align="center" width="200">
+    <td align="center" width="170">
       <img src="assets/logos/render.svg" width="56" height="56" alt="Render"><br>
       <b>Render</b><br>
       <sub>The platform. Runs the app, its Postgres, and the close-out on Render Workflows.</sub>
     </td>
-  </tr>
-  <tr>
-    <td align="center" width="200">
-      <img src="assets/logos/nextdotjs.svg" width="56" height="56" alt="Next.js"><br>
-      <b>Next.js</b><br>
-      <sub>The app. The landing page, the call page, the approval page and the owner's screens.</sub>
-    </td>
-    <td align="center" width="200">
-      <img src="assets/logos/postgresql.svg" width="56" height="56" alt="PostgreSQL"><br>
-      <b>PostgreSQL</b><br>
-      <sub>The records. Jobs, calls, payments and events, each scoped to a demo session.</sub>
-    </td>
-    <td align="center" width="200">
+    <td align="center" width="170">
       <img src="assets/logos/claude.svg" width="56" height="56" alt="Claude"><br>
       <b>Claude</b><br>
       <sub>The change orders. Claude Sonnet 5.5 turns the owner's spoken extra work into rate-card lines.</sub>
-    </td>
-    <td align="center" width="200">
-      <img src="assets/logos/deepseek.svg" width="56" height="56" alt="DeepSeek"><br>
-      <b>DeepSeek</b><br>
-      <sub>The agent's model. <code>deepseek-v41-flash</code>, hosted by ElevenLabs, runs the conversation.</sub>
     </td>
   </tr>
 </table>
