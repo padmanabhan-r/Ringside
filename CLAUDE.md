@@ -44,14 +44,21 @@ Padmanabhan ([@padmanabhan-r](https://github.com/padmanabhan-r)), solo, IST. **R
   captures or refunds, `PayPal-Request-Id` on every PayPal POST, prices only from the rate card (validated in code),
   integer cents, read-back + "yes" before any link, sandbox only, cost caps, demo isolation. Ask the owner before
   changing the money flow, adding a paid service, or touching a hard rule.
+- **`docs/` is local and gitignored: never commit it.** The brief, research, notes, plans and submission drafts are
+  working material. What the public repo needs goes in code, `README.md` and `devlog.md`, and the README never links
+  into `docs/`.
 - **Secrets stay server-side and out of git**: the PayPal client secret, ElevenLabs, Twilio and model keys. Only the
   PayPal client ID may reach a browser. Never print or read `.env` files.
 - Unverified PayPal behaviour gets a minimal sandbox script in `scripts/sandbox/` and a row in `docs/field-notes.md`;
   don't guess. Tests never call live APIs (recorded responses only).
 - PayPal sandbox calls are free. ElevenLabs minutes, Twilio minutes and model calls cost money: say the service and
   rough cost before a batch of paid calls; keep a reserve for judging (Dec 2–15).
-- No real people's data in the sandbox, the phone line or the demo (PayPal Developer Agreement §2). The business,
-  owner and customers are fictional.
+- No real customers' data in the sandbox, the phone line or the demo (PayPal Developer Agreement §2). The business,
+  owner and customers are fictional. One exception: the owner's mobile is a Twilio verified caller ID for test calls
+  (a Twilio number can't call itself). It may show in Twilio and ElevenLabs logs; the app never stores raw caller IDs.
+- **Rules serve the build; keep them lean.** When a rule blocks the best option, propose a slimmer rule to the owner
+  instead of working around it or settling for a worse option. The §6 hard rules still need the owner's explicit OK
+  to change.
 - One feature per branch/PR; small, reviewable changes. Commit with the `commit` skill. After submitting, `main` is
   frozen until winners are announced.
 

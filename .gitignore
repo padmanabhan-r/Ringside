@@ -38,3 +38,6 @@ recordings/
 
 # Idea brainstorm (hack-council): competition strategy, kept local
 brainstorm/
+
+# Working docs (brief, research, notes, plans, submission drafts): local only, never committed (owner, 2026-11-05)
+docs/

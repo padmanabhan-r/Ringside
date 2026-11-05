@@ -6,12 +6,13 @@ set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 status=0
 
-# 1. Relative links in tracked Markdown files resolve (URLs and pure anchors are skipped).
+# 1. Relative links in tracked Markdown files resolve (URLs, pure anchors and gitignored targets are skipped).
 while IFS= read -r md; do
   dir=$(dirname "$md")
   while IFS= read -r target; do
     path=${target%%#*}
     [ -z "$path" ] && continue
+    git check-ignore -q "$dir/$path" && continue   # local-only targets (docs/) are absent in CI
     if [ ! -e "$dir/$path" ]; then
       echo "broken link: $md -> $target"
       status=1

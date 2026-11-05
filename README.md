@@ -4,7 +4,7 @@
 
 [![Event](https://img.shields.io/badge/event-PayPal_AI_Hackathon-003087?style=flat-square&labelColor=001435)](https://paypalaihackathon.devpost.com)
 [![Deadline](https://img.shields.io/badge/deadline-Nov_12_2026_12%3A00_PST-0070e0?style=flat-square&labelColor=001435)](https://paypalaihackathon.devpost.com/details/dates)
-[![Status](https://img.shields.io/badge/status-building-ffc439?style=flat-square&labelColor=001435)](docs/timeline.md)
+[![Status](https://img.shields.io/badge/status-building-ffc439?style=flat-square&labelColor=001435)](devlog.md)
 [![Licence](https://img.shields.io/badge/licence-MIT-3d3d3d?style=flat-square&labelColor=001435)](LICENSE)
 
 </div>
@@ -31,15 +31,9 @@ Built on the PayPal sandbox only: no real money moves.
 
 | Path | What it is |
 |---|---|
-| [docs/brief.md](docs/brief.md) | The build spec: flow, stack, screens, money flow, hard rules, data model |
-| [docs/decisions.md](docs/decisions.md) | Decisions, one line each |
-| [docs/hackathon.md](docs/hackathon.md) | The rules, dates, prizes, PayPal terms and open questions |
-| [docs/paypal-api-reference.md](docs/paypal-api-reference.md) | PayPal endpoints, authorizations, webhooks and limits |
-| [docs/stack-reference.md](docs/stack-reference.md) | ElevenLabs, Twilio, Bryntum, Render and the parser model |
-| [docs/timeline.md](docs/timeline.md) | The plan to the deadline |
-| [docs/field-notes.md](docs/field-notes.md) | Real runs against the APIs |
-| [docs/submission/](docs/submission/checklist.md) | Submission checklist, write-up draft, claims ledger, video plan |
 | [devlog.md](devlog.md) | Build log |
+| [scripts/gates/](scripts/gates/test-call.mjs) | Checks run against the real services before building on them |
+| [.env.example](.env.example) | Every environment variable, with where it comes from |
 
 ## License
 
