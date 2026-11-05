@@ -26,6 +26,7 @@
 
 .wordmarkPlace {
   margin-top: 0.35em;
+  white-space: nowrap;
   font-size: 0.56em;
   font-weight: 700;
   letter-spacing: 0.12em;

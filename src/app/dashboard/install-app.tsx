@@ -74,16 +74,16 @@ export function InstallApp({ placement, qrSvg }: { placement: "top" | "side"; qr
 
   if (prompt) {
     return (
-      <button type="button" className={s.installTop} onClick={install}>
-        <Download aria-hidden="true" /> Install
+      <button type="button" className={s.installTop} onClick={install} aria-label="Install Mike’s app">
+        <Download aria-hidden="true" /> <span className={s.installLabel}>Install</span>
       </button>
     );
   }
   if (kind !== "ios") return null;
   return (
     <>
-      <button type="button" className={s.installTop} onClick={() => setHint(true)} aria-expanded={hint}>
-        <Download aria-hidden="true" /> Install
+      <button type="button" className={s.installTop} onClick={() => setHint(true)} aria-expanded={hint} aria-label="Install Mike’s app">
+        <Download aria-hidden="true" /> <span className={s.installLabel}>Install</span>
       </button>
       {hint ? (
         <div className={s.iosHint} role="dialog" aria-label="Install Mike’s app">

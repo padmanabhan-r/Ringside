@@ -383,3 +383,21 @@
     font-weight: 700;
   }
 }
+
+/* Narrow phones: the header holds the wordmark, the bell, Install and Mike's face on one line. */
+@media (max-width: 420px) {
+  .installLabel {
+    display: none;
+  }
+
+  .installTop {
+    justify-content: center;
+    width: 36px;
+    padding: 0;
+  }
+
+  .topEnd {
+    gap: 8px;
+  }
+}
+
