@@ -70,7 +70,7 @@
 ![Render](https://img.shields.io/badge/Render-Web_·_Postgres_·_Workflows-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Render SDK](https://img.shields.io/badge/Render_SDK-1.3-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Resend](https://img.shields.io/badge/Resend-email-0f1b2d?style=flat-square&logo=resend&labelColor=0f1b2d)
-![Vitest](https://img.shields.io/badge/Vitest-5_·_144_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
+![Vitest](https://img.shields.io/badge/Vitest-5_·_147_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
 ![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-0f1b2d?style=flat-square&logo=githubactions&labelColor=0f1b2d)
 
 </div>
@@ -228,7 +228,7 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Demo sessions | A cookie per visitor; Postgres 18; a job state machine | Each visitor sees only their own jobs plus labelled sample jobs that can't be charged ([`src/lib/dashboard.ts`](src/lib/dashboard.ts), [`src/lib/job-state.ts`](src/lib/job-state.ts), [`db/migrations/`](db/migrations/001_init.sql)) |
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Figtree, lucide-react | Landing page, call page, customer page, Mike's app ([`src/app/`](src/app/page.tsx)) |
 | Hosting | Render web service, Render Postgres and a Render workflow from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
-| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 144 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
+| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 147 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
 
 PayPal runs in the sandbox only: the server refuses to start unless `PAYPAL_ENV=sandbox`.
 
