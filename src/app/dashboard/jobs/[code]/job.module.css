@@ -726,3 +726,114 @@
     top: 24px;
   }
 }
+
+/* Add charges: whole jobs from the price book, at Mike's price inside the range */
+.pickHeading {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-2);
+}
+
+.jobSearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-btn);
+  background: #fff;
+}
+
+.jobSearch svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-3);
+  flex: none;
+}
+
+.jobSearch input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+}
+
+.jobPrice {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 800;
+  color: var(--ok-ink);
+}
+
+.jobPrice input {
+  width: 92px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.jobPrice input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.jobPrice button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--none-tint);
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.jobPrice button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.addJob {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1.5px solid var(--brand);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--brand-ink);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.addJob svg {
+  width: 15px;
+  height: 15px;
+}
+
+.pickEmpty {
+  padding: 12px;
+  font-size: 14px;
+  color: var(--text-3);
+}
+
+.outOfRange {
+  color: var(--danger) !important;
+}

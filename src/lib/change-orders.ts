@@ -6,7 +6,7 @@ import { parseChangeOrder } from "./change-order-parser";
 import { addEvent, findJobByCode, setState, startPayment, updatePayment, type Job, type Payment } from "./jobs";
 import { approvalUrl, captureOrder, createOrder, getOrder, PayPalError } from "./paypal";
 import { notifyJobEvent } from "./push";
-import { priceLineItems, RateCardError, totalOf, type PricedItem } from "./rate-card";
+import { changeTotal, priceChangeLines, type ChangeLine } from "./change-pricing";
 
 export interface ChangeOrder {
   id: string;
@@ -68,7 +68,7 @@ async function ensureInProgress(job: Job): Promise<void> {
  */
 export async function proposeChangeOrder(job: Job, input: { transcript: string } | { picks: unknown }): Promise<ChangeOrderView> {
   await ensureInProgress(job);
-  let items: PricedItem[];
+  let items: ChangeLine[];
   let unclear = "";
   let transcript: string;
   if ("transcript" in input) {
@@ -77,11 +77,11 @@ export async function proposeChangeOrder(job: Job, input: { transcript: string }
     unclear = parsed.unclear;
     transcript = input.transcript.trim();
   } else {
-    items = priceLineItems(input.picks);
-    if (items.some((i) => i.itemCode === "callout")) throw new RateCardError("The call-out fee can't be part of a change order");
-    transcript = "Picked from the rate card";
+    // Rate-card add-ons { item_code, qty } and price-book jobs { service_code, price_cents } at Mike's price.
+    items = priceChangeLines(input.picks);
+    transcript = "Picked from the price list";
   }
-  const total = totalOf(items);
+  const total = changeTotal(items);
 
   const sql = db();
   const co = await sql.begin(async (tx) => {
@@ -92,8 +92,8 @@ export async function proposeChangeOrder(job: Job, input: { transcript: string }
     if (!row) throw new Error("change order insert returned nothing");
     for (const item of items) {
       await tx`
-        insert into line_items (job_id, source, change_order_id, item_code, name, qty, unit_price_cents)
-        values (${job.id}, 'change_order', ${row.id}, ${item.itemCode}, ${item.name}, ${item.qty}, ${item.unitPriceCents})`;
+        insert into line_items (job_id, source, change_order_id, item_code, name, qty, unit_price_cents, price_low_cents)
+        values (${job.id}, 'change_order', ${row.id}, ${item.code}, ${item.name}, ${item.qty}, ${item.unitPriceCents}, ${item.lowCents ?? null})`;
     }
     return row;
   });

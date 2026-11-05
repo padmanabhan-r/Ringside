@@ -2,7 +2,9 @@ import { readFileSync } from "node:fs";
 import type Anthropic from "@anthropic-ai/sdk";
 import { afterEach, describe, expect, it } from "vitest";
 import { ChangeOrderParseError, parseChangeOrder, setCreateMessageForTests } from "@/lib/change-order-parser";
-import { RateCardError, totalOf } from "@/lib/rate-card";
+import { changeTotal, priceChangeLines } from "@/lib/change-pricing";
+import { RateCardError } from "@/lib/rate-card";
+import { SERVICES } from "@/lib/price-book";
 
 // Real Claude responses recorded by scripts/sandbox/change-order-parser.rec.ts (2026-11-05).
 const recorded = (name: string) => JSON.parse(readFileSync(`test/fixtures/llm/${name}.json`, "utf8")) as Anthropic.Message;
@@ -30,19 +32,19 @@ describe("parseChangeOrder", () => {
   it("prices the brief's example from the rate card: a shut-off valve and 45 minutes is $119.25", async () => {
     respondWith(recorded("change-order-valve"));
     const { items, unclear } = await parseChangeOrder("Add a shut-off valve and 45 more minutes.");
-    expect(items.map((i) => [i.itemCode, i.qty, i.totalCents])).toEqual([
+    expect(items.map((i) => [i.code, i.qty, i.totalCents])).toEqual([
       ["shutoff_valve", 1, 4800],
       ["labour_hr", 3, 7125],
     ]);
-    expect(totalOf(items)).toBe(11925);
+    expect(changeTotal(items)).toBe(11925);
     expect(unclear).toBe("");
   });
 
   it("keeps what isn't on the rate card out of the lines and reports it", async () => {
     respondWith(recorded("change-order-mixed"));
     const { items, unclear } = await parseChangeOrder("Swapped the faucet cartridge, had to replace the P-trap too, and she wants a new water softener.");
-    expect(items.map((i) => i.itemCode)).toEqual(["faucet_cartridge", "ptrap_kit"]);
-    expect(totalOf(items)).toBe(5700);
+    expect(items.map((i) => i.code)).toEqual(["faucet_cartridge", "ptrap_kit"]);
+    expect(changeTotal(items)).toBe(5700);
     expect(unclear).toMatch(/water softener/);
   });
 
@@ -92,4 +94,39 @@ describe("parseChangeOrder", () => {
     await expect(parseChangeOrder("x".repeat(2001))).rejects.toBeInstanceOf(ChangeOrderParseError);
     expect(called).toBe(false);
   });
+
+  it("matches a whole price-book job, starting at the low end of its range", async () => {
+    respondWith(withText('{"items":[],"jobs":[{"service_code":"toilet_flapper_replacement"}],"unclear":""}'));
+    const { items } = await parseChangeOrder("the flapper is shot too, replace it");
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({ code: "toilet_flapper_replacement", source: "book", unitPriceCents: 10000, lowCents: 10000, highCents: 17500 });
+  });
+
+  it("refuses price-book jobs that aren't in the book or need an estimate", async () => {
+    respondWith(withText('{"items":[],"jobs":[{"service_code":"build_a_pool"}],"unclear":""}'));
+    await expect(parseChangeOrder("pool")).rejects.toBeInstanceOf(RateCardError);
+  });
 });
+
+describe("priceChangeLines", () => {
+  it("prices add-ons from the card and price-book jobs at Mike's price inside the range", () => {
+    const lines = priceChangeLines([
+      { item_code: "shutoff_valve", qty: 1 },
+      { service_code: "toilet_flapper_replacement", price_cents: 14000 },
+    ]);
+    expect(lines.map((l) => [l.code, l.totalCents])).toEqual([
+      ["shutoff_valve", 4800],
+      ["toilet_flapper_replacement", 14000],
+    ]);
+    expect(changeTotal(lines)).toBe(18800);
+  });
+
+  it("refuses a price outside the job's range, fractions of a cent and estimate-only projects", () => {
+    expect(() => priceChangeLines([{ service_code: "toilet_flapper_replacement", price_cents: 9999 }])).toThrow(RateCardError);
+    expect(() => priceChangeLines([{ service_code: "toilet_flapper_replacement", price_cents: 17501 }])).toThrow(RateCardError);
+    expect(() => priceChangeLines([{ service_code: "toilet_flapper_replacement", price_cents: 140.5 }])).toThrow(RateCardError);
+    const estimate = SERVICES.find((x) => x.kind === "estimate")!;
+    expect(() => priceChangeLines([{ service_code: estimate.code, price_cents: estimate.lowCents }])).toThrow(RateCardError);
+  });
+});
+

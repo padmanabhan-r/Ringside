@@ -1,6 +1,9 @@
 "use client";
 
-import { BookOpen, Mic, MicOff, Minus, Plus, Send, Trash2 } from "lucide-react";
+import { BookOpen, Mic, MicOff, Minus, Plus, Search, Send, Trash2, X } from "lucide-react";
+import { COMMON_SERVICES } from "@/lib/book-form";
+import { findService, searchServices, type Service } from "@/lib/price-book";
+import { isItemCode } from "@/lib/rate-card";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import s from "./job.module.css";
@@ -41,6 +44,22 @@ interface Recognition {
 
 const usd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
+/** Jobs that can be added on site: closed price-book ranges, not estimate-only projects. */
+const COMMON_JOBS = COMMON_SERVICES.map((c) => findService(c)).filter((x): x is Service => Boolean(x) && x!.kind !== "estimate");
+const dollars = (cents: number) => (cents % 100 === 0 ? `$${cents / 100}` : usd(cents));
+const rangeText = (svc: Pick<Service, "lowCents" | "highCents">) => `${dollars(svc.lowCents)}–${dollars(svc.highCents)}`;
+const bookJob = (code: string) => (isItemCode(code) ? undefined : findService(code));
+
+function toCents(text: string): number | null {
+  const m = /^\s*\$?\s*(\d{1,5})(?:\.(\d{1,2}))?\s*$/.exec(text);
+  return m ? Number(m[1]) * 100 + Number((m[2] ?? "0").padEnd(2, "0")) : null;
+}
+
+const inRange = (svc: Service, text: string) => {
+  const c = toCents(text);
+  return c !== null && c >= svc.lowCents && c <= svc.highCents;
+};
+
 function recognitionCtor(): (new () => Recognition) | undefined {
   if (typeof window === "undefined") return undefined;
   const w = window as unknown as { SpeechRecognition?: new () => Recognition; webkitSpeechRecognition?: new () => Recognition };
@@ -61,6 +80,10 @@ export function AddCharges({ code, customer, items, draft: initialDraft }: { cod
   const [draft, setDraft] = useState<Draft | undefined>(initialDraft);
   const [picking, setPicking] = useState(false);
   const [picks, setPicks] = useState<Record<string, number>>({});
+  // Whole jobs from the price book, at the price Mike types inside the job's range (dollars as typed).
+  const [jobPicks, setJobPicks] = useState<Record<string, string>>({});
+  const [jobQuery, setJobQuery] = useState("");
+  const [draftPrices, setDraftPrices] = useState<Record<string, string>>({});
   const rec = useRef<Recognition | null>(null);
 
   useEffect(() => {
@@ -75,15 +98,21 @@ export function AddCharges({ code, customer, items, draft: initialDraft }: { cod
     return json;
   };
 
-  const price = async (body: { transcript: string } | { picks: { item_code: string; qty: number }[] }) => {
+  const price = async (body: { transcript: string } | { picks: unknown[] }): Promise<Draft | undefined> => {
     setBusy("price");
     setError(null);
     try {
-      setDraft((await post(`/api/dashboard/jobs/${code}/change-orders`, body)) as unknown as Draft);
+      const next = (await post(`/api/dashboard/jobs/${code}/change-orders`, body)) as unknown as Draft;
+      setDraft(next);
+      setDraftPrices({});
       setPicking(false);
       setPicks({});
+      setJobPicks({});
+      setJobQuery("");
+      return next;
     } catch (e) {
       setError((e as Error).message);
+      return undefined;
     } finally {
       setBusy(null);
     }
@@ -121,12 +150,27 @@ export function AddCharges({ code, customer, items, draft: initialDraft }: { cod
     r.start();
   };
 
+  const pricesEdited = draft ? draft.lines.some((l) => bookJob(l.item_code) && draftPrices[l.item_code] !== undefined && toCents(draftPrices[l.item_code]!) !== l.unit_price_cents) : false;
+  const pricesValid = draft ? draft.lines.every((l) => { const svc = bookJob(l.item_code); return !svc || draftPrices[l.item_code] === undefined || inRange(svc, draftPrices[l.item_code]!); }) : true;
+  // The total as Mike types: fixed card lines plus each price-book job at the price in its box.
+  const liveTotal = draft ? draft.lines.reduce((sum, l) => sum + (bookJob(l.item_code) && draftPrices[l.item_code] !== undefined ? (toCents(draftPrices[l.item_code]!) ?? 0) : l.unit_price_cents * l.qty), 0) : 0;
+
   const send = async () => {
     if (!draft) return;
+    let current: Draft | undefined = draft;
+    if (pricesEdited) {
+      // Mike changed a price-book job's price: save the lines again at his prices, then send that.
+      current = await price({
+        picks: draft.lines.map((l) =>
+          bookJob(l.item_code) ? { service_code: l.item_code, price_cents: toCents(draftPrices[l.item_code] ?? "") ?? l.unit_price_cents } : { item_code: l.item_code, qty: l.qty },
+        ),
+      });
+      if (!current) return;
+    }
     setBusy("send");
     setError(null);
     try {
-      await post(`/api/dashboard/jobs/${code}/change-orders/${draft.id}`, { action: "send" });
+      await post(`/api/dashboard/jobs/${code}/change-orders/${current.id}`, { action: "send" });
       router.refresh();
     } catch (e) {
       setError((e as Error).message);
@@ -151,7 +195,13 @@ export function AddCharges({ code, customer, items, draft: initialDraft }: { cod
   };
 
   const pickList = Object.entries(picks).filter(([, q]) => q > 0);
-  const pickTotal = pickList.reduce((sum, [c, q]) => sum + (items.find((i) => i.code === c)?.unitPriceCents ?? 0) * q, 0);
+  const jobList = Object.entries(jobPicks);
+  const jobsValid = jobList.every(([c, t]) => { const svc = findService(c); return svc ? inRange(svc, t) : false; });
+  const pickTotal =
+    pickList.reduce((sum, [c, q]) => sum + (items.find((i) => i.code === c)?.unitPriceCents ?? 0) * q, 0) + jobList.reduce((sum, [, t]) => sum + (toCents(t) ?? 0), 0);
+  const jobMatches = (jobQuery.trim().length > 1 ? searchServices(jobQuery, 8) : COMMON_JOBS).filter((j) => j.kind !== "estimate");
+  const jobResults = jobMatches.filter((j) => !(j.code in jobPicks));
+  const allPicks = [...pickList.map(([item_code, qty]) => ({ item_code, qty })), ...jobList.map(([service_code, t]) => ({ service_code, price_cents: toCents(t) ?? 0 }))];
 
   return (
     <div className={s.addBody}>
@@ -187,6 +237,7 @@ export function AddCharges({ code, customer, items, draft: initialDraft }: { cod
 
           {picking ? (
             <div className={s.picker}>
+              <p className={s.pickHeading}>Parts and labour</p>
               <ul className={s.pickList}>
                 {items.map((item) => {
                   const q = picks[item.code] ?? 0;
@@ -211,36 +262,95 @@ export function AddCharges({ code, customer, items, draft: initialDraft }: { cod
                   );
                 })}
               </ul>
-              <button type="button" className={s.primaryWide} disabled={!pickList.length || busy !== null} onClick={() => void price({ picks: pickList.map(([item_code, qty]) => ({ item_code, qty })) })}>
-                {busy === "price" ? "Pricing…" : pickList.length ? `Add ${usd(pickTotal)} of extra work` : "Pick the extra work"}
+              <p className={s.pickHeading}>Whole jobs from your price book</p>
+              {jobList.length ? (
+                <ul className={s.pickList}>
+                  {jobList.map(([c, t]) => {
+                    const svc = findService(c)!;
+                    const ok = inRange(svc, t);
+                    return (
+                      <li key={c} className={s.pickItem}>
+                        <span className={s.pickName}>
+                          {svc.name}
+                          <small className={ok ? undefined : s.outOfRange}>Your price, {rangeText(svc)}</small>
+                        </span>
+                        <span className={s.jobPrice}>
+                          <span aria-hidden="true">$</span>
+                          <input inputMode="decimal" value={t} onChange={(e) => setJobPicks({ ...jobPicks, [c]: e.target.value })} aria-label={`Price for ${svc.name}`} aria-invalid={!ok} />
+                          <button type="button" onClick={() => setJobPicks(Object.fromEntries(jobList.filter(([k]) => k !== c)))} aria-label={`Remove ${svc.name}`}>
+                            <X aria-hidden="true" />
+                          </button>
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : null}
+              <label className={s.jobSearch}>
+                <Search aria-hidden="true" />
+                <span className={s.visuallyHidden}>Search the price book</span>
+                <input type="search" value={jobQuery} onChange={(e) => setJobQuery(e.target.value)} placeholder="Search all jobs, e.g. flapper, disposal, water heater" autoComplete="off" />
+              </label>
+              {jobResults.length || jobQuery.trim().length > 1 ? <ul className={s.pickList}>
+                {jobResults.map((svc) => (
+                  <li key={svc.code} className={s.pickItem}>
+                    <span className={s.pickName}>
+                      {svc.name}
+                      <small>{rangeText(svc)}</small>
+                    </span>
+                    <button type="button" className={s.addJob} onClick={() => setJobPicks({ ...jobPicks, [svc.code]: (svc.lowCents / 100).toFixed(2) })}>
+                      <Plus aria-hidden="true" /> Add
+                    </button>
+                  </li>
+                ))}
+                {jobQuery.trim().length > 1 && !jobMatches.length ? <li className={s.pickEmpty}>No job in the price book matches that.</li> : null}
+                {jobMatches.length && !jobResults.length ? <li className={s.pickEmpty}>Already added. Search for another job.</li> : null}
+              </ul> : null}
+              <button type="button" className={s.primaryWide} disabled={!allPicks.length || !jobsValid || busy !== null} onClick={() => void price({ picks: allPicks })}>
+                {busy === "price" ? "Pricing…" : !jobsValid ? "Keep each job's price inside its range" : allPicks.length ? `Add ${usd(pickTotal)} of extra work` : "Pick the extra work"}
               </button>
             </div>
           ) : null}
         </>
       ) : (
         <div className={s.draft}>
-          <p className={s.draftSaid}>{draft.transcript === "Picked from the rate card" ? "Picked from the price list" : `“${draft.transcript}”`}</p>
+          <p className={s.draftSaid}>{draft.transcript.startsWith("Picked from the") ? "Picked from the price list" : `“${draft.transcript}”`}</p>
           <ul className={s.lines}>
-            {draft.lines.map((l) => (
-              <li key={l.item_code}>
-                <span>
-                  {l.name ?? l.item_code}
-                  {l.qty > 1 || l.item_code === "labour_hr" ? <small>{l.item_code === "labour_hr" ? `${l.qty * 15} min` : `× ${l.qty}`}</small> : null}
-                </span>
-                <span>{usd(l.unit_price_cents * l.qty)}</span>
-              </li>
-            ))}
+            {draft.lines.map((l) => {
+              const svc = bookJob(l.item_code);
+              const t = draftPrices[l.item_code] ?? (l.unit_price_cents / 100).toFixed(2);
+              return (
+                <li key={l.item_code}>
+                  <span>
+                    {l.name ?? l.item_code}
+                    {svc ? (
+                      <small className={inRange(svc, t) ? undefined : s.outOfRange}>Your price, {rangeText(svc)}</small>
+                    ) : l.qty > 1 || l.item_code === "labour_hr" ? (
+                      <small>{l.item_code === "labour_hr" ? `${l.qty * 15} min` : `× ${l.qty}`}</small>
+                    ) : null}
+                  </span>
+                  {svc ? (
+                    <span className={s.jobPrice}>
+                      <span aria-hidden="true">$</span>
+                      <input inputMode="decimal" value={t} onChange={(e) => setDraftPrices({ ...draftPrices, [l.item_code]: e.target.value })} aria-label={`Price for ${l.name ?? l.item_code}`} aria-invalid={!inRange(svc, t)} />
+                    </span>
+                  ) : (
+                    <span>{usd(l.unit_price_cents * l.qty)}</span>
+                  )}
+                </li>
+              );
+            })}
             <li className={s.linesTotal}>
               <span>Extra work</span>
-              <span>{usd(draft.delta_cents)}</span>
+              <span>{pricesValid ? usd(liveTotal) : "—"}</span>
             </li>
           </ul>
           {draft.unclear ? <p className={s.unclear}>Not on the price list, left out: {draft.unclear}</p> : null}
-          <button type="button" className={s.sendButton} onClick={send} disabled={busy !== null}>
+          <button type="button" className={s.sendButton} onClick={send} disabled={busy !== null || !pricesValid}>
             <Send aria-hidden="true" />
             <span>
               {busy === "send" ? "Sending…" : `Send to ${customer} to approve`}
-              <small>A second PayPal payment for exactly {usd(draft.delta_cents)}</small>
+              <small>{pricesValid ? `A second PayPal payment for exactly ${usd(liveTotal)}` : "Keep each job's price inside its range"}</small>
             </span>
           </button>
           <button type="button" className={s.discard} onClick={discard} disabled={busy !== null}>
