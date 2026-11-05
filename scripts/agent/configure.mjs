@@ -12,9 +12,11 @@ if (missing.length) {
 }
 const { ELEVENLABS_API_KEY: KEY, ELEVENLABS_AGENT_ID: AGENT, APP_BASE_URL: BASE } = process.env;
 const SECRET_NAME = "ringside_tool_secret";
-// The cheapest agent LLM ElevenLabs offers ($0.0011 per call minute, 2026-11-05), with minimal reasoning so replies
-// stay quick. Override with ELEVENLABS_AGENT_LLM.
-const LLM = process.env.ELEVENLABS_AGENT_LLM || "gpt-5-nano";
+// The cheapest agent LLM that stays available through judging ($0.0022 per call minute, 2026-11-05): gpt-5-nano is
+// cheaper but OpenAI shuts the gpt-5 family down on Dec 11 and the demo runs to Dec 15. Low reasoning keeps replies
+// quick. Override with ELEVENLABS_AGENT_LLM.
+const LLM = process.env.ELEVENLABS_AGENT_LLM || "gpt-6-luna";
+const REASONING = process.env.ELEVENLABS_AGENT_REASONING || "low";
 const MAX_CALL_SECONDS = 360;
 
 async function el(method, path, body) {
@@ -142,7 +144,7 @@ Time: every call ends automatically at 6 minutes. This call has run {{system__ca
 await el("PATCH", `/v1/convai/agents/${AGENT}`, {
   conversation_config: {
     agent: {
-      prompt: { prompt: PROMPT, llm: LLM, ...(LLM.startsWith("gpt-5") ? { reasoning_effort: "minimal" } : {}), tool_ids: toolIds, built_in_tools: { end_call: { name: "end_call", description: "End the call after saying goodbye.", params: { system_tool_type: "end_call" } } } },
+      prompt: { prompt: PROMPT, llm: LLM, ...(/^gpt-[56]/.test(LLM) ? { reasoning_effort: REASONING } : {}), tool_ids: toolIds, built_in_tools: { end_call: { name: "end_call", description: "End the call after saying goodbye.", params: { system_tool_type: "end_call" } } } },
       dynamic_variables: { dynamic_variable_placeholders: {} },
     },
     // 15 s before "are you still there?": callers go quiet while typing card details on the PayPal page (default 7 s).

@@ -15,7 +15,7 @@ if (missing.length) {
 }
 const env = process.env;
 const mask = (n) => `${n.slice(0, 3)}…${n.slice(-4)}`;
-const LLM = env.ELEVENLABS_AGENT_LLM || "gpt-5-nano";
+const LLM = env.ELEVENLABS_AGENT_LLM || "gpt-6-luna";
 
 async function el(method, path, body) {
   const r = await fetch(`https://api.elevenlabs.io${path}`, {

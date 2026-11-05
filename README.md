@@ -61,7 +61,7 @@
 ![PayPal JS SDK](https://img.shields.io/badge/PayPal_JS_SDK-buttons_·_guest_card-003087?style=flat-square&logo=paypal&labelColor=0f1b2d)
 
 ![ElevenLabs Agents](https://img.shields.io/badge/ElevenLabs-Agents_·_React_SDK_1.19-0f1b2d?style=flat-square&logo=elevenlabs&labelColor=0f1b2d)
-![gpt-5-nano](https://img.shields.io/badge/agent_LLM-gpt--5--nano-0f1b2d?style=flat-square&labelColor=0f1b2d)
+![gpt-6-luna](https://img.shields.io/badge/agent_LLM-gpt--6--luna-0f1b2d?style=flat-square&labelColor=0f1b2d)
 ![Claude Sonnet 5.5](https://img.shields.io/badge/Claude-Sonnet_5.5_·_Haiku_5.5-cc785c?style=flat-square&logo=anthropic&labelColor=0f1b2d)
 ![Anthropic SDK](https://img.shields.io/badge/Anthropic_SDK-1.1-cc785c?style=flat-square&logo=anthropic&labelColor=0f1b2d)
 ![Twilio](https://img.shields.io/badge/Twilio-Voice-f22f46?style=flat-square&logo=twilio&labelColor=0f1b2d)
@@ -181,7 +181,7 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Part | Built with | What it does |
 |---|---|---|
 | Phone line | Twilio US number, imported into ElevenLabs | Callers dial the business and land straight on the agent ([`scripts/gates/setup-voice.mjs`](scripts/gates/setup-voice.mjs)) |
-| Voice agent | ElevenLabs Agents; LLM `gpt-5-nano` with minimal reasoning, hosted by ElevenLabs; voice "Chris"; calls capped at 6 minutes | Answers as Mike's AI assistant; its ten server tools read the price book, check the service area, find open windows, save the quote, book it and send the PayPal link only after a yes. Near the time limit every tool reply tells it to wrap up ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`scripts/agent/configure.mjs`](scripts/agent/configure.mjs)) |
+| Voice agent | ElevenLabs Agents; LLM `gpt-6-luna` with low reasoning, hosted by ElevenLabs; voice "Chris"; calls capped at 6 minutes | Answers as Mike's AI assistant; its ten server tools read the price book, check the service area, find open windows, save the quote, book it and send the PayPal link only after a yes. Near the time limit every tool reply tells it to wrap up ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`scripts/agent/configure.mjs`](scripts/agent/configure.mjs)) |
 | Browser call | `@elevenlabs/react` over WebRTC, a server-issued conversation token | The same agent in the browser with a live transcript and a booking card that fills in; the conversation is registered to the visitor's session before the first tool call; a recorded call for visitors without a mic ([`src/app/call/`](src/app/call/page.tsx)) |
 | Prices | Mike's price book (about 140 jobs as USD ranges) and a rate card of add-ons, money in integer cents | A quote holds the top of its range; extra work is parts and labour in 15-minute blocks of $23.75 ([`src/lib/price-book.ts`](src/lib/price-book.ts), [`src/lib/rate-card.ts`](src/lib/rate-card.ts)) |
 | Service area | The Saginaw Tri-Cities by ZIP and city | Callers outside it get no booking and no payment ([`src/lib/service-area.ts`](src/lib/service-area.ts)) |
@@ -229,7 +229,7 @@ npm run dev                   # http://localhost:3000
 | `APP_BASE_URL` | The public address in links the agent and the app hand out |
 | `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | The voice agent and the browser call |
 | `ELEVENLABS_TOOL_SECRET` | Authenticating the agent's tool calls |
-| `ELEVENLABS_AGENT_LLM` | The agent's model (optional; default `gpt-5-nano`) |
+| `ELEVENLABS_AGENT_LLM` | The agent's model (optional; default `gpt-6-luna`) |
 | `TWILIO_PHONE_NUMBER`, `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET`, `TWILIO_AUTH_TOKEN` | Importing the phone line into ElevenLabs (setup only) |
 | `LLM_API_KEY`, `LLM_MODEL` | The change-order parser (Anthropic API key; default `claude-sonnet-5-5`) |
 | `RESEND_API_KEY`, `EMAIL_FROM` | Emailing the PayPal link to phone callers (optional: without them the agent reads out the job code) |
@@ -256,7 +256,6 @@ receipt invoice and the close-out, Mike's installable app, and Mike's Books with
 
 ## Next steps
 
-- **Notifications on Mike's phone** when a booking or an approval comes in.
 - **The demo video,** and the public demo kept up through the end of judging.
 
 ## Repository
