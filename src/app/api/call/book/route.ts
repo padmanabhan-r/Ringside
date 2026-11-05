@@ -19,7 +19,7 @@ function context(req: NextRequest, demoSessionId: string, conversationId?: strin
     conversationId,
     channel: "web",
     // Links point where the job lives: the live site in production, this server locally (as the agent route does).
-    baseUrl: process.env.NODE_ENV === "production" ? (process.env.APP_BASE_URL ?? new URL(req.url).origin) : new URL(req.url).origin,
+    baseUrl: process.env.NODE_ENV === "production" ? (process.env.APP_BASE_URL || new URL(req.url).origin) : new URL(req.url).origin,
     now: new Date(),
   };
 }

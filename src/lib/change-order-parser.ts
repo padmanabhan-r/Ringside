@@ -100,7 +100,7 @@ export async function parseChangeOrder(transcript: string): Promise<ParsedChange
   if (said.length > 2000) throw new ChangeOrderParseError("That's too long for one change order");
 
   const message = await client()({
-    model: process.env.LLM_MODEL ?? "claude-sonnet-5-5",
+    model: process.env.LLM_MODEL || "claude-sonnet-5-5",
     max_tokens: 1024,
     // A short extraction while Mike waits on site: no extended thinking, low effort.
     thinking: { type: "between_tools" },

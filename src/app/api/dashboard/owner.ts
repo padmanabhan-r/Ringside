@@ -24,5 +24,5 @@ export const notYours = () => NextResponse.json({ error: "That job isn't in your
 
 /** Links point where the job lives: the live site in production, this server locally. */
 export function baseUrl(req: Request): string {
-  return process.env.NODE_ENV === "production" ? (process.env.APP_BASE_URL ?? new URL(req.url).origin) : new URL(req.url).origin;
+  return process.env.NODE_ENV === "production" ? (process.env.APP_BASE_URL || new URL(req.url).origin) : new URL(req.url).origin;
 }

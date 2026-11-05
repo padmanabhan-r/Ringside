@@ -64,7 +64,7 @@ export async function matchProblem(problem: string): Promise<ProblemMatch> {
   const list = candidates.map((s) => `- ${s.code}: ${s.name}`).join("\n");
 
   const message = await client()({
-    model: process.env.MATCH_LLM_MODEL ?? "claude-haiku-5-5",
+    model: process.env.MATCH_LLM_MODEL || "claude-haiku-5-5",
     max_tokens: 300,
     output_config: { effort: "low", format: { type: "json_schema", schema } },
     system: [

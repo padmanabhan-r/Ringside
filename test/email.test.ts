@@ -3,24 +3,24 @@ import { holdEmailContent, isValidEmail, maskEmail, normaliseEmail, spellEmail }
 
 describe("caller email", () => {
   it("normalises what speech-to-text hears", () => {
-    expect(normaliseEmail("Dana dot Reyes at gmail dot com")).toBe("dana.reyes@gmail.com");
+    expect(normaliseEmail("Dana dot Reyes at example dot com")).toBe("dana.reyes@example.com");
     expect(normaliseEmail("  mike_k  at  bay-city dot net ")).toBe("mike_k@bay-city.net");
   });
 
   it("accepts real addresses and rejects garbled ones", () => {
-    expect(isValidEmail("dana.reyes@gmail.com")).toBe(true);
+    expect(isValidEmail("dana.reyes@example.com")).toBe(true);
     expect(isValidEmail("dana@reyes")).toBe(false);
-    expect(isValidEmail("dana reyes@gmail.com")).toBe(false);
-    expect(isValidEmail("@gmail.com")).toBe(false);
+    expect(isValidEmail("dana reyes@example.com")).toBe(false);
+    expect(isValidEmail("@example.com")).toBe(false);
   });
 
   it("spells the address letter by letter, saying common providers as words", () => {
-    expect(spellEmail("dana.reyes@gmail.com")).toBe("d, a, n, a, dot, r, e, y, e, s, at, gmail, dot, com");
+    expect(spellEmail("ringside.demo@gmail.com")).toBe("r, i, n, g, s, i, d, e, dot, d, e, m, o, at, gmail, dot, com");
     expect(spellEmail("mk7@saginawplumb.io")).toBe("m, k, 7, at, s, a, g, i, n, a, w, p, l, u, m, b, dot, io");
   });
 
   it("masks the address for logs", () => {
-    expect(maskEmail("dana.reyes@gmail.com")).toBe("d***@gmail.com");
+    expect(maskEmail("dana.reyes@example.com")).toBe("d***@example.com");
   });
 
   it("builds the email with the hold amount and the approval link", () => {
