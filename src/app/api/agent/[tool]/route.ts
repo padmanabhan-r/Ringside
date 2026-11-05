@@ -29,7 +29,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ too
     demoSessionId: known?.demoSessionId ?? (conversationId ? `call-${conversationId}` : "public"),
     conversationId,
     channel: known?.channel ?? "phone",
-    baseUrl: process.env.APP_BASE_URL ?? new URL(req.url).origin,
+    // Links point where the job lives: the live site in production, this server when running locally.
+    baseUrl: process.env.NODE_ENV === "production" ? (process.env.APP_BASE_URL ?? new URL(req.url).origin) : new URL(req.url).origin,
     now: new Date(),
   };
 
