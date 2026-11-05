@@ -110,9 +110,32 @@ export async function setState(job: Job, next: JobState, payload: Record<string,
   job.state = next;
 }
 
-export async function bookSlot(job: Job, start: Date, end: Date): Promise<void> {
+/** Records the chosen visit window. The job becomes "booked" only once the customer approves the PayPal hold. */
+export async function setSlot(job: Job, start: Date, end: Date): Promise<void> {
   await db()`update jobs set slot_start = ${start}, slot_end = ${end}, updated_at = now() where id = ${job.id}`;
-  await setState(job, "booked", { slotStart: start.toISOString(), slotEnd: end.toISOString() });
+  await addEvent(job.id, "slot_chosen", { slotStart: start.toISOString(), slotEnd: end.toISOString() });
+  job.slot_start = start;
+  job.slot_end = end;
+}
+
+/** Upserts the call row for an agent conversation and links it to its job. */
+export async function linkCall(input: { conversationId: string; demoSessionId: string; channel: Job["channel"]; jobId?: string; outcome?: string }): Promise<void> {
+  await db()`
+    insert into calls (conversation_id, demo_session_id, channel, job_id, outcome)
+    values (${input.conversationId}, ${input.demoSessionId}, ${input.channel}, ${input.jobId ?? null}, ${input.outcome ?? "in_progress"})
+    on conflict (conversation_id) do update set
+      job_id = coalesce(excluded.job_id, calls.job_id),
+      outcome = case when excluded.outcome = 'in_progress' then calls.outcome else excluded.outcome end,
+      updated_at = now()`;
+}
+
+export async function setCallOutcomeForJob(jobId: string, outcome: string): Promise<void> {
+  await db()`update calls set outcome = ${outcome}, updated_at = now() where job_id = ${jobId}`;
+}
+
+export async function findPaymentByOrder(orderId: string): Promise<(Payment & { job_id: string }) | undefined> {
+  const [row] = await db()<(Payment & { job_id: string })[]>`select * from payments where paypal_order_id = ${orderId}`;
+  return row;
 }
 
 /** Busy slots for a session's day, for the availability tool. */
