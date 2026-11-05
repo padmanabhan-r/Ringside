@@ -1,5 +1,4 @@
-# Until the app exists this checks the docs and scans for secrets.
-# When the Next.js app lands (Thu Nov 5 build), add typecheck, lint and offline tests (recorded PayPal responses).
+# Offline checks only: no keys, no live API calls (tests use recorded responses).
 name: CI
 on: [push, pull_request]
 jobs:
@@ -7,4 +6,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
       - run: bash scripts/check-docs.sh
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ringside
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/ringside
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run db:migrate
+      - name: A second run applies nothing
+        run: npm run db:migrate | tee /dev/stderr | grep -q "0 applied now"

@@ -48,3 +48,7 @@ docs/
 
 # Impeccable working files (mocks, build state, review captures): local only
 .impeccable/
+
+# Next.js generated files
+next-env.d.ts
+*.tsbuildinfo
