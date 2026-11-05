@@ -14,7 +14,8 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import s from "./landing.module.css";
 
-const BUSINESS_LINE = "+1 (989) 534-9779";
+// The full number goes only to the judges, in the submission form; public pages show it masked.
+const BUSINESS_LINE = "+1 (989) 534-XXXX";
 
 const HOURS = ["8am", "9am", "10am", "11am", "12pm", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm"];
 const FIRST_HOUR = 8;
@@ -112,9 +113,7 @@ export default function Home() {
               </span>
             </Link>
           </div>
-          <a className={s.phone} href="tel:+19895349779">
-            {BUSINESS_LINE}
-          </a>
+          <p className={s.phone}>{BUSINESS_LINE}</p>
           <p className={s.notice}>You’ll talk to an AI assistant. The call is recorded.</p>
 
           <div className={s.introFoot}>
@@ -401,9 +400,7 @@ export default function Home() {
             <Phone aria-hidden="true" className={s.callIcon} strokeWidth={2.25} />
             Call Mike’s Plumbing
           </Link>
-          <a className={s.closePhone} href="tel:+19895349779">
-            or dial {BUSINESS_LINE}
-          </a>
+          <p className={s.closePhone}>or dial the business line, {BUSINESS_LINE}</p>
         </div>
         <p className={s.closeNote}>
           To approve payments, sign in to the PayPal sandbox as the demo buyer:{" "}

@@ -1061,9 +1061,6 @@
   color: var(--green-ink);
 }
 
-.closePhone:hover {
-  text-decoration: underline;
-}
 
 .closeNote {
   margin: calc(36 * var(--u)) 0 0;
