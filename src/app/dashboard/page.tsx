@@ -7,7 +7,7 @@ import { formatUsd } from "@/lib/money";
 import { currentSession } from "@/lib/session";
 import { localDate } from "@/lib/slots";
 import { FindBooking } from "./find-booking";
-import { centsShort, durationLabel, hourLabel, weekday, windowLabel } from "./format";
+import { centsShort, dayTitle, durationLabel, hourLabel, weekday, windowLabel } from "./format";
 import s from "./today.module.css";
 
 export const dynamic = "force-dynamic";
@@ -191,7 +191,7 @@ export default async function TodayPage() {
   const now = new Date();
   const today = await loadToday(await currentSession(), now);
   const calls = callsToday(today.calls, now);
-  const day = weekday(now);
+  const day = dayTitle(now);
   return (
     <div className={s.page}>
       <h1 className={s.title}>

@@ -24,6 +24,13 @@ export function weekday(now = new Date()): string {
   return weekdayFmt.format(now);
 }
 
+const titleFmt = new Intl.DateTimeFormat("en-US", { timeZone: TIME_ZONE, weekday: "long", month: "long", day: "numeric" });
+
+/** The dashboard's title day: "Thursday, November 5" in Mike's time zone. */
+export function dayTitle(now = new Date()): string {
+  return titleFmt.format(now);
+}
+
 export function durationLabel(secs: number | null): string {
   if (secs === null) return "";
   return `${Math.floor(secs / 60)}m ${String(secs % 60).padStart(2, "0")}s`;
