@@ -731,7 +731,8 @@
     font-weight: 800;
   }
 
-  /* Level with the first booking card (title 32px + gap 14px), and sticky so it stays beside a long day. */
+  /* Level with the first booking card (title 32px + gap 14px). Side by side (1420px and up) it also ends level with
+     the last booking: see the block at the end. */
   .calls {
     grid-area: calls;
     position: sticky;
@@ -928,5 +929,50 @@
 
   .call + .call {
     border-top: 0;
+  }
+
+  .call:nth-child(n + 4) {
+    display: none;
+  }
+}
+
+/* Side by side: the day's bookings set the row's height and the calls card fills exactly that, so the two columns
+   start and end level on a quiet day or a busy one. Calls that don't fit scroll inside the card. */
+@media (min-width: 1420px) {
+  .calls {
+    position: relative;
+    top: auto;
+    align-self: stretch;
+    min-height: 440px;
+  }
+
+  .callsPanel {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .callsTitle {
+    flex: none;
+  }
+
+  .callList {
+    flex: 1;
+    min-height: 0;
+    align-content: start;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    /* Scroll shadows: a soft edge appears only where more calls are hidden above or below. */
+    background:
+      linear-gradient(var(--card) 30%, transparent) center top / 100% 40px no-repeat local,
+      linear-gradient(transparent, var(--card) 70%) center bottom / 100% 40px no-repeat local,
+      radial-gradient(farthest-side at 50% 0, rgb(16 24 40 / 0.14), transparent) center top / 100% 12px no-repeat scroll,
+      radial-gradient(farthest-side at 50% 100%, rgb(16 24 40 / 0.14), transparent) center bottom / 100% 12px no-repeat scroll;
+  }
+
+  .allCalls {
+    flex: none;
   }
 }

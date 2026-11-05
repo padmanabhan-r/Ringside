@@ -67,6 +67,10 @@ export const SAMPLE_CALLS: SampleCall[] = [
   { key: "c-toilet", channel: "web", durationSecs: 125, summary: "Toilet running all night", outcome: "quoted", costCents: 17, at: { hour: 13, minute: 12, orMinutesAgo: 20 } },
   { key: "c-austin", channel: "phone", durationSecs: 48, summary: "Caller in Austin, outside the area", outcome: "no_booking", costCents: 6, at: { hour: 11, minute: 40, orMinutesAgo: 65 } },
   { key: "c-heater", channel: "phone", durationSecs: 96, summary: "Water heater flush, booked", outcome: "booked_hold", costCents: 14, booked: { job: "heater", minutesBefore: 355 } },
+  // The calls behind the rest of the sample day's bookings, so the day reads as calls turning into jobs.
+  { key: "c-repipe", channel: "phone", durationSecs: 164, summary: "Whole-house repipe, estimate visit booked", outcome: "booked_hold", costCents: 23, at: { hour: 10, minute: 25, orMinutesAgo: 35 } },
+  { key: "c-luis", channel: "web", durationSecs: 118, summary: "Running toilet in Bay City, booked", outcome: "booked_hold", costCents: 17, at: { hour: 9, minute: 40, orMinutesAgo: 50 } },
+  { key: "c-tap", channel: "phone", durationSecs: 142, summary: "Dripping kitchen tap, booked", outcome: "booked_hold", costCents: 20, at: { hour: 7, minute: 15, orMinutesAgo: 95 } },
 ];
 
 const hourFmt = new Intl.DateTimeFormat("en-US", { timeZone: TIME_ZONE, hour: "numeric", hourCycle: "h23" });

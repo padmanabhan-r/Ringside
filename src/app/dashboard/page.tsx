@@ -254,7 +254,7 @@ export default async function TodayPage() {
               Recent calls
             </h2>
             <ul className={s.callList}>
-              {today.calls.slice(0, 3).map((call) => (
+              {today.calls.slice(0, 6).map((call) => (
                 <CallItem key={call.key} call={call} now={now} />
               ))}
             </ul>
