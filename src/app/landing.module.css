@@ -1063,3 +1063,121 @@
     font-size: 14px;
   }
 }
+
+/* One screen on a laptop or desktop (owner, 2026-11-05: "self-contained within a single page"): every block sizes
+   to the window's height, so a 1440×790 MacBook Air window or a 1280×720 one shows the whole page without scrolling.
+   The footer repeats the prototype band, so it goes. */
+@media (min-width: 1024px) and (min-height: 600px) {
+  .page {
+    min-height: 100dvh;
+  }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: clamp(8px, 1.6vh, 20px);
+    padding-bottom: clamp(8px, 1.6vh, 18px);
+  }
+
+  .hero {
+    padding: clamp(6px, 1.4vh, 24px) 0 0;
+  }
+
+  .mikes {
+    margin-top: clamp(4px, 1vh, 18px);
+  }
+
+  .mikes svg {
+    width: clamp(56px, 9vh, 96px);
+    height: clamp(56px, 9vh, 96px);
+  }
+
+  .mikesName {
+    font-size: clamp(20px, 3.2vh, 30px);
+  }
+
+  .headline {
+    font-size: clamp(2rem, 6.6vh, 4rem);
+  }
+
+  .lede {
+    margin-top: clamp(6px, 1.2vh, 14px);
+    font-size: clamp(15px, 2.1vh, 19px);
+  }
+
+  .forWho {
+    max-width: none;
+    margin-top: clamp(2px, 0.6vh, 8px);
+    font-size: clamp(13px, 1.7vh, 15px);
+  }
+
+  .door {
+    grid-template-columns: clamp(60px, 9vh, 104px) 1fr;
+    padding: clamp(12px, 2.2vh, 28px) clamp(20px, 2.4vw, 36px) clamp(8px, 1.4vh, 20px);
+  }
+
+  .doorIcon {
+    width: clamp(60px, 9vh, 104px);
+    height: clamp(60px, 9vh, 104px);
+  }
+
+  .doorIcon svg {
+    width: clamp(28px, 4vh, 46px);
+    height: clamp(28px, 4vh, 46px);
+  }
+
+  .button {
+    min-height: clamp(42px, 6vh, 56px);
+    margin-top: clamp(8px, 1.4vh, 16px);
+    font-size: clamp(16px, 2.2vh, 20px);
+  }
+
+  .doorNote {
+    margin-top: clamp(4px, 0.8vh, 10px);
+  }
+
+  .how {
+    margin: 0;
+  }
+
+  .step {
+    padding: clamp(12px, 2.2vh, 26px) 26px;
+  }
+
+  .callBody {
+    margin-top: clamp(6px, 1.2vh, 14px);
+  }
+
+  .robot {
+    width: clamp(64px, 10vh, 116px);
+    height: clamp(64px, 10vh, 116px);
+  }
+
+  .holdCard {
+    margin-top: clamp(8px, 1.8vh, 24px);
+    padding: clamp(8px, 1.4vh, 16px) 22px;
+  }
+
+  .change {
+    padding-top: clamp(8px, 1.4vh, 18px);
+    padding-bottom: clamp(8px, 1.4vh, 18px);
+  }
+
+  .footer {
+    display: none;
+  }
+}
+
+/* Narrower desks: the side wordmark would stack above the headline and push the page past one screen; the doors and
+   the call page already carry Mike's Plumbing, so the hero keeps only the headline there. */
+@media (min-width: 1024px) and (max-width: 1359px) and (min-height: 600px) {
+  .hero {
+    display: block;
+  }
+
+  .mikes {
+    display: none;
+  }
+}
+

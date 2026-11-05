@@ -2,12 +2,15 @@ import { ArrowRight, Check, Clock, Info, LayoutDashboard, Mail, MapPin, Mic, Pho
 import Image from "next/image";
 import Link from "next/link";
 import { BrandMark, StatusPill } from "@/components/brand";
+import { BUSINESS_LINE } from "@/lib/business";
 import { PayPalMonogram, PayPalWordmark, RingsideMark } from "./_landing/marks";
 import s from "./landing.module.css";
 
-// The full number goes only to the judges, in the submission form; public pages show it masked and never as a link.
-const BUSINESS_LINE = "+1 (989) 534-XXXX";
 const GITHUB = "https://github.com/padmanabhan-r/ringside";
+
+// One screen on any desk (owner, 2026-11-05): before the first paint, scale the page down just enough to fit the window,
+// never below 80% so text stays readable (a very short window scrolls instead). Phones keep their natural flow.
+const FIT_SCRIPT = `(function(){var m=document.getElementById("landing-main");if(!m)return;function fit(){m.style.zoom="";if(innerWidth<1024)return;var top=m.getBoundingClientRect().top+scrollY,need=document.documentElement.scrollHeight-top,z=(innerHeight-top)/need;if(z<1)m.style.zoom=String(Math.max(0.8,z*0.995));}fit();addEventListener("resize",fit);})();`;
 
 export default function Home() {
   return (
@@ -35,7 +38,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className={s.main}>
+      <main className={s.main} id="landing-main" suppressHydrationWarning>
         <section className={s.hero} aria-labelledby="headline">
           <div className={s.mikes}>
             <span className={s.mikesMark}>
@@ -53,12 +56,14 @@ export default function Home() {
               <span>Your phone, answered.</span> <span>Your job, paid.</span>
             </h1>
             <p className={s.lede}>
-              <span className={s.ledeLine}>Ringside answers the call, quotes from your price book,</span> holds the payment
-              with <b className={s.paypal}>PayPal</b>, and charges the real cost when the job is done.
+              <span className={s.ledeLine}>
+                <b>Ringside is the AI front desk for small service businesses.</b>
+              </span>{" "}
+              It answers the call, quotes from the price book, holds the payment with <b className={s.paypal}>PayPal</b>, and
+              charges the real cost when the job is done.
             </p>
             <p className={s.forWho}>
-              For any small service business: plumbers, electricians, HVAC, handymen, cleaners, locksmiths.
-              Mike’s Plumbing is the demo.
+              For plumbers, electricians, HVAC techs, handymen, cleaners and locksmiths. Mike’s Plumbing is the demo.
             </p>
           </div>
         </section>
@@ -72,7 +77,10 @@ export default function Home() {
               <h2 className={s.doorTitle}>Call Mike’s Plumbing</h2>
               <p className={s.doorBody}>
                 Be the customer. Talk to the AI in your browser, or ring{" "}
-                <span className={s.number}>{BUSINESS_LINE}</span>.
+                <a className={s.number} href={BUSINESS_LINE.tel}>
+                  {BUSINESS_LINE.display}
+                </a>
+                .
               </p>
             </div>
             <Link className={`${s.button} ${s.buttonCall}`} href="/call">
@@ -197,6 +205,7 @@ export default function Home() {
           </div>
         </section>
       </main>
+      <script dangerouslySetInnerHTML={{ __html: FIT_SCRIPT }} />
 
       <footer className={s.footer}>
         <p>

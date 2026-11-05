@@ -7,6 +7,7 @@ import { BookingCard } from "./booking-card";
 import { REPLAY_END, REPLAY_LINES, REPLAY_SPEED, replayJob, type Line } from "./replay";
 import type { CallJobView, CallView } from "./types";
 import s from "./call.module.css";
+import { BUSINESS_LINE } from "@/lib/business";
 
 type Phase = "idle" | "starting" | "connected" | "ended" | "replaying" | "replayed";
 
@@ -369,7 +370,10 @@ function Call({
                 You’ll talk to an AI assistant; the call may be recorded. It runs on ElevenLabs and its AI model provider.
               </p>
               <p className={s.altPhone}>
-                Prefer the phone? Call <span className={s.number}>+1 (989) 534-XXXX</span>
+                Prefer the phone? Call{" "}
+                <a className={s.number} href={BUSINESS_LINE.tel}>
+                  {BUSINESS_LINE.display}
+                </a>
               </p>
               <button type="button" className={`${s.link} ${s.barReplay}`} onClick={() => replay()}>
                 <Video aria-hidden="true" /> No mic? Watch a recorded call.
