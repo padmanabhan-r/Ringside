@@ -85,7 +85,9 @@ not an invoicing agent; an invoice exists only for a leftover balance the hold c
   looks cheap. Reference: `.impeccable/mocks/redesign/c-fieldservice.png`.
 - **Mike's dashboard is an installable PWA, phone first, desktop too** (owner, 2026-11-05): "Mike's Plumbing" on the
   home screen with its tap-and-drop icon, opening standalone on Today; safe-area aware header and bottom tabs, thumb-sized
-  actions, an install prompt on the landing's dashboard door and in the header, a branded offline screen, and push
+  actions, easy install: a one-tap "Install app" button where the browser allows it (Android, desktop Chrome/Edge),
+  a two-step Share → Add to Home Screen hint on iPhone, and a QR code on desktop pages to put the app on a phone; a branded
+  offline screen, and push
   notifications for new bookings and approved holds. On a desk, the same plus Mike's Books (AG Studio). Customer pages
   (call, approval) stay plain web pages. Judges use the dashboard, so it showcases Mike's Plumbing.
 - **No photo of Mike**: the business and owner are fictional; his avatar is a blue initial M.
