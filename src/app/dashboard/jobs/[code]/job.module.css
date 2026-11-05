@@ -112,6 +112,11 @@
   background: var(--ok);
 }
 
+.titleIconNone {
+  background: var(--none-tint);
+  color: var(--none-ink);
+}
+
 .cardSub {
   margin: 6px 0 0;
   font-size: 15px;

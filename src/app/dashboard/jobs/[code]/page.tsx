@@ -1,4 +1,4 @@
-import { ArrowLeft, CircleCheck, Clock, ExternalLink, MapPin, Mic, User } from "lucide-react";
+import { ArrowLeft, Ban, CircleCheck, Clock, ExternalLink, MapPin, Mic, User } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import QRCode from "qrcode";
@@ -12,6 +12,7 @@ import { currentSession } from "@/lib/session";
 import { FindBooking } from "../../find-booking";
 import { hourLabel, windowLabel } from "../../format";
 import { AddCharges, type PriceItem } from "./add-charges";
+import { CancelJob } from "./cancel-job";
 import { JobDone } from "./job-done";
 import s from "./job.module.css";
 
@@ -39,6 +40,8 @@ const EVENT_LABELS: Record<string, string> = {
   job_done: "Job done: charged",
   "state:closed": "Job closed",
   claimed_in_dashboard: "Opened in the dashboard",
+  hold_released: "Hold released with PayPal",
+  job_cancelled: "Job cancelled",
 };
 
 async function siteBase(): Promise<string> {
@@ -121,6 +124,11 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
   const working = holdApproved && !capture && (job.state === "booked" || job.state === "in_progress" || job.state === "change_pending");
   const range = hold ? finalRange(lines, hold.amount_cents) : null;
   const paidChanges = changes.filter((c) => c.status === "approved").reduce((sum, c) => sum + c.delta_cents, 0);
+  const cancelled = job.state === "cancelled";
+  const releasedHold = payments.find((p) => p.kind === "hold" && p.status === "voided" && p.paypal_authorization_id);
+  // Mike may cancel a job that hasn't started: booked with an approved hold, or quoted with the hold still waiting.
+  const cancellable =
+    hold && !capture && ((job.state === "booked" && hold.status === "authorized") || (job.state === "quoted" && hold.status !== "authorized" && hold.status !== "voided"));
 
   return (
     <div className={s.page}>
@@ -148,7 +156,23 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
         <StatusPill tone={view.tone}>{view.status}</StatusPill>
       </header>
 
-      {hold && !holdApproved ? (
+      {cancelled ? (
+        <section className={s.card} aria-labelledby="cancelled-title">
+          <h2 id="cancelled-title" className={s.cardTitle}>
+            <span className={`${s.titleIcon} ${s.titleIconNone}`}>
+              <Ban aria-hidden="true" />
+            </span>
+            Job cancelled
+          </h2>
+          <p className={s.cardSub}>
+            {releasedHold
+              ? `PayPal released ${who}’s ${formatUsd(releasedHold.amount_cents)} hold. Nothing was charged.`
+              : `Nothing was held or charged. ${who}’s booking page shows the job as cancelled.`}
+          </p>
+        </section>
+      ) : null}
+
+      {hold && !holdApproved && !cancelled ? (
         <section className={s.card}>
           <h2 className={s.cardTitle}>Waiting for {who} to approve the hold</h2>
           <p className={s.cardSub}>Add charges and Job done open once {who} approves the {formatUsd(hold.amount_cents)} hold with PayPal.</p>
@@ -233,6 +257,8 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
           ) : null}
         </section>
       ) : null}
+
+      {cancellable ? <CancelJob code={job.job_code} customer={who} holdCents={hold.amount_cents} approved={hold.status === "authorized"} /> : null}
 
       <Timeline detail={detail} />
     </div>

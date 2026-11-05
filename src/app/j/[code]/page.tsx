@@ -294,11 +294,19 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
   );
 
   if (job.state === "cancelled") {
+    const releasedHold = pays.find((p) => p.kind === "hold" && p.status === "voided" && p.paypal_authorization_id);
     return (
       <Shell>
         <h1 className={s.title}>Booking cancelled</h1>
         <Amount tone="none" icon={Ban} figure="$0.00" unit="charged">
-          This booking was cancelled, so nothing was charged. Call Mike’s Plumbing to book again.
+          {releasedHold ? (
+            <>
+              Cancelled · the hold was released. PayPal let go of the {formatUsd(releasedHold.amount_cents)} it was holding, so nothing was charged. Call
+              Mike’s Plumbing to book again.
+            </>
+          ) : (
+            "This booking was cancelled before any hold was placed, so nothing was held or charged. Call Mike’s Plumbing to book again."
+          )}
         </Amount>
         {jobCard()}
       </Shell>

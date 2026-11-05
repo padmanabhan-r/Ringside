@@ -110,7 +110,10 @@ export function describeJob(job: Job & { final_cents: number | null }, pays: Pay
     paidCents: changePaid,
     paidAt: null as Date | null,
   };
-  if (job.state === "cancelled") return { ...base, tone: "none", status: "Cancelled", pill: "Cancelled", amount: "" };
+  if (job.state === "cancelled") {
+    const released = pays.some((p) => p.kind === "hold" && p.status === "voided" && p.paypal_authorization_id);
+    return { ...base, tone: "none", status: released ? "Cancelled · hold released" : "Cancelled", pill: "Cancelled", amount: released ? "Hold released" : "" };
+  }
   if (capture || job.state === "completed" || job.state === "closed") {
     const charged = (capture?.amount_cents ?? job.final_cents ?? 0) + changePaid;
     return { ...base, tone: "ok", status: `Paid ${formatUsd(charged)}`, pill: "Paid", amount: formatUsd(charged), paidCents: charged, paidAt: new Date() };
