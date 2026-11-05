@@ -9,7 +9,8 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ co
   const { code } = await params;
   try {
     const result = await approveHold(code);
-    const status = result.status === "not_found" || result.status === "no_hold" ? 404 : result.status === "not_approved" ? 409 : 200;
+    const status =
+      result.status === "not_found" || result.status === "no_hold" ? 404 : result.status === "not_approved" || result.status === "cancelled" ? 409 : 200;
     return NextResponse.json(result, { status });
   } catch (error) {
     if (error instanceof PayPalError) {

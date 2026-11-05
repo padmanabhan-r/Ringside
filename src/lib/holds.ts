@@ -8,6 +8,7 @@ export type ApproveResult =
   | { status: "held"; amountCents: number; authorizationId: string }
   | { status: "not_approved" }
   | { status: "no_hold" }
+  | { status: "cancelled" }
   | { status: "not_found" };
 
 /** Stable, ≤38-character request ID for the authorize call, derived from the payment's create request ID. */
@@ -30,6 +31,8 @@ async function markHeld(job: Job, payment: Payment, auth: { authorizationId: str
 export async function approveHold(jobCode: string): Promise<ApproveResult> {
   const job = await findJobByCode(jobCode);
   if (!job) return { status: "not_found" };
+  // A job Mike cancelled takes no new hold, even if the customer approves an old link afterwards.
+  if (job.state === "cancelled") return { status: "cancelled" };
   const hold = (await payments(job.id)).find((p) => p.kind === "hold" && p.paypal_order_id);
   if (!hold?.paypal_order_id) return { status: "no_hold" };
   if (hold.status === "authorized" && hold.paypal_authorization_id) {
