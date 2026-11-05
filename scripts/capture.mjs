@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Full-page screenshots through Chrome's DevTools protocol, at true device widths (headless window sizing clamps
 // narrow widths). Motion is settled by emulating prefers-reduced-motion. Also reports horizontal overflow.
-// Run: node scripts/capture.mjs <url> <out.png> <width> [height=900] [--mobile]
+// Run: node scripts/capture.mjs <url> <out.png> <width> [height=900] [--mobile] [--cookie=name=value]
 
 import { spawn } from "node:child_process";
 import { writeFileSync, mkdtempSync } from "node:fs";
@@ -54,6 +54,12 @@ try {
   await metrics(height);
   await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
   await send("Page.enable");
+  const cookieArg = process.argv.find((a) => a.startsWith("--cookie="));
+  if (cookieArg) {
+    const [name, ...rest] = cookieArg.slice("--cookie=".length).split("=");
+    await send("Network.enable");
+    await send("Network.setCookie", { name, value: rest.join("="), url });
+  }
   await send("Page.navigate", { url });
   await sleep(2500);
   const evalJs = async (expr) => (await send("Runtime.evaluate", { expression: expr, returnByValue: true })).result.value;

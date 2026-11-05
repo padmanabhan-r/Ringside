@@ -1,0 +1,240 @@
+import { ArrowLeft, CircleCheck, Clock, ExternalLink, MapPin, Mic, User } from "lucide-react";
+import { headers } from "next/headers";
+import Link from "next/link";
+import QRCode from "qrcode";
+import { StatusPill } from "@/components/brand";
+import { CHANGE_ORDER_CODES } from "@/lib/change-order-parser";
+import { loadJobDetail, type JobDetail } from "@/lib/dashboard";
+import { finalRange } from "@/lib/job-done";
+import { formatUsd } from "@/lib/money";
+import { RATE_CARD } from "@/lib/rate-card";
+import { currentSession } from "@/lib/session";
+import { FindBooking } from "../../find-booking";
+import { hourLabel, windowLabel } from "../../format";
+import { AddCharges, type PriceItem } from "./add-charges";
+import { JobDone } from "./job-done";
+import s from "./job.module.css";
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ code: string }> }) {
+  return { title: (await params).code.toUpperCase() };
+}
+
+const PRICE_ITEMS: PriceItem[] = CHANGE_ORDER_CODES.map((code) => {
+  const item = RATE_CARD[code];
+  return { code, name: item.name, unit: item.unit, unitPriceCents: item.unitPriceCents, maxQty: item.maxQty };
+});
+
+const EVENT_LABELS: Record<string, string> = {
+  slot_chosen: "Visit window chosen",
+  hold_approved: "Hold approved with PayPal",
+  "state:booked": "Booked",
+  "state:in_progress": "Work started",
+  change_order_proposed: "Extra work priced",
+  change_order_sent: "Extra work sent for approval",
+  change_order_paid: "Extra work approved and paid",
+  change_order_declined: "Extra work declined",
+  change_order_discarded: "Draft discarded",
+  job_done: "Job done: charged",
+  "state:closed": "Job closed",
+  claimed_in_dashboard: "Opened in the dashboard",
+};
+
+async function siteBase(): Promise<string> {
+  if (process.env.NODE_ENV === "production" && process.env.APP_BASE_URL) return process.env.APP_BASE_URL;
+  const h = await headers();
+  return `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host") ?? "localhost:3000"}`;
+}
+
+function first(name: string | null): string {
+  return name?.trim().split(/\s+/)[0] || "the customer";
+}
+
+async function CustomerLink({ code, note }: { code: string; note: string }) {
+  const url = `${await siteBase()}/j/${code}`;
+  const svg = await QRCode.toString(url, { type: "svg", margin: 1, color: { dark: "#0b3a8a", light: "#ffffff" } });
+  return (
+    <div className={s.customerLink}>
+      <span className={s.qr} dangerouslySetInnerHTML={{ __html: svg }} aria-hidden="true" />
+      <div>
+        <p className={s.customerNote}>{note}</p>
+        <a className={s.openLink} href={`/j/${code}`} target="_blank" rel="noreferrer">
+          Open the customer’s page <ExternalLink aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function Timeline({ detail }: { detail: JobDetail }) {
+  const items = detail.events.filter((e) => EVENT_LABELS[e.type]);
+  if (!items.length) return null;
+  return (
+    <section className={s.card} aria-labelledby="timeline">
+      <h2 id="timeline" className={s.cardTitle}>
+        <Clock aria-hidden="true" /> Timeline
+      </h2>
+      <ol className={s.timeline}>
+        {items.map((e, i) => {
+          const amount = typeof e.payload.amountCents === "number" ? e.payload.amountCents : typeof e.payload.finalCents === "number" ? e.payload.finalCents : typeof e.payload.deltaCents === "number" ? e.payload.deltaCents : null;
+          return (
+            <li key={`${e.type}-${i}`}>
+              <span className={s.tlTime}>{hourLabel(e.created_at)}</span>
+              <span className={s.tlText}>
+                {EVENT_LABELS[e.type]}
+                {amount !== null ? <b> {formatUsd(amount)}</b> : null}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
+export default async function JobPage({ params }: { params: Promise<{ code: string }> }) {
+  const { code } = await params;
+  const detail = await loadJobDetail(await currentSession(), code);
+  if (!detail) {
+    return (
+      <div className={s.page}>
+        <Link className={s.back} href="/dashboard">
+          <ArrowLeft aria-hidden="true" /> Today
+        </Link>
+        <h1 className={s.missingTitle}>Job {code.toUpperCase()} isn’t in your demo</h1>
+        <p className={s.missingText}>Open it from your own call, or find a phone booking by the job code the assistant read out.</p>
+        <FindBooking />
+      </div>
+    );
+  }
+
+  const { job, view, payments, changes, lines } = detail;
+  const who = first(job.customer_name);
+  const hold = payments.find((p) => p.kind === "hold");
+  const capture = payments.find((p) => p.kind === "capture" && p.status === "captured");
+  const receipt = payments.find((p) => p.kind === "invoice");
+  const draft = changes.find((c) => c.status === "pending_owner");
+  const waiting = changes.find((c) => c.status === "pending_customer");
+  const settled = changes.filter((c) => c.status === "approved" || c.status === "declined");
+  const holdApproved = hold?.status === "authorized" || hold?.status === "captured";
+  const working = holdApproved && !capture && (job.state === "booked" || job.state === "in_progress" || job.state === "change_pending");
+  const range = hold ? finalRange(lines, hold.amount_cents) : null;
+  const paidChanges = changes.filter((c) => c.status === "approved").reduce((sum, c) => sum + c.delta_cents, 0);
+
+  return (
+    <div className={s.page}>
+      <header className={s.head}>
+        <Link className={s.back} href="/dashboard">
+          <ArrowLeft aria-hidden="true" /> Today
+        </Link>
+        <span className={s.code}>{job.job_code}</span>
+        <h1 className={s.title}>{view.problem}</h1>
+        <p className={s.headMeta}>
+          {job.customer_name ? (
+            <span>
+              <User aria-hidden="true" /> {job.customer_name}
+            </span>
+          ) : null}
+          {job.address ? (
+            <span>
+              <MapPin aria-hidden="true" /> {job.address}
+            </span>
+          ) : null}
+          <span>
+            <Clock aria-hidden="true" /> {windowLabel(job.slot_start, job.slot_end)}
+          </span>
+        </p>
+        <StatusPill tone={view.tone}>{view.status}</StatusPill>
+      </header>
+
+      {hold && !holdApproved ? (
+        <section className={s.card}>
+          <h2 className={s.cardTitle}>Waiting for {who} to approve the hold</h2>
+          <p className={s.cardSub}>Add charges and Job done open once {who} approves the {formatUsd(hold.amount_cents)} hold with PayPal.</p>
+          <CustomerLink code={job.job_code} note={`${who} approves on this page, from the booking email, or by scanning this code.`} />
+        </section>
+      ) : null}
+
+      {working || waiting || settled.length ? (
+        <section className={s.card} id="add" aria-labelledby="add-title">
+          <h2 id="add-title" className={s.cardTitle}>
+            <span className={s.titleIcon}>
+              <Mic aria-hidden="true" />
+            </span>
+            Add charges
+          </h2>
+          <p className={s.cardSub}>Extra work found on site goes to {who} to approve before anything is charged.</p>
+          {waiting ? (
+            <div className={s.waiting}>
+              <StatusPill tone="wait">
+                Waiting for {who} to approve {formatUsd(waiting.delta_cents)}
+              </StatusPill>
+              <ul className={s.lines}>
+                {waiting.lines.map((l) => (
+                  <li key={l.item_code}>
+                    <span>
+                      {l.name ?? l.item_code}
+                      {l.item_code === "labour_hr" ? <small>{l.qty * 15} min</small> : l.qty > 1 ? <small>× {l.qty}</small> : null}
+                    </span>
+                    <span>{formatUsd(l.unit_price_cents * l.qty)}</span>
+                  </li>
+                ))}
+              </ul>
+              <CustomerLink code={job.job_code} note={`${who} approves it on the same page as the booking: scan this code on site or open the link from the booking email.`} />
+            </div>
+          ) : working ? (
+            <AddCharges code={job.job_code} customer={who} items={PRICE_ITEMS} draft={draft ? { id: draft.id, transcript: draft.transcript, delta_cents: draft.delta_cents, lines: draft.lines } : undefined} />
+          ) : null}
+          {settled.length ? (
+            <ul className={s.history}>
+              {settled.map((c) => (
+                <li key={c.id}>
+                  <StatusPill tone={c.status === "approved" ? "ok" : "none"}>{c.status === "approved" ? "Paid" : "Declined"}</StatusPill>
+                  <span>{c.lines.map((l) => l.name ?? l.item_code).join(", ")}</span>
+                  <b>{formatUsd(c.delta_cents)}</b>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
+
+      {hold && holdApproved ? (
+        <section className={s.card} id="done" aria-labelledby="done-title">
+          <h2 id="done-title" className={s.cardTitle}>
+            <span className={`${s.titleIcon} ${s.titleIconOk}`}>
+              <CircleCheck aria-hidden="true" />
+            </span>
+            Job done
+          </h2>
+          {capture ? (
+            <div className={s.charged}>
+              <p className={s.chargedAmount}>Charged {formatUsd(capture.amount_cents)}</p>
+              <p className={s.cardSub}>
+                {formatUsd(hold.amount_cents - capture.amount_cents)} of the {formatUsd(hold.amount_cents)} hold released
+                {paidChanges ? `, plus ${formatUsd(paidChanges)} of extra work paid separately` : ""}.
+              </p>
+              {receipt?.status === "sent" ? (
+                <StatusPill tone="ok">Receipt emailed to {who}</StatusPill>
+              ) : receipt?.status === "ready" && receipt.approval_url ? (
+                <a className={s.openLink} href={receipt.approval_url} target="_blank" rel="noreferrer">
+                  Receipt ready: open the PayPal receipt <ExternalLink aria-hidden="true" />
+                </a>
+              ) : (
+                <StatusPill tone="info">Receipt on its way</StatusPill>
+              )}
+            </div>
+          ) : range ? (
+            <>
+              <p className={s.cardSub}>Finish the job and get paid.</p>
+              <JobDone code={job.job_code} customer={who} lowCents={range.lowCents} holdCents={range.holdCents} blocked={waiting ? `${who} still has the extra work to approve or decline first.` : undefined} />
+            </>
+          ) : null}
+        </section>
+      ) : null}
+
+      <Timeline detail={detail} />
+    </div>
+  );
+}
