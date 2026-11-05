@@ -34,8 +34,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ too
     now: new Date(),
   };
 
+  // Calls end at 6 minutes (scripts/agent/configure.mjs): near the end, every tool reply tells the agent to wrap up.
+  const elapsed = typeof args.call_duration_secs === "number" ? args.call_duration_secs : Number(args.call_duration_secs);
+  const timeNote =
+    elapsed >= 320
+      ? "The call ends in under a minute. Say now that you have to end the call, give the job code and next step if there is one, say goodbye and use end_call."
+      : elapsed >= 270
+        ? "About a minute and a half left on this call. Wrap up: finish this step only if it is quick, then tell the caller the call is ending soon."
+        : undefined;
   try {
-    return NextResponse.json(await tools[tool](args, ctx));
+    const result = await tools[tool](args, ctx);
+    return NextResponse.json(timeNote ? { ...result, time_note: timeNote } : result);
   } catch (error) {
     if (error instanceof ToolError) return NextResponse.json({ error: error.message }, { status: 200 });
     if (error instanceof PayPalError) {

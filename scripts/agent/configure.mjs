@@ -12,6 +12,10 @@ if (missing.length) {
 }
 const { ELEVENLABS_API_KEY: KEY, ELEVENLABS_AGENT_ID: AGENT, APP_BASE_URL: BASE } = process.env;
 const SECRET_NAME = "ringside_tool_secret";
+// The cheapest agent LLM ElevenLabs offers ($0.0011 per call minute, 2026-11-05), with minimal reasoning so replies
+// stay quick. Override with ELEVENLABS_AGENT_LLM.
+const LLM = process.env.ELEVENLABS_AGENT_LLM || "gpt-5-nano";
+const MAX_CALL_SECONDS = 360;
 
 async function el(method, path, body) {
   const r = await fetch(`https://api.elevenlabs.io${path}`, {
@@ -41,6 +45,8 @@ const bool = (description) => ({ type: "boolean", description });
 // Only system variables, which every call has; the server looks up the session and channel from the conversation.
 const CONTEXT = {
   conversation_id: { type: "string", dynamic_variable: "system__conversation_id" },
+  // Elapsed seconds, so tool replies can tell the agent to wrap up before the 6-minute cap.
+  call_duration_secs: { type: "number", dynamic_variable: "system__call_duration_secs" },
 };
 
 const TOOLS = [
@@ -129,17 +135,19 @@ The job:
 8. Tell them the job code using say_code, where the link went, and that approving it with PayPal places a hold: nothing is charged now, and Mike charges only the real cost after the job, never more than the hold.
 9. Offer to stay on while they approve; check_hold tells you when it's done. While they approve they may go quiet for a minute or two typing card details: that's normal, so wait patiently and don't keep asking if they're still there. When they speak again, call check_hold. Then thank them and end the call.
 
-Never take card details or payment over the phone; PayPal handles it through the link. You can never charge, capture or refund anything. If a tool returns an error, follow what it says.`;
+Never take card details or payment over the phone; PayPal handles it through the link. You can never charge, capture or refund anything. If a tool returns an error, follow what it says.
+
+Time: every call ends automatically at 6 minutes. This call has run {{system__call_duration_secs}} seconds. Keep things moving. From about four and a half minutes, start wrapping up: finish the current step only if it is quick, then tell the caller the call needs to end soon. Before six minutes, say plainly that you are ending the call, repeat the job code if there is one and what happens next, say goodbye, and use end_call. Never let the call be cut off mid-sentence. If a tool reply includes time_note, follow it right away.`;
 
 await el("PATCH", `/v1/convai/agents/${AGENT}`, {
   conversation_config: {
     agent: {
-      prompt: { prompt: PROMPT, tool_ids: toolIds, built_in_tools: { end_call: { name: "end_call", description: "End the call after saying goodbye.", params: { system_tool_type: "end_call" } } } },
+      prompt: { prompt: PROMPT, llm: LLM, ...(LLM.startsWith("gpt-5") ? { reasoning_effort: "minimal" } : {}), tool_ids: toolIds, built_in_tools: { end_call: { name: "end_call", description: "End the call after saying goodbye.", params: { system_tool_type: "end_call" } } } },
       dynamic_variables: { dynamic_variable_placeholders: {} },
     },
     // 15 s before "are you still there?": callers go quiet while typing card details on the PayPal page (default 7 s).
     turn: { turn_timeout: 15 },
-    conversation: { max_duration_seconds: 420 },
+    conversation: { max_duration_seconds: MAX_CALL_SECONDS },
   },
 });
-console.log(`agent: ${AGENT} now has ${toolIds.length} tools and the Ringside prompt`);
+console.log(`agent: ${AGENT} now has ${toolIds.length} tools, the Ringside prompt, LLM ${LLM}, calls capped at ${MAX_CALL_SECONDS} s`);
