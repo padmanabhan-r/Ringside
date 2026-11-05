@@ -41,3 +41,10 @@ brainstorm/
 
 # Working docs (brief, research, notes, plans, submission drafts): local only, never committed (owner, 2026-11-05)
 docs/
+
+# Impeccable design skill, installed into the project by its tool (not our code)
+.claude/skills/impeccable/
+.claude/agents/impeccable-*.md
+
+# Impeccable working files (mocks, build state, review captures): local only
+.impeccable/

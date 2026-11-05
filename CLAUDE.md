@@ -59,6 +59,9 @@ Padmanabhan ([@padmanabhan-r](https://github.com/padmanabhan-r)), solo, IST. **R
 - **Rules serve the build; keep them lean.** When a rule blocks the best option, propose a slimmer rule to the owner
   instead of working around it or settling for a worse option. The §6 hard rules still need the owner's explicit OK
   to change.
+- **UI runs through Impeccable, comp-first.** No screen is built before its comp is approved; builds follow Impeccable's
+  build phases; the complete UI gets Impeccable's finish review before the feature freeze. Comps and plates are
+  generated with ElevenLabs (global instructions), with real product content.
 - One feature per branch/PR; small, reviewable changes. Commit with the `commit` skill. After submitting, `main` is
   frozen until winners are announced.
 
