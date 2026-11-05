@@ -35,7 +35,7 @@ const agentConfig = {
     agent: {
       language: "en",
       first_message:
-        "Hi, you've reached Mike's Plumbing. I'm Mike's AI assistant. This call is recorded and processed by ElevenLabs and its AI providers. What's going on with your plumbing today?",
+        "Hi, you have reached Mike's Plumbing. I'm an AI assistant answering for Mike, and this call may be recorded and shared with our service providers. What's going on with your plumbing today?",
       prompt: {
         llm: LLM,
         prompt: [
