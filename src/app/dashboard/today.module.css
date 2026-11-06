@@ -976,3 +976,12 @@
     flex: none;
   }
 }
+
+/* A job booked on a call to the business line (shown on every dashboard). */
+.byPhone {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--brand-ink);
+  font-weight: 600;
+}

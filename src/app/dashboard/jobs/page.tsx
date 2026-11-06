@@ -30,6 +30,7 @@ export default async function JobsPage() {
                 <span className={s.sub}>
                   {windowLabel(job.start, job.end, now)}
                   {job.customer ? ` · ${job.customer}` : ""}
+                  {job.phone ? " · by phone" : ""}
                   {job.sample ? <span className={s.sample}>Sample</span> : null}
                 </span>
               </span>

@@ -118,6 +118,11 @@ function JobRow({ job, label, now }: { job: DashJob; label: string; now: Date })
               <User aria-hidden="true" /> {job.customer}
             </>
           ) : null}
+          {job.phone ? (
+            <span className={s.byPhone}>
+              <Phone aria-hidden="true" /> Phone call
+            </span>
+          ) : null}
           {job.address ? (
             <span className={s.rowAddress}>
               <MapPin aria-hidden="true" /> {job.address}

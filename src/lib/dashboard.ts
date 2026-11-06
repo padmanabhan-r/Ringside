@@ -14,6 +14,10 @@ export interface DashJob {
   key: string;
   code: string | null;
   sample: boolean;
+  /** Booked on a phone call to the business line. */
+  phone: boolean;
+  /** This visitor's own job (their browser booking, or claimed by code); phone jobs from other visitors are not. */
+  mine: boolean;
   problem: string;
   customer: string | null;
   address: string | null;
@@ -54,12 +58,22 @@ export interface JobDetail {
   view: DashJob;
 }
 
-/** Jobs that belong to this visitor: booked in their browser session, or claimed by code after a phone call. */
-export async function sessionJobs(session: string): Promise<(Job & { final_cents: number | null })[]> {
-  return db()<(Job & { final_cents: number | null })[]>`
-    select j.* from jobs j
+/**
+ * How long calls to the business line stay on every dashboard. There is one phone line, so a phone caller is Mike's
+ * customer whoever is looking at his dashboard (owner, 2026-11-06: "phone calls also need to show up"); browser calls
+ * and bookings stay with the browser that made them.
+ */
+const PHONE_DAYS = 3;
+
+/** This visitor's jobs (their browser session, or claimed by code) and every recent phone booking. */
+export async function sessionJobs(session: string): Promise<(Job & { final_cents: number | null; mine: boolean })[]> {
+  return db()<(Job & { final_cents: number | null; mine: boolean })[]>`
+    select j.*, (j.demo_session_id = ${session}
+                 or j.id in (select job_id from session_claims where demo_session_id = ${session})) as mine
+    from jobs j
     where j.demo_session_id = ${session}
        or j.id in (select job_id from session_claims where demo_session_id = ${session})
+       or (j.channel = 'phone' and j.created_at > now() - make_interval(days => ${PHONE_DAYS}))
     order by j.created_at desc
     limit 50`;
 }
@@ -71,7 +85,8 @@ export async function ownedJob(session: string | undefined, code: string): Promi
     select j.* from jobs j
     where j.job_code = ${code.toUpperCase()}
       and (j.demo_session_id = ${session}
-           or j.id in (select job_id from session_claims where demo_session_id = ${session}))`;
+           or j.id in (select job_id from session_claims where demo_session_id = ${session})
+           or (j.channel = 'phone' and j.created_at > now() - make_interval(days => ${PHONE_DAYS})))`;
   return job;
 }
 
@@ -88,7 +103,7 @@ function first(name: string | null): string {
 }
 
 /** One job's money as the dashboard reads it, from its real payments and change orders. */
-export function describeJob(job: Job & { final_cents: number | null }, pays: Payment[], changes: ChangeOrderView[]): DashJob {
+export function describeJob(job: Job & { final_cents: number | null; mine?: boolean }, pays: Payment[], changes: ChangeOrderView[]): DashJob {
   const hold = pays.find((p) => p.kind === "hold");
   const capture = pays.find((p) => p.kind === "capture" && p.status === "captured");
   const paidChanges = changes.filter((c) => c.status === "approved");
@@ -99,6 +114,8 @@ export function describeJob(job: Job & { final_cents: number | null }, pays: Pay
     key: job.id,
     code: job.job_code,
     sample: false,
+    phone: job.channel === "phone",
+    mine: job.mine !== false,
     problem: job.problem ?? "Plumbing job",
     customer: job.customer_name,
     address: job.address,
@@ -143,6 +160,8 @@ function describeSample(sample: SampleJob, now: Date): DashJob {
   const { start, end } = sampleWindow(sample, now);
   const base = {
     key: `sample-${sample.key}`,
+    phone: false,
+    mine: false,
     code: null,
     sample: true,
     problem: sample.problem,
@@ -191,16 +210,20 @@ export interface Today {
 export async function loadToday(session: string | undefined, now = new Date()): Promise<Today> {
   const live = session ? await sessionJobs(session) : [];
   const described = await Promise.all(live.map(async (job) => describeJob(job, await payments(job.id), await changeOrders(job.id))));
+  const today = localDate(now);
+  const beforeToday = (j: DashJob) => j.start !== null && localDate(j.start) < today;
+  // The visitor's own jobs: the first leads the page as Now (the booking they came to try). Other callers' phone jobs
+  // are rows, and only while their visit is today or later; older ones stay on Jobs and Calls.
   const open = described.filter((j) => j.state !== "cancelled");
-  open.sort((a, b) => rank(a) - rank(b) || (a.start?.getTime() ?? Infinity) - (b.start?.getTime() ?? Infinity));
+  const own = open.filter((j) => j.mine);
+  own.sort((a, b) => rank(a) - rank(b) || (a.start?.getTime() ?? Infinity) - (b.start?.getTime() ?? Infinity));
+  const shared = open.filter((j) => !j.mine && !beforeToday(j));
 
   // The sample day follows Mike's clock (samples.ts). A sample that fell on yesterday (the paid job, before 8 am)
   // belongs with the earlier jobs, not today's bookings.
-  const today = localDate(now);
   const planned = SAMPLE_TODAY.map((s) => describeSample(s, now));
-  const beforeToday = (j: DashJob) => j.start !== null && localDate(j.start) < today;
-  const nowJob = open[0] ?? describeSample(SAMPLE_NOW, now);
-  const sorted = [...open.slice(1), ...planned.filter((j) => !beforeToday(j))].sort((a, b) => (a.start?.getTime() ?? Infinity) - (b.start?.getTime() ?? Infinity));
+  const nowJob = own[0] ?? describeSample(SAMPLE_NOW, now);
+  const sorted = [...own.slice(1), ...shared, ...planned.filter((j) => !beforeToday(j))].sort((a, b) => (a.start?.getTime() ?? Infinity) - (b.start?.getTime() ?? Infinity));
   const earlier = [...SAMPLE_EARLIER.map((s) => describeSample(s, now)), ...planned.filter(beforeToday)];
   const onJob = nowJob.state === "in_progress" || nowJob.state === "change_pending";
   // A visitor's own booking leads the page even when it's on a later day; then today's first upcoming row is still "Next".
@@ -216,7 +239,7 @@ export async function loadToday(session: string | undefined, now = new Date()): 
     waitingCents: onScreen.reduce((sum, j) => sum + j.waitingCents, 0),
     paidWeekCents: [...onScreen, ...earlier].reduce((sum, j) => sum + j.paidCents, 0),
   };
-  return { now: nowJob, nowLabel, others, earlier, money, calls: await loadCalls(session, now), hasLive: open.length > 0 };
+  return { now: nowJob, nowLabel, others, earlier, money, calls: await loadCalls(session, now), hasLive: open.some((j) => j.mine) };
 }
 
 /** Each of today's rows placed against the clock: earlier today, now, next, later today, tomorrow. */
@@ -246,6 +269,7 @@ export async function loadCalls(session: string | undefined, now = new Date()): 
         from calls c left join jobs j on j.id = c.job_id
         where c.demo_session_id = ${session}
            or c.job_id in (select job_id from session_claims where demo_session_id = ${session})
+           or (c.channel = 'phone' and c.started_at > now() - make_interval(days => ${PHONE_DAYS}))
         order by c.started_at desc limit 30`
     : [];
   const liveCalls: DashCall[] = rows.map((r) => ({
@@ -296,6 +320,6 @@ export async function loadAllJobs(session: string | undefined, now = new Date())
   const live = session ? await sessionJobs(session) : [];
   const described = await Promise.all(live.map(async (job) => describeJob(job, await payments(job.id), await changeOrders(job.id))));
   // The sample tap stands in for "the job Mike is on" only until the visitor has a job of their own.
-  const samples = [...(described.length ? [] : [SAMPLE_NOW]), ...SAMPLE_TODAY, ...SAMPLE_EARLIER].map((s) => describeSample(s, now));
+  const samples = [...(described.some((j) => j.mine) ? [] : [SAMPLE_NOW]), ...SAMPLE_TODAY, ...SAMPLE_EARLIER].map((s) => describeSample(s, now));
   return [...described, ...samples.sort((a, b) => (b.start?.getTime() ?? 0) - (a.start?.getTime() ?? 0))];
 }
