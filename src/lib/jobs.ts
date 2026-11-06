@@ -13,6 +13,8 @@ export interface Job {
   customer_name: string | null;
   address: string | null;
   problem: string | null;
+  /** The email the caller confirmed on the call (phone bookings), for this job's updates. */
+  customer_email?: string | null;
   slot_start: Date | null;
   slot_end: Date | null;
   state: JobState;
@@ -178,4 +180,9 @@ export async function callContext(conversationId: string): Promise<{ demoSession
   const [row] = await db()<{ demo_session_id: string; channel: Job["channel"] }[]>`
     select demo_session_id, channel from calls where conversation_id = ${conversationId}`;
   return row ? { demoSessionId: row.demo_session_id, channel: row.channel } : undefined;
+}
+
+/** The address the caller confirmed on the call, kept for this job's own emails (extra work to approve). */
+export async function setCustomerEmail(jobId: string, email: string): Promise<void> {
+  await db()`update jobs set customer_email = ${email} where id = ${jobId}`;
 }

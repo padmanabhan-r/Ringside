@@ -140,6 +140,9 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
   const receipt = payments.find((p) => p.kind === "invoice");
   const draft = changes.find((c) => c.status === "pending_owner");
   const waiting = changes.find((c) => c.status === "pending_customer");
+  // Where Mike's request went: the customer's email, or nowhere (then he shows them the code on site).
+  const notice = waiting ? detail.events.filter((e) => (e.type === "change_order_emailed" || e.type === "change_order_no_email") && e.payload.changeOrderId === waiting.id).at(-1) : undefined;
+  const emailedTo = notice?.type === "change_order_emailed" && typeof notice.payload.to === "string" ? notice.payload.to : undefined;
   const settled = changes.filter((c) => c.status === "approved" || c.status === "declined");
   const holdApproved = hold?.status === "authorized" || hold?.status === "captured";
   const working = holdApproved && !capture && (job.state === "booked" || job.state === "in_progress" || job.state === "change_pending");
@@ -231,7 +234,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
                   </li>
                 ))}
               </ul>
-              <CustomerLink code={job.job_code} note={`${who} approves it on the same page as the booking: scan this code on site${job.channel === "phone" ? " or open the link in the email we sent" : " or open their booking page"}.`} />
+              <CustomerLink code={job.job_code} note={emailedTo ? `Emailed to ${emailedTo} to approve. On site, ${who} can also scan this code.` : `${who} approves it on the same page as the booking: scan this code on site or open their booking page.`} />
             </div>
           ) : working ? (
             <AddCharges code={job.job_code} customer={who} items={PRICE_ITEMS} draft={draft ? { id: draft.id, transcript: draft.transcript, delta_cents: draft.delta_cents, lines: draft.lines } : undefined} />

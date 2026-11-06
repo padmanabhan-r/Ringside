@@ -3,9 +3,10 @@
 // Every PayPal call reuses a request ID stored before the first attempt, so retries never pay twice.
 import { db } from "./db";
 import { parseChangeOrder } from "./change-order-parser";
-import { addEvent, findJobByCode, setState, startPayment, updatePayment, type Job, type Payment } from "./jobs";
+import { maskEmail, sendChangeEmail } from "./email";
+import { addEvent, findJobByCode, payments, setState, startPayment, updatePayment, type Job, type Payment } from "./jobs";
 import { declinesFor, FUNDING_DECLINED } from "./holds";
-import { approvalUrl, captureOrder, createOrder, getOrder, PayPalError } from "./paypal";
+import { approvalUrl, captureOrder, createOrder, getOrder, payerEmail, PayPalError } from "./paypal";
 import { notifyJobEvent } from "./push";
 import { changeTotal, priceChangeLines, type ChangeLine } from "./change-pricing";
 import { tidyProblem } from "./problem-text";
@@ -138,8 +139,44 @@ export async function confirmChangeOrder(job: Job, changeOrderId: string, baseUr
     await db()`update change_orders set status = 'pending_customer', updated_at = now() where id = ${co.id}`;
     await setState(job, "change_pending", { changeOrderId: co.id, deltaCents: co.delta_cents });
     await addEvent(job.id, "change_order_sent", { changeOrderId: co.id, deltaCents: co.delta_cents });
+    await emailCustomer(job, co, lines, baseUrl);
   }
   return { ...co, status: "pending_customer", lines, payment };
+}
+
+/**
+ * Tells the customer Mike has added extra work to approve: an email to the address they confirmed on the call, or else
+ * their PayPal account's email (not a sandbox test address, which can't receive mail). Never blocks sending the change:
+ * without an address Mike shows the customer the QR code on site, as before.
+ */
+async function emailCustomer(job: Job, co: ChangeOrder, lines: ChangeOrderLine[], baseUrl: string): Promise<void> {
+  try {
+    const pays = await payments(job.id);
+    const hold = pays.find((p) => p.kind === "hold" && p.paypal_order_id);
+    let to = job.customer_email ?? undefined;
+    if (!to && hold?.paypal_order_id) {
+      const payer = payerEmail(await getOrder(hold.paypal_order_id));
+      if (payer && !/@([a-z0-9-]+\.)*example\.com$/i.test(payer)) to = payer;
+    }
+    if (!to) {
+      await addEvent(job.id, "change_order_no_email", { changeOrderId: co.id });
+      return;
+    }
+    const sent = await sendChangeEmail({
+      to,
+      jobCode: job.job_code,
+      changeOrderId: co.id,
+      problem: tidyProblem(job.problem, "your job"),
+      deltaCents: co.delta_cents,
+      holdCents: hold?.amount_cents ?? 0,
+      lines: lines.map((l) => ({ name: l.name ?? l.item_code, qty: l.qty, unitPriceCents: l.unit_price_cents })),
+      link: `${baseUrl}/j/${job.job_code}`,
+    });
+    await addEvent(job.id, sent ? "change_order_emailed" : "change_order_no_email", { changeOrderId: co.id, ...(sent ? { to: maskEmail(to) } : {}) });
+  } catch (error) {
+    console.error(`change-order email ${job.job_code}:`, error);
+    await addEvent(job.id, "change_order_no_email", { changeOrderId: co.id, failed: true });
+  }
 }
 
 export async function discardChangeOrder(job: Job, changeOrderId: string): Promise<void> {

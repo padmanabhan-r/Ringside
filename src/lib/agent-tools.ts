@@ -22,7 +22,7 @@ import { notifyJobEvent } from "./push";
 import { SERVICE_AREA_NAME, checkServiceArea } from "./service-area";
 import { findSlots, formatWindow, resolveDay, slotFromId, TIME_ZONE, type DayPart } from "./slots";
 import { isValidEmail, maskEmail, normaliseEmail, sendHoldEmail, spellEmail } from "./email";
-import { addEvent } from "./jobs";
+import { addEvent, setCustomerEmail } from "./jobs";
 
 export class ToolError extends Error {
   override name = "ToolError";
@@ -213,6 +213,8 @@ export const tools = {
     const existing = (await payments(job.id)).find((p) => p.kind === "hold" && p.status !== "voided");
     const deliver = async (holdCents: number, rangeText: string) => {
       if (!email) return "shown on the call page";
+      // Kept with this job so Mike's later requests on it (extra work to approve) reach the caller too.
+      await setCustomerEmail(job.id, email);
       const sent = await sendHoldEmail({
         to: email,
         jobCode: job.job_code,

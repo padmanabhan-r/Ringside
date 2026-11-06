@@ -1,5 +1,6 @@
-// Emailing the PayPal link to a phone caller. The address is used only to send this one email: it is never stored,
-// and events keep a masked form. The agent must spell it back and get a yes before sending (enforced in the tool).
+// Emails to the customer: the PayPal link after a phone call, and Mike's request to approve extra work. The address is
+// the one the caller confirmed letter by letter (the agent must spell it back and get a yes, enforced in the tool); it
+// is kept with that job only for that job's emails, and events keep a masked form.
 import { formatUsd } from "./money";
 
 const EMAIL = /^[a-z0-9._%+-]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/;
@@ -55,7 +56,7 @@ export interface HoldEmail {
 
 export function holdEmailContent(e: HoldEmail) {
   const amount = formatUsd(e.holdCents);
-  const subject = `Approve your Mike’s Plumbing booking (hold up to ${amount})`;
+  const subject = `${e.jobCode}: approve your Mike’s Plumbing booking (hold up to ${amount})`;
   const text = [
     "Hi,",
     "",
@@ -88,17 +89,77 @@ ${e.windowText ? `<p style="margin:0 0 14px;font-size:14px;color:#59626c">Visit 
   return { subject, text, html };
 }
 
-/** Sends through Resend. Returns false when email isn't configured, so the agent falls back to the job code. */
-export async function sendHoldEmail(e: HoldEmail): Promise<boolean> {
+/** Sends through Resend. Returns false when email isn't configured. A repeat with the same key sends nothing new. */
+async function sendEmail(to: string, idempotencyKey: string, content: { subject: string; text: string; html: string }): Promise<boolean> {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
   if (!key || !from) return false;
-  const { subject, text, html } = holdEmailContent(e);
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "Idempotency-Key": `hold-${e.jobCode}-${e.to}` },
-    body: JSON.stringify({ from, to: [e.to], subject, text, html }),
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
+    body: JSON.stringify({ from, to: [to], ...content }),
   });
   if (!res.ok) throw new Error(`Email send failed: HTTP ${res.status}`);
   return true;
+}
+
+/** The PayPal link after a phone call. False when email isn't configured, so the agent falls back to the job code. */
+export async function sendHoldEmail(e: HoldEmail): Promise<boolean> {
+  return sendEmail(e.to, `hold-${e.jobCode}-${e.to}`, holdEmailContent(e));
+}
+
+export interface ChangeEmail {
+  to: string;
+  jobCode: string;
+  changeOrderId: string;
+  problem: string;
+  deltaCents: number;
+  holdCents: number;
+  lines: { name: string; qty: number; unitPriceCents: number }[];
+  link: string;
+}
+
+export function changeEmailContent(e: ChangeEmail) {
+  const amount = formatUsd(e.deltaCents);
+  const hold = formatUsd(e.holdCents);
+  const subject = `${e.jobCode}: Mike found more work, ${amount} to approve`;
+  const lineText = e.lines.map((l) => `- ${l.name}${l.qty > 1 ? ` × ${l.qty}` : ""}: ${formatUsd(l.unitPriceCents * l.qty)}`);
+  const text = [
+    "Hi,",
+    "",
+    `Mike found more work on your job (${e.problem}) and has added it for you to approve:`,
+    ...lineText,
+    `Extra work total: ${amount}`,
+    "",
+    `This is a separate PayPal payment for exactly ${amount}, taken only if you approve it. Your ${hold} hold for the repair stays as it is. You can also decline: nothing is charged and Mike carries on with the original job.`,
+    "",
+    `Approve or decline: ${e.link}`,
+    `Job code: ${e.jobCode}`,
+    "",
+    "This is a demo with a fictional business on the PayPal sandbox. No real money moves.",
+    "Mike’s Plumbing, Saginaw, Michigan · Powered by Ringside",
+  ].join("\n");
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+  const rows = e.lines
+    .map((l) => `<tr><td style="padding:6px 0;font-size:15px">${esc(l.name)}${l.qty > 1 ? ` × ${l.qty}` : ""}</td><td style="padding:6px 0;font-size:15px;text-align:right">${formatUsd(l.unitPriceCents * l.qty)}</td></tr>`)
+    .join("");
+  const html = `<!doctype html><html><body style="margin:0;background:#f7f7f6;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#182834">
+<div style="max-width:480px;margin:0 auto;padding:28px 20px">
+<p style="margin:0 0 4px;font-size:18px;font-weight:600">Mike’s Plumbing</p>
+<p style="margin:0 0 22px;font-size:13px;color:#59626c">Saginaw, Michigan · Powered by Ringside</p>
+<div style="background:#fff;border:1px solid #d6d8d9;border-radius:12px;padding:20px">
+<p style="margin:0 0 6px;font-size:20px;font-weight:600">Mike found more work</p>
+<p style="margin:0 0 14px;font-size:14px;color:#59626c">${esc(e.problem)} · Job ${esc(e.jobCode)}</p>
+<table style="width:100%;border-collapse:collapse">${rows}<tr><td style="padding:10px 0 0;border-top:1px solid #e3e5e6;font-size:16px;font-weight:600">Extra work total</td><td style="padding:10px 0 0;border-top:1px solid #e3e5e6;font-size:16px;font-weight:600;text-align:right">${amount}</td></tr></table>
+<p style="margin:14px 0 16px;font-size:15px">A separate PayPal payment for exactly <b>${amount}</b>, taken only if you approve it. Your ${hold} hold for the repair stays as it is. Or decline: nothing is charged.</p>
+<a href="${esc(e.link)}" style="display:block;text-align:center;background:#ffc439;color:#111;font-weight:600;font-size:16px;text-decoration:none;padding:14px;border-radius:8px">Approve or decline</a>
+</div>
+<p style="margin:18px 0 0;font-size:12px;color:#8a9197">Demo with a fictional business on the PayPal sandbox. No real money moves.</p>
+</div></body></html>`;
+  return { subject, text, html };
+}
+
+/** Mike's request to approve extra work. False when email isn't configured; one email per change order. */
+export async function sendChangeEmail(e: ChangeEmail): Promise<boolean> {
+  return sendEmail(e.to, `change-${e.changeOrderId}`, changeEmailContent(e));
 }
