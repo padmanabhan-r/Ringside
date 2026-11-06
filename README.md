@@ -147,9 +147,10 @@ Every business on Ringside runs the same flow; the screens below are the demo bu
 3. **The change order.** On site, Mike taps the mic and says "add a shut-off valve and 45 more minutes" (or types it,
    or picks from his price list). Claude turns it into rate-card lines; the code prices them from the card: $48.00 plus
    three 15-minute blocks of $23.75, $119.25. A whole job from the price book can go on too, such as a new flapper, at a
-   price Mike sets inside that job's range. Mike checks the lines and sends them, and the customer approves a second
-   PayPal payment for exactly that amount, from the same page as the booking or a QR code on Mike's phone. PayPal lets a
-   hold grow by 15% at most, so extra work is always its own payment.
+   price Mike sets inside that job's range. Mike checks the lines and sends them. The customer gets an email at once
+   ("MP-5404: Mike found more work, $119.25 to approve") and approves a second PayPal payment for exactly that amount,
+   from the same page as the booking or a QR code on Mike's phone. PayPal lets a hold grow by 15% at most, so extra work
+   is always its own payment.
 
 <div align="center">
 <table>
