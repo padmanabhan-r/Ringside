@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 function statusOf(result: ChangeDecision): number {
   if (result.status === "not_found" || result.status === "nothing_pending") return 404;
   if (result.status === "not_approved") return 409;
+  if (result.status === "payment_declined") return 422;
   return 200;
 }
 

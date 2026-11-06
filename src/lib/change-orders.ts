@@ -4,6 +4,7 @@
 import { db } from "./db";
 import { parseChangeOrder } from "./change-order-parser";
 import { addEvent, findJobByCode, setState, startPayment, updatePayment, type Job, type Payment } from "./jobs";
+import { declinesFor, FUNDING_DECLINED } from "./holds";
 import { approvalUrl, captureOrder, createOrder, getOrder, PayPalError } from "./paypal";
 import { notifyJobEvent } from "./push";
 import { changeTotal, priceChangeLines, type ChangeLine } from "./change-pricing";
@@ -148,13 +149,17 @@ export async function discardChangeOrder(job: Job, changeOrderId: string): Promi
 }
 
 /** Stable, ≤38-character request ID for capturing the change order's payment, derived from the payment's own. */
-export function changeCaptureRequestId(payment: Pick<Payment, "paypal_request_id">): string {
-  return `capc-${payment.paypal_request_id.replace(/-/g, "").slice(0, 32)}`;
+export function changeCaptureRequestId(payment: Pick<Payment, "paypal_request_id">, declinedBefore = 0): string {
+  const base = payment.paypal_request_id.replace(/-/g, "").slice(0, 32);
+  // A new ID only after PayPal declined the buyer's funding source (nothing was taken), as for the hold.
+  return declinedBefore > 0 ? `cc${Math.min(declinedBefore, 9)}-${base}` : `capc-${base}`;
 }
 
 export type ChangeDecision =
   | { status: "paid"; amountCents: number; captureId: string }
   | { status: "declined" }
+  /** PayPal declined the buyer's funding source: nothing was taken; they pick another way to pay and approve again. */
+  | { status: "payment_declined" }
   | { status: "not_approved" }
   | { status: "nothing_pending" }
   | { status: "not_found" };
@@ -185,11 +190,15 @@ export async function approveChangeOrder(jobCode: string): Promise<ChangeDecisio
     return { status: "paid", amountCents: payment.amount_cents, captureId: payment.paypal_capture_id };
   }
   try {
-    const capture = await captureOrder(payment.paypal_order_id, changeCaptureRequestId(payment));
+    const capture = await captureOrder(payment.paypal_order_id, changeCaptureRequestId(payment, await declinesFor(payment.id, "change_payment_declined")));
     await markPaid(job, co, payment, capture.captureId);
     return { status: "paid", amountCents: capture.amountCents, captureId: capture.captureId };
   } catch (error) {
     if (error instanceof PayPalError && error.issue === "ORDER_NOT_APPROVED") return { status: "not_approved" };
+    if (error instanceof PayPalError && error.issue && FUNDING_DECLINED.has(error.issue)) {
+      await addEvent(job.id, "change_payment_declined", { paymentId: payment.id, changeOrderId: co.id, issue: error.issue, debugId: error.debugId });
+      return { status: "payment_declined" };
+    }
     if (error instanceof PayPalError && error.issue === "ORDER_ALREADY_CAPTURED") {
       const existing = (await getOrder(payment.paypal_order_id)).purchase_units?.[0]?.payments?.captures?.[0];
       if (existing) {
