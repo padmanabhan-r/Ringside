@@ -35,6 +35,7 @@ export function TestCard() {
           {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
         </button>
         <p className={s.testText}>Any future expiry (like 12/30), any 3-digit code and a US ZIP such as 48602.</p>
+        <p className={s.testText}>Judging? The sandbox PayPal login in your testing instructions works too, if a card is declined.</p>
         <span className={s.srOnly} aria-live="polite">
           {copied ? "Copied" : ""}
         </span>
