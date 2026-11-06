@@ -2,8 +2,8 @@
 // PayPal authorization gates (docs/brief.md §2): what the sandbox actually does with holds, captures and voids.
 //
 // Run:   node --env-file=.env scripts/sandbox/auth-gates.mjs [overcapture|partial|void|second|all]   (default: all)
-// Each case creates one order and opens its approval link: log in as the dev buyer (Dana Reyes,
-// sb-glfwp53707955@personal.example.com; password on the developer dashboard's sandbox accounts page) and approve.
+// Each case creates one order and opens its approval link: log in as the dev buyer (a US personal sandbox account;
+// its address and password are on the developer dashboard's sandbox accounts page) and approve.
 // Free (sandbox). Raw responses go to tmp/sandbox-runs/. Log the findings in docs/field-notes.md.
 
 import { randomUUID } from "node:crypto";
@@ -22,7 +22,7 @@ import {
 
 assertSandbox();
 
-const BUYER = "Dana Reyes (sb-glfwp53707955@personal.example.com)";
+const BUYER = "the dev buyer (US personal sandbox account)";
 
 // The demo rate card (docs/brief.md §8). The hold: call-out + 1 h labour = $174.00.
 const HOLD_ITEMS = [
