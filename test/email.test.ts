@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { changeEmailContent, holdEmailContent, receiptEmailContent, isValidEmail, maskEmail, normaliseEmail, spellEmail } from "../src/lib/email";
+import { cancelEmailContent, changeEmailContent, holdEmailContent, receiptEmailContent, isValidEmail, maskEmail, normaliseEmail, spellEmail } from "../src/lib/email";
 
 describe("caller email", () => {
   it("normalises what speech-to-text hears", () => {
@@ -85,5 +85,13 @@ describe("the receipt email", () => {
     expect(text).toContain("Leaking tap, charged after the job: $190.00 (PayPal released the other $60.00 of your $250.00 hold)");
     expect(text).toContain("Extra work you approved: $125.00");
     expect(text).toContain("Paid in all: $315.00");
+  });
+});
+
+describe("the cancellation email", () => {
+  it("leads with the job code and says the hold is released", () => {
+    const { subject, text } = cancelEmailContent({ to: "dana@example.com", jobCode: "MP-5404", problem: "Dripping tap", releasedCents: 25000, link: "https://x/j/MP-5404" });
+    expect(subject).toBe("MP-5404: your Mike’s Plumbing visit is cancelled");
+    expect(text).toContain("PayPal has released your $250.00 hold: nothing was charged.");
   });
 });

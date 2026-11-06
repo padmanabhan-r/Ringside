@@ -139,6 +139,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
   const capture = payments.find((p) => p.kind === "capture" && p.status === "captured");
   const receipt = payments.find((p) => p.kind === "invoice");
   const receiptTo = detail.events.find((e) => e.type === "receipt_emailed")?.payload.to;
+  const cancelTo = detail.events.find((e) => e.type === "cancel_emailed")?.payload.to;
   const draft = changes.find((c) => c.status === "pending_owner");
   const waiting = changes.find((c) => c.status === "pending_customer");
   // Where Mike's request went: the customer's email, or nowhere (then he shows them the code on site).
@@ -194,6 +195,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
               ? `PayPal released ${who}’s ${formatUsd(releasedHold.amount_cents)} hold. Nothing was charged.`
               : `Nothing was held or charged. ${who}’s booking page shows the job as cancelled.`}
           </p>
+          {typeof cancelTo === "string" ? <StatusPill tone="ok">Cancellation emailed to {cancelTo}</StatusPill> : null}
         </section>
       ) : null}
 

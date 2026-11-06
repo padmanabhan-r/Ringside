@@ -220,3 +220,50 @@ ${released > 0 ? `<p style="margin:14px 0 0;font-size:14px;color:#59626c">PayPal
 export async function sendReceiptEmail(e: ReceiptEmail): Promise<boolean> {
   return sendEmail(e.to, `receipt-${e.jobCode}`, receiptEmailContent(e));
 }
+
+export interface CancelEmail {
+  to: string;
+  jobCode: string;
+  problem: string;
+  releasedCents: number;
+  link: string;
+}
+
+export function cancelEmailContent(e: CancelEmail) {
+  const released = formatUsd(e.releasedCents);
+  const subject = `${e.jobCode}: your Mike’s Plumbing visit is cancelled`;
+  const money = e.releasedCents > 0 ? `PayPal has released your ${released} hold: nothing was charged.` : "Nothing was held or charged.";
+  const text = [
+    "Hi,",
+    "",
+    `Mike has cancelled your visit for: ${e.problem}.`,
+    money,
+    "",
+    `Your job page: ${e.link}`,
+    `Job code: ${e.jobCode}`,
+    "",
+    "To book again, call Mike’s Plumbing.",
+    "",
+    "This is a demo with a fictional business on the PayPal sandbox. No real money moves.",
+    "Mike’s Plumbing, Saginaw, Michigan · Powered by Ringside",
+  ].join("\n");
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+  const html = `<!doctype html><html><body style="margin:0;background:#f7f7f6;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#182834">
+<div style="max-width:480px;margin:0 auto;padding:28px 20px">
+<p style="margin:0 0 4px;font-size:18px;font-weight:600">Mike’s Plumbing</p>
+<p style="margin:0 0 22px;font-size:13px;color:#59626c">Saginaw, Michigan · Powered by Ringside</p>
+<div style="background:#fff;border:1px solid #d6d8d9;border-radius:12px;padding:20px">
+<p style="margin:0 0 6px;font-size:20px;font-weight:600">Your visit is cancelled</p>
+<p style="margin:0 0 14px;font-size:14px;color:#59626c">${esc(e.problem)} · Job ${esc(e.jobCode)}</p>
+<p style="margin:0 0 16px;font-size:15px">${esc(money)}</p>
+<a href="${esc(e.link)}" style="display:block;text-align:center;background:#1557c0;color:#fff;font-weight:600;font-size:16px;text-decoration:none;padding:14px;border-radius:8px">See your job</a>
+</div>
+<p style="margin:18px 0 0;font-size:12px;color:#8a9197">Demo with a fictional business on the PayPal sandbox. No real money moves.</p>
+</div></body></html>`;
+  return { subject, text, html };
+}
+
+/** Tells the customer Mike cancelled and the hold is released. One per job. */
+export async function sendCancelEmail(e: CancelEmail): Promise<boolean> {
+  return sendEmail(e.to, `cancel-${e.jobCode}`, cancelEmailContent(e));
+}

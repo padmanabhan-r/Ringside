@@ -1,8 +1,10 @@
 // Mike cancels a job and PayPal releases the customer's hold. Hard rules: cancelling never captures, and the void
 // reuses a request ID derived from the hold payment's own stored one, so a retry or a double tap voids once.
 // Only a job that hasn't started can be cancelled (quoted or booked: see the state machine in job-state.ts).
+import { maskEmail, sendCancelEmail } from "./email";
 import { addEvent, payments, setState, updatePayment, type Job, type Payment } from "./jobs";
 import { PayPalError, voidAuthorization } from "./paypal";
+import { tidyProblem } from "./problem-text";
 
 export class CancelError extends Error {
   override name = "CancelError";
@@ -57,5 +59,20 @@ export async function cancelJob(job: Job): Promise<CancelResult> {
 
   await setState(job, "cancelled", { by: "owner", releasedCents });
   await addEvent(job.id, "job_cancelled", { by: "owner", releasedCents });
+  // Tell the customer, at the address they confirmed on the call. Never undoes or blocks the cancellation.
+  if (job.customer_email) {
+    try {
+      const sent = await sendCancelEmail({
+        to: job.customer_email,
+        jobCode: job.job_code,
+        problem: tidyProblem(job.problem, "your job"),
+        releasedCents,
+        link: `${process.env.APP_BASE_URL || ""}/j/${job.job_code}`,
+      });
+      if (sent) await addEvent(job.id, "cancel_emailed", { to: maskEmail(job.customer_email) });
+    } catch (error) {
+      console.error(`cancel email ${job.job_code}:`, error);
+    }
+  }
   return { status: "cancelled", releasedCents };
 }
