@@ -15,7 +15,7 @@ export default async function JobsPage() {
   return (
     <div className={s.page}>
       <h1 className={s.title}>Jobs</h1>
-      <p className={s.lead}>Your own bookings first, then Mike’s sample week. Only your own jobs can be charged.</p>
+      <p className={s.lead}>Your bookings and the jobs booked on calls to the business line, then Mike’s sample week. Sample jobs can’t be charged.</p>
       <ul className={s.list}>
         {jobs.map((job) => {
           const body = (

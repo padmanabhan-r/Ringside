@@ -12,12 +12,22 @@ export function hourLabel(d: Date): string {
 /** "10 am – 12 pm" today, "Fri 10 am – 12 pm" on another day. */
 export function windowLabel(start: Date | null, end: Date | null, now = new Date()): string {
   if (!start || !end) return "No visit booked";
-  const day = localDate(start) === localDate(now) ? "" : `${dayFmt.format(start)} `;
+  const day = dayPrefix(start, now);
+  return `${day ? `${day} ` : ""}${timeLabel(start, end)}`;
+}
+
+/** "Mon" for a visit on another day, "" for today. */
+export function dayPrefix(start: Date | null, now = new Date()): string {
+  return start && localDate(start) !== localDate(now) ? dayFmt.format(start) : "";
+}
+
+/** "10 am – 12 pm", or "12 – 2 pm" when both ends share am/pm. */
+export function timeLabel(start: Date | null, end: Date | null): string {
+  if (!start || !end) return "No visit booked";
   const a = hourLabel(start);
   const b = hourLabel(end);
-  // "12 – 2 pm" when both ends share am/pm, "10 am – 12 pm" when they don't.
   const sameHalf = a.slice(-2) === b.slice(-2);
-  return `${day}${sameHalf ? a.slice(0, -3) : a} – ${b}`;
+  return `${sameHalf ? a.slice(0, -3) : a} – ${b}`;
 }
 
 export function weekday(now = new Date()): string {

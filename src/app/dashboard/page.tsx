@@ -7,7 +7,7 @@ import { formatUsd } from "@/lib/money";
 import { currentSession } from "@/lib/session";
 import { localDate } from "@/lib/slots";
 import { FindBooking } from "./find-booking";
-import { centsShort, dayTitle, durationLabel, hourLabel, weekday, windowLabel } from "./format";
+import { centsShort, dayPrefix, dayTitle, durationLabel, hourLabel, timeLabel, weekday, windowLabel } from "./format";
 import s from "./today.module.css";
 
 export const dynamic = "force-dynamic";
@@ -102,12 +102,18 @@ function NowCard({ job, label, now }: { job: DashJob; label: string; now: Date }
 }
 
 function JobRow({ job, label, now }: { job: DashJob; label: string; now: Date }) {
+  const day = dayPrefix(job.start, now);
   const body = (
     <>
+      {/* A visit on another day: the day joins the label on a phone and sits above the time on a desk, so the time fits. */}
       <div className={s.rowWhen}>
-        <span className={s.rowLabel}>{label}</span>
+        <span className={s.rowLabel}>
+          {label}
+          {day ? ` · ${day}` : ""}
+        </span>
+        {day ? <span className={s.rowDay}>{day}</span> : null}
         <span className={s.rowTime}>
-          <Clock aria-hidden="true" /> {windowLabel(job.start, job.end, now)}
+          <Clock aria-hidden="true" /> {timeLabel(job.start, job.end)}
         </span>
       </div>
       <div className={s.rowJob}>
@@ -197,6 +203,8 @@ export default async function TodayPage() {
   const today = await loadToday(await currentSession(), now);
   const calls = callsToday(today.calls, now);
   const day = dayTitle(now);
+  // Phone bookings for later days join the list, so the heading says so when there are any.
+  const bookingsTitle = [today.now, ...today.others].some((j) => dayPrefix(j.start, now)) ? "Today and coming up" : "Today’s bookings";
   return (
     <div className={s.page}>
       <h1 className={s.title}>
@@ -206,8 +214,8 @@ export default async function TodayPage() {
       {!today.hasLive ? <TryIt /> : null}
 
       <div className={s.grid}>
-        <section className={s.bookings} aria-label="Today’s bookings">
-          <h2 className={s.sectionTitle}>Today’s bookings</h2>
+        <section className={s.bookings} aria-label={bookingsTitle}>
+          <h2 className={s.sectionTitle}>{bookingsTitle}</h2>
           <NowCard job={today.now} label={today.nowLabel} now={now} />
           <ol className={s.rows}>
             {today.others.map((job) => (

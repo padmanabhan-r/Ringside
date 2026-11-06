@@ -278,6 +278,11 @@
   color: var(--brand);
 }
 
+/* The visit's day, for a visit on another day: in the label on a phone, above the time on a desk. */
+.rowDay {
+  display: none;
+}
+
 .rowTime {
   display: flex;
   align-items: center;
@@ -846,6 +851,15 @@
 
   .rowLabel {
     display: none;
+  }
+
+  .rowDay {
+    display: block;
+    margin-bottom: 2px;
+    padding-left: 25px;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--brand);
   }
 
   .rowTime {
