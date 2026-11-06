@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { changeEmailContent, holdEmailContent, isValidEmail, maskEmail, normaliseEmail, spellEmail } from "../src/lib/email";
+import { changeEmailContent, holdEmailContent, receiptEmailContent, isValidEmail, maskEmail, normaliseEmail, spellEmail } from "../src/lib/email";
 
 describe("caller email", () => {
   it("normalises what speech-to-text hears", () => {
@@ -75,5 +75,15 @@ describe("job codes and extra-work emails (owner, 2026-11-06)", () => {
     expect(text).toContain("https://x/j/MP-5404");
     expect(html).toContain("Approve or decline");
     expect(html).not.toContain("<script");
+  });
+});
+
+describe("the receipt email", () => {
+  it("leads with the job code and shows the charge, the extra work, the release and the total", () => {
+    const { subject, text } = receiptEmailContent({ to: "dana@example.com", jobCode: "MP-8589", problem: "Leaking tap", finalCents: 19000, holdCents: 25000, extraCents: 12500, link: "https://x/j/MP-8589" });
+    expect(subject).toBe("MP-8589: your receipt from Mike’s Plumbing, $315.00 paid");
+    expect(text).toContain("Leaking tap, charged after the job: $190.00 (PayPal released the other $60.00 of your $250.00 hold)");
+    expect(text).toContain("Extra work you approved: $125.00");
+    expect(text).toContain("Paid in all: $315.00");
   });
 });

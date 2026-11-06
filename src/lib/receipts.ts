@@ -23,6 +23,8 @@ import {
   type Invoice,
   type InvoiceLine,
 } from "./paypal";
+import { maskEmail, sendReceiptEmail } from "./email";
+import { tidyProblem } from "./problem-text";
 
 export class ReceiptError extends Error {
   override name = "ReceiptError";
@@ -203,7 +205,8 @@ export async function sendReceipt(job: Job): Promise<ReceiptResult> {
     if (!capture?.paypal_capture_id) throw new ReceiptError("There is no final charge on this job yet");
     const hold = all.find((p) => p.kind === "hold" && p.paypal_order_id);
 
-    const plan = buildReceipt(job, { captureId: capture.paypal_capture_id, amountCents: capture.amount_cents }, await lineItems(job.id), await paidChanges(job.id));
+    const changes = await paidChanges(job.id);
+    const plan = buildReceipt(job, { captureId: capture.paypal_capture_id, amountCents: capture.amount_cents }, await lineItems(job.id), changes);
     const row = existing ?? (await startPayment(job.id, "invoice", plan.totalCents));
     if (row.amount_cents !== plan.totalCents) throw new ReceiptError(`A receipt for ${row.amount_cents} cents is already in progress`);
 
@@ -228,6 +231,25 @@ export async function sendReceipt(job: Job): Promise<ReceiptResult> {
     const url = invoice.detail?.metadata?.recipient_view_url ?? null;
     await updatePayment(row.id, { paypal_invoice_id: invoice.id, status, approval_url: url });
     await addEvent(job.id, emailed ? "receipt_sent" : "receipt_ready", { invoiceId: invoice.id, amountCents: plan.totalCents, captures: plan.captures.length });
+    // PayPal emails its invoice to the PayPal account that paid, and the sandbox never reaches a real inbox; so the
+    // receipt also goes to the address the caller confirmed on the call. Never blocks the receipt itself.
+    if (job.customer_email) {
+      try {
+        const sent = await sendReceiptEmail({
+          to: job.customer_email,
+          jobCode: job.job_code,
+          problem: tidyProblem(job.problem, "Your job"),
+          finalCents: capture.amount_cents,
+          holdCents: hold?.amount_cents ?? capture.amount_cents,
+          extraCents: changes.reduce((sum, c) => sum + c.amountCents, 0),
+          link: `${process.env.APP_BASE_URL || ""}/j/${job.job_code}`,
+          invoiceUrl: url,
+        });
+        if (sent) await addEvent(job.id, "receipt_emailed", { to: maskEmail(job.customer_email) });
+      } catch (error) {
+        console.error(`receipt email ${job.job_code}:`, error);
+      }
+    }
     return { status, invoiceId: invoice.id, url, amountCents: plan.totalCents };
   });
 }

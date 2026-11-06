@@ -163,3 +163,60 @@ export function changeEmailContent(e: ChangeEmail) {
 export async function sendChangeEmail(e: ChangeEmail): Promise<boolean> {
   return sendEmail(e.to, `change-${e.changeOrderId}`, changeEmailContent(e));
 }
+
+export interface ReceiptEmail {
+  to: string;
+  jobCode: string;
+  problem: string;
+  finalCents: number;
+  holdCents: number;
+  extraCents: number;
+  link: string;
+  invoiceUrl?: string | null;
+}
+
+export function receiptEmailContent(e: ReceiptEmail) {
+  const total = formatUsd(e.finalCents + e.extraCents);
+  const released = e.holdCents - e.finalCents;
+  const subject = `${e.jobCode}: your receipt from Mike’s Plumbing, ${total} paid`;
+  const lines = [
+    `${e.problem}, charged after the job: ${formatUsd(e.finalCents)}${released > 0 ? ` (PayPal released the other ${formatUsd(released)} of your ${formatUsd(e.holdCents)} hold)` : ""}`,
+    ...(e.extraCents > 0 ? [`Extra work you approved: ${formatUsd(e.extraCents)}`] : []),
+    `Paid in all: ${total}`,
+  ];
+  const text = [
+    "Hi,",
+    "",
+    "Mike has finished the job. Here is your receipt:",
+    ...lines.map((l) => `- ${l}`),
+    "",
+    `Your job page: ${e.link}`,
+    ...(e.invoiceUrl ? [`PayPal receipt: ${e.invoiceUrl}`] : []),
+    `Job code: ${e.jobCode}`,
+    "",
+    "This is a demo with a fictional business on the PayPal sandbox. No real money moves.",
+    "Mike’s Plumbing, Saginaw, Michigan · Powered by Ringside",
+  ].join("\n");
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+  const row = (label: string, amount: string, strong = false) =>
+    `<tr><td style="padding:6px 0;font-size:15px${strong ? ";font-weight:600;border-top:1px solid #e3e5e6;padding-top:10px" : ""}">${esc(label)}</td><td style="padding:6px 0;font-size:15px;text-align:right${strong ? ";font-weight:600;border-top:1px solid #e3e5e6;padding-top:10px" : ""}">${amount}</td></tr>`;
+  const html = `<!doctype html><html><body style="margin:0;background:#f7f7f6;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#182834">
+<div style="max-width:480px;margin:0 auto;padding:28px 20px">
+<p style="margin:0 0 4px;font-size:18px;font-weight:600">Mike’s Plumbing</p>
+<p style="margin:0 0 22px;font-size:13px;color:#59626c">Saginaw, Michigan · Powered by Ringside</p>
+<div style="background:#fff;border:1px solid #d6d8d9;border-radius:12px;padding:20px">
+<p style="margin:0 0 6px;font-size:20px;font-weight:600">Receipt: ${total} paid</p>
+<p style="margin:0 0 14px;font-size:14px;color:#59626c">${esc(e.problem)} · Job ${esc(e.jobCode)}</p>
+<table style="width:100%;border-collapse:collapse">${row(`${e.problem}, after the job`, formatUsd(e.finalCents))}${e.extraCents > 0 ? row("Extra work you approved", formatUsd(e.extraCents)) : ""}${row("Paid in all", total, true)}</table>
+${released > 0 ? `<p style="margin:14px 0 0;font-size:14px;color:#59626c">PayPal released the other ${formatUsd(released)} of your ${formatUsd(e.holdCents)} hold.</p>` : ""}
+<a href="${esc(e.link)}" style="display:block;margin-top:16px;text-align:center;background:#1557c0;color:#fff;font-weight:600;font-size:16px;text-decoration:none;padding:14px;border-radius:8px">See your job and receipt</a>
+</div>
+<p style="margin:18px 0 0;font-size:12px;color:#8a9197">Demo with a fictional business on the PayPal sandbox. No real money moves.</p>
+</div></body></html>`;
+  return { subject, text, html };
+}
+
+/** The receipt, to the address the caller confirmed on the call. One email per job. */
+export async function sendReceiptEmail(e: ReceiptEmail): Promise<boolean> {
+  return sendEmail(e.to, `receipt-${e.jobCode}`, receiptEmailContent(e));
+}
