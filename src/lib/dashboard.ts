@@ -7,6 +7,8 @@ import { addEvent, findJobByCode, lineItems, payments, type Job, type LineItem, 
 import { formatUsd } from "./money";
 import { SAMPLE_CALLS, SAMPLE_EARLIER, SAMPLE_NOW, SAMPLE_TODAY, sampleCallSummary, sampleCallTime, sampleWindow, type SampleJob } from "./samples";
 import { localDate } from "./slots";
+import { fillCallDetails } from "./call-details";
+import { tidyProblem } from "./problem-text";
 
 export type Tone = "ok" | "wait" | "none" | "info";
 
@@ -116,7 +118,7 @@ export function describeJob(job: Job & { final_cents: number | null; mine?: bool
     sample: false,
     phone: job.channel === "phone",
     mine: job.mine !== false,
-    problem: job.problem ?? "Plumbing job",
+    problem: tidyProblem(job.problem),
     customer: job.customer_name,
     address: job.address,
     start: job.slot_start,
@@ -272,12 +274,13 @@ export async function loadCalls(session: string | undefined, now = new Date()): 
            or (c.channel = 'phone' and c.started_at > now() - make_interval(days => ${PHONE_DAYS}))
         order by c.started_at desc limit 30`
     : [];
+  await fillCallDetails(rows, now);
   const liveCalls: DashCall[] = rows.map((r) => ({
     key: r.conversation_id,
     at: r.started_at,
     channel: r.channel,
     durationSecs: r.duration_secs,
-    summary: r.summary ?? r.problem ?? (r.outcome === "in_progress" ? "Call in progress" : "Call"),
+    summary: r.summary || r.problem ? tidyProblem(r.summary ?? r.problem) : r.outcome === "in_progress" ? "Call in progress" : "Call",
     outcome: r.outcome,
     costCents: r.cost_cents,
     sample: false,

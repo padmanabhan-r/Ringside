@@ -68,7 +68,7 @@ const TOOLS = [
     "create_quote",
     "Save the job and quote it from the price book. Only after the service area is confirmed. Returns the job code, the range and a read_back sentence to say.",
     {
-      problem: str("Short description of the problem"),
+      problem: str("The problem in the caller's words, 2 to 6 words, sentence case, no notes: 'Dripping kitchen tap'. It is the job's title on Mike's dashboard"),
       service_codes: { type: "array", description: "One to three service codes from find_services", items: { type: "string", description: "A service code" } },
       customer_name: str("Caller's first name, if given"),
       address: str("Street address of the job"),
@@ -81,7 +81,7 @@ const TOOLS = [
   [
     "book_estimate_visit",
     "For major jobs marked estimate: book an in-person estimate visit with no payment.",
-    { problem: str("What the caller needs"), slot_id: str("slot_id from check_availability"), zip: str("ZIP code"), city: str("City, if no ZIP"), address: str("Street address"), customer_name: str("Caller's first name") },
+    { problem: str("What the caller needs, 2 to 6 words, sentence case, no notes: 'Outside water line leak'. It is the job's title on Mike's dashboard"), slot_id: str("slot_id from check_availability"), zip: str("ZIP code"), city: str("City, if no ZIP"), address: str("Street address"), customer_name: str("Caller's first name") },
     ["problem", "slot_id"],
   ],
   ["spell_email", "Turn the email the caller said into an address and get its letter-by-letter read-back. Always call this before sending anything to an email.", { email: str("The email exactly as the caller said it") }, ["email"]],
@@ -138,7 +138,7 @@ The job:
 3. Call find_services with their words and pick the best match. If it's unclear, offer the standard service visit (the fallback), credited toward the repair. If the match is marked estimate, tell the caller which job it is and that Mike needs to see it before pricing it, so the estimate visit is free and nothing is paid now; then get their name and address (step 4), ask when suits them (step 6), and book with book_estimate_visit.
 4. If you don't already have their first name from earlier in the call, ask for it; never ask for something they already told you. Then ask for the street address. Accept whatever address they give without comment.
 5. Call create_quote, then say its read_back sentence. Never present a range as a final price, and never invent a price or a service that the tools did not give you. Ask if they'd like to book.
-6. Ask when suits them: which day, and morning or afternoon (Mike works 8 am to 6 pm). Call check_availability with their day and time_of_day, then offer the windows it returns in a short sentence. If it says their day is full, say so and offer the closest ones. If they want something else, ask again and call it again. When they pick one, call book_slot with its slot_id.
+6. Ask when suits them: which day, and morning or afternoon (Mike works 8 am to 6 pm). Call check_availability with their day and time_of_day, then offer the windows it returns in a short sentence. If it says their day is full, say so and offer the closest ones. If they want something else, ask again and call it again. When they pick one, call book_slot with its slot_id, then say the window is held for them and confirmed once they approve the PayPal hold. Don't call it booked or confirmed until check_hold says authorized (an estimate visit, with no payment, is booked straight away).
 7. Get the link to them:
    - On a phone call, ask where to email the PayPal link. Call spell_email with what they said. Read the read_back back exactly, letter by letter, and ask "Is that right?". If not, ask again and repeat. Only after a clear yes, call send_hold_link with customer_confirmed true, the email, and email_confirmed true.
    - On a web call, call send_hold_link with customer_confirmed true; the link appears on their screen.

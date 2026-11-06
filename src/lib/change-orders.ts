@@ -8,6 +8,7 @@ import { declinesFor, FUNDING_DECLINED } from "./holds";
 import { approvalUrl, captureOrder, createOrder, getOrder, PayPalError } from "./paypal";
 import { notifyJobEvent } from "./push";
 import { changeTotal, priceChangeLines, type ChangeLine } from "./change-pricing";
+import { tidyProblem } from "./problem-text";
 
 export interface ChangeOrder {
   id: string;
@@ -125,7 +126,7 @@ export async function confirmChangeOrder(job: Job, changeOrderId: string, baseUr
       items: lines.map((l) => ({ name: l.name ?? l.item_code, qty: l.qty, unitPriceCents: l.unit_price_cents, totalCents: l.unit_price_cents * l.qty })),
       totalCents: co.delta_cents,
       jobCode: job.job_code,
-      description: `Extra work on ${job.problem ?? "your job"} (${job.job_code})`,
+      description: `Extra work on ${tidyProblem(job.problem, "your job")} (${job.job_code})`,
       requestId: payment.paypal_request_id,
       returnUrl: `${baseUrl}/j/${job.job_code}?paypal=change-approved`,
       cancelUrl: `${baseUrl}/j/${job.job_code}`,

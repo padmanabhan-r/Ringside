@@ -3,6 +3,7 @@ import type { CallJobView, HoldState } from "@/app/call/types";
 import type { Job, LineItem, Payment } from "@/lib/jobs";
 import { formatUsd } from "@/lib/money";
 import { formatWindow } from "@/lib/slots";
+import { tidyProblem } from "@/lib/problem-text";
 
 /** 12500 → "$125"; 12550 → "$125.50". Whole dollars read cleaner in a range. */
 export function shortUsd(cents: number): string {
@@ -36,7 +37,7 @@ export function jobView(job: Job & { zip?: string | null }, lines: readonly Line
   const zip = job.zip ?? null;
   return {
     code: job.job_code,
-    title: estimate ? (job.problem ?? "Estimate visit") : quote.map((l) => l.name ?? l.item_code).join(" + "),
+    title: estimate ? tidyProblem(job.problem, "Estimate visit") : quote.map((l) => l.name ?? l.item_code).join(" + "),
     range: estimate ? null : low === high ? shortUsd(high) : `${shortUsd(low)}–${shortUsd(high)}`,
     zip,
     city: cityForZip(zip),

@@ -3,6 +3,7 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { db } from "./db";
 import { assertTransition, type JobState } from "./job-state";
 import type { Cents } from "./money";
+import { tidyProblem } from "./problem-text";
 
 export interface Job {
   id: string;
@@ -74,7 +75,7 @@ export async function createQuotedJob(input: {
       return await sql.begin(async (tx) => {
         const [job] = await tx<Job[]>`
           insert into jobs (demo_session_id, job_code, channel, customer_name, address, zip, problem, state)
-          values (${input.demoSessionId}, ${code}, ${input.channel}, ${input.customerName ?? null}, ${input.address ?? null}, ${input.zip ?? null}, ${input.problem}, 'quoted')
+          values (${input.demoSessionId}, ${code}, ${input.channel}, ${input.customerName ?? null}, ${input.address ?? null}, ${input.zip ?? null}, ${tidyProblem(input.problem)}, 'quoted')
           returning *`;
         if (!job) throw new Error("insert returned no job");
         for (const line of input.lines) {

@@ -11,6 +11,7 @@ import { LiveRefresh } from "./live-refresh";
 import { ChangeApproval, HoldApproval } from "./paypal-approval";
 import { TestCard } from "./test-card";
 import s from "./job.module.css";
+import { tidyProblem } from "@/lib/problem-text";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Your booking · Mike’s Plumbing", robots: { index: false } };
@@ -307,7 +308,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
 
   // "10 am – 12 pm" never breaks between a number and its am/pm.
   const when = job.slot_start && job.slot_end ? formatWindow(job.slot_start, job.slot_end).replace(/ (am|pm)/g, "\u00a0$1") : undefined;
-  const title = quote.length === 1 && quote[0] ? itemName(quote[0]) : (job.problem?.replace(/^Estimate visit:\s*/i, "") ?? "Your job");
+  const title = quote.length === 1 && quote[0] ? itemName(quote[0]) : tidyProblem(job.problem?.replace(/^Estimate visit:\s*/i, ""), "Your job");
   const range = priceRange(quote);
   // The hold is the top of the quoted range; before PayPal has the order, show that same figure.
   const holdCents = hold?.amount_cents ?? quote.reduce((sum, l) => sum + lineTotal(l), 0);

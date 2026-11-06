@@ -8,6 +8,7 @@ import { db } from "./db";
 import type { Job } from "./jobs";
 import { formatUsd, type Cents } from "./money";
 import { formatWindow } from "./slots";
+import { tidyProblem } from "./problem-text";
 
 export type JobEvent =
   | { kind: "hold_approved"; amountCents: Cents }
@@ -61,7 +62,7 @@ function firstName(name: string | null): string {
 
 /** "Dripping kitchen tap, today 10 am – 12 pm", or just the problem when no window is booked. */
 function jobLine(job: PushJob, now: Date): string {
-  const problem = job.problem?.trim() || "Plumbing job";
+  const problem = tidyProblem(job.problem);
   if (!job.slot_start || !job.slot_end) return problem;
   const when = formatWindow(job.slot_start, job.slot_end, now).replace(/^Today, /, "today ");
   return `${problem}, ${when}`;
