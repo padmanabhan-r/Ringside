@@ -83,6 +83,12 @@ async function accessToken(): Promise<string> {
   return token;
 }
 
+/** For the health check: PayPal still accepts our sandbox credentials (a fresh or cached access token). */
+export async function paypalReachable(): Promise<boolean> {
+  await accessToken();
+  return true;
+}
+
 /** One PayPal REST call. A POST must name its PayPal-Request-Id; there is no default, on purpose. */
 export async function paypalRequest<T>(
   method: "GET" | "POST" | "PATCH",

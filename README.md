@@ -70,7 +70,7 @@
 ![Render](https://img.shields.io/badge/Render-Web_·_Postgres_·_Workflows-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Render SDK](https://img.shields.io/badge/Render_SDK-1.3-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Resend](https://img.shields.io/badge/Resend-email-0f1b2d?style=flat-square&logo=resend&labelColor=0f1b2d)
-![Vitest](https://img.shields.io/badge/Vitest-5_·_147_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
+![Vitest](https://img.shields.io/badge/Vitest-5_·_150_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
 ![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-0f1b2d?style=flat-square&logo=githubactions&labelColor=0f1b2d)
 
 </div>
@@ -215,7 +215,7 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Prices | Mike's price book (125 jobs as USD ranges) and a rate card of add-ons, money in integer cents | A quote holds the top of its range; extra work is parts and labour in 15-minute blocks of $23.75, or a whole job at Mike's price inside its range ([`src/lib/price-book.ts`](src/lib/price-book.ts), [`src/lib/rate-card.ts`](src/lib/rate-card.ts)) |
 | Service area | The Saginaw Tri-Cities by ZIP and city | Callers outside it get no booking and no payment ([`src/lib/service-area.ts`](src/lib/service-area.ts)) |
 | Payments | PayPal Orders v2 (`AUTHORIZE`, `CAPTURE`) and Payments v2 (capture, void), through the server SDK | The hold, the change order's second payment, the final capture; every POST carries a stored `PayPal-Request-Id` ([`src/lib/paypal.ts`](src/lib/paypal.ts), [`src/lib/holds.ts`](src/lib/holds.ts), [`src/lib/change-orders.ts`](src/lib/change-orders.ts), [`src/lib/job-done.ts`](src/lib/job-done.ts)) |
-| Customer page | Next.js page with PayPal's JavaScript SDK buttons and guest card checkout | Approve the hold, approve or decline extra work, see the charge and receipt ([`src/app/j/[code]/page.tsx`](src/app/j/[code]/page.tsx)) |
+| Customer page | Next.js page with PayPal's JavaScript SDK buttons and guest card checkout | Approve the hold, approve or decline extra work, see the charge and receipt. If PayPal declines the buyer's funding source (`INSTRUMENT_DECLINED`), PayPal reopens to choose another and nothing is held or charged ([`src/app/j/[code]/page.tsx`](src/app/j/[code]/page.tsx), [`src/lib/holds.ts`](src/lib/holds.ts)) |
 | Change-order parser | Claude Sonnet 5.5 (`claude-sonnet-5-5`, Anthropic API), structured output with a strict JSON schema | Names rate-card items, quantities and price-book jobs only; the code takes every price from the card or the job's range and rejects unknown items, prices from the model and quantities past the card's limits ([`src/lib/change-order-parser.ts`](src/lib/change-order-parser.ts), [`src/lib/change-pricing.ts`](src/lib/change-pricing.ts)) |
 | Problem matcher | Claude Haiku 5.5 (`claude-haiku-5-5`), structured output whose only allowed answer is a price-book code | Book without calling: "my kitchen tap won't stop dripping" becomes one job from the book; the job, its range and the hold always come from the book, a gas smell gets safety advice instead of a booking, and matches are limited per visitor and per day ([`src/lib/problem-matcher.ts`](src/lib/problem-matcher.ts)) |
 | Mike's app | Next.js, installable PWA, the browser's speech recognition | Today with the job he's on first, the job screen with Add charges, Job done and Cancel job (which voids the PayPal hold and releases the money), a QR code for on-site approval, find a phone booking by its job code ([`src/app/dashboard/`](src/app/dashboard/page.tsx)) |
@@ -228,7 +228,8 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Demo sessions | A cookie per visitor; Postgres 18; a job state machine | Each visitor sees only their own jobs plus labelled sample jobs that can't be charged ([`src/lib/dashboard.ts`](src/lib/dashboard.ts), [`src/lib/job-state.ts`](src/lib/job-state.ts), [`db/migrations/`](db/migrations/001_init.sql)) |
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Figtree, lucide-react | Landing page, call page, customer page, Mike's app ([`src/app/`](src/app/page.tsx)) |
 | Hosting | Render web service, Render Postgres and a Render workflow from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
-| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 147 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
+| Monitor | GitHub Actions on a schedule | Every 30 minutes: the database, PayPal's sandbox credentials, the voice agent and the main pages; once a day a real sandbox booking through Book without calling ([`scripts/monitor/live-check.mjs`](scripts/monitor/live-check.mjs), [`.github/workflows/monitor.yml`](.github/workflows/monitor.yml)) |
+| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 150 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
 
 PayPal runs in the sandbox only: the server refuses to start unless `PAYPAL_ENV=sandbox`.
 
@@ -321,6 +322,7 @@ business on one sandbox merchant.
 | [`scripts/agent/`](scripts/agent/configure.mjs) | The voice agent's tools, prompt, model and time limit, applied through the ElevenLabs API |
 | [`scripts/paypal/`](scripts/paypal/create-webhook.mjs) | Creates the PayPal webhook |
 | [`scripts/gates/`](scripts/gates/setup-voice.mjs) | Phone line setup and checks |
+| [`scripts/monitor/`](scripts/monitor/live-check.mjs) | The live demo check the scheduled monitor runs |
 | [`scripts/capture.mjs`](scripts/capture.mjs) | Full-page screenshots at real device widths |
 | [`test/`](test/paypal.test.ts) | Unit tests, with recorded real responses in `test/fixtures/` |
 | [`render.yaml`](render.yaml) | The Render Blueprint: web service, database and workflow |

@@ -1,0 +1,24 @@
+# Watches the live demo through judging (until Dec 15, 2026). A failed run emails the repo owner (GitHub's default
+# notice for scheduled workflows). No secrets: the site checks its own keys through /api/health?deep=1.
+name: Live demo monitor
+on:
+  schedule:
+    - cron: "*/30 * * * *" # health and pages
+    - cron: "15 6 * * *" # plus one real sandbox booking, daily
+  workflow_dispatch:
+    inputs:
+      book:
+        description: "Also make one sandbox booking"
+        type: boolean
+        default: true
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Check the live demo
+        run: node scripts/monitor/live-check.mjs ${{ (github.event.schedule == '15 6 * * *' || inputs.book) && '--book' || '' }}
