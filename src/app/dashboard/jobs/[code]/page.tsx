@@ -281,7 +281,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
           ) : range ? (
             <>
               <p className={s.cardSub}>Finish the job and get paid.</p>
-              <JobDone code={job.job_code} customer={who} lowCents={range.lowCents} holdCents={range.holdCents} blocked={waiting ? `${who} still has the extra work to approve or decline first.` : undefined} />
+              <JobDone code={job.job_code} customer={who} lowCents={range.lowCents} holdCents={range.holdCents} extraCents={paidChanges} jobName={lines.filter((l) => l.source === "quote").map((l) => l.name ?? l.item_code).join(" + ") || view.problem} blocked={waiting ? `${who} still has the extra work to approve or decline first.` : undefined} />
             </>
           ) : null}
         </section>

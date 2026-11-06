@@ -17,7 +17,25 @@ function toCents(text: string): number | null {
  * Job done (hard rule: the only path to a capture is Mike's confirmed action). He enters the real cost of the
  * booked job, inside the quoted range and never above the hold; a second tap confirms; PayPal charges exactly that.
  */
-export function JobDone({ code, customer, lowCents, holdCents, blocked }: { code: string; customer: string; lowCents: number; holdCents: number; blocked?: string }) {
+export function JobDone({
+  code,
+  customer,
+  jobName,
+  lowCents,
+  holdCents,
+  extraCents = 0,
+  blocked,
+}: {
+  code: string;
+  customer: string;
+  /** The quoted job, e.g. "Faucet leak repair": the only thing this box prices. */
+  jobName: string;
+  lowCents: number;
+  holdCents: number;
+  /** Extra work the customer already paid as its own payments: shown, never charged again. */
+  extraCents?: number;
+  blocked?: string;
+}) {
   const router = useRouter();
   const [text, setText] = useState("");
   const [confirming, setConfirming] = useState(false);
@@ -46,41 +64,57 @@ export function JobDone({ code, customer, lowCents, holdCents, blocked }: { code
 
   return (
     <div className={s.doneBody}>
-      <label htmlFor="final-cost" className={s.finalLabel}>
-        Final cost of the job
-        <small>
-          Between {usd(lowCents)} and {usd(holdCents)}, the hold {customer} approved
-        </small>
-      </label>
-      <div className={s.finalRow}>
-        <span className={s.dollar} aria-hidden="true">
-          $
-        </span>
-        <input
-          id="final-cost"
-          className={s.finalInput}
-          inputMode="decimal"
-          placeholder={(holdCents / 100).toFixed(2)}
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            setConfirming(false);
-          }}
-          disabled={Boolean(blocked) || busy}
-          aria-describedby="final-help"
-        />
+      {/* A small bill: the box prices only the original job; extra work is already paid; the total follows. */}
+      <div className={s.bill}>
+        <label htmlFor="final-cost" className={s.finalLabel}>
+          {jobName}: what did it really cost?
+          <small>
+            Quoted {usd(lowCents)} to {usd(holdCents)}. PayPal takes it from {customer}’s {usd(holdCents)} hold and releases the rest.
+          </small>
+        </label>
+        <div className={s.finalRow}>
+          <span className={s.dollar} aria-hidden="true">
+            $
+          </span>
+          <input
+            id="final-cost"
+            className={s.finalInput}
+            inputMode="decimal"
+            placeholder={(holdCents / 100).toFixed(2)}
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value);
+              setConfirming(false);
+            }}
+            disabled={Boolean(blocked) || busy}
+            aria-describedby="final-help"
+          />
+        </div>
+        <p id="final-help" className={s.finalHelp}>
+          {blocked
+            ? blocked
+            : cents !== null && !valid
+              ? cents > holdCents
+                ? `That’s more than the ${usd(holdCents)} hold. Mike never charges more than the hold.`
+                : `That’s below the quoted price of ${usd(lowCents)}.`
+              : valid
+                ? `PayPal releases the other ${usd(holdCents - cents)} of the hold.`
+                : `Type the real cost of the ${jobName.toLowerCase()}, ${usd(lowCents)} to ${usd(holdCents)}.`}
+        </p>
+        {extraCents > 0 ? (
+          <p className={s.billRow}>
+            <span>
+              Extra work
+              <small>Already paid by {customer}: not charged again</small>
+            </span>
+            <span>{usd(extraCents)}</span>
+          </p>
+        ) : null}
+        <p className={`${s.billRow} ${s.billTotal}`}>
+          <span>{customer} pays in all</span>
+          <span>{valid ? usd(cents + extraCents) : "—"}</span>
+        </p>
       </div>
-      <p id="final-help" className={s.finalHelp}>
-        {blocked
-          ? blocked
-          : cents !== null && !valid
-            ? cents > holdCents
-              ? `That’s more than the ${usd(holdCents)} hold. Mike never charges more than the hold.`
-              : `That’s below the quoted price of ${usd(lowCents)}.`
-            : valid
-              ? `${customer} pays ${usd(cents)}; PayPal releases the other ${usd(holdCents - cents)}.`
-              : "Type what the job really cost."}
-      </p>
       {!confirming ? (
         <button type="button" className={s.chargeButton} disabled={!valid || Boolean(blocked) || busy} onClick={() => setConfirming(true)}>
           <CircleCheck aria-hidden="true" />

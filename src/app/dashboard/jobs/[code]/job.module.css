@@ -864,3 +864,37 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+
+/* Job done as a small bill: the original job's real cost (typed), extra work already paid, and the total. */
+.bill {
+  display: grid;
+  gap: 10px;
+}
+
+.billRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 15.5px;
+  font-weight: 700;
+}
+
+.billRow span:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+.billRow small {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-3);
+}
+
+.billTotal {
+  font-size: 17px;
+  font-weight: 800;
+}
