@@ -800,3 +800,12 @@
     margin-bottom: 0;
   }
 }
+
+/* Demo: the way from the customer's page to the same job on Mike's dashboard. */
+.ownerLink {
+  color: var(--brand-ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

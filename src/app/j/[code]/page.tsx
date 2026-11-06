@@ -67,7 +67,7 @@ function visitPhrase(when: string): string {
   return when.startsWith("Today") ? `today${when.slice(5)}` : `on ${when}`;
 }
 
-function Shell({ children }: { children: ReactNode }) {
+function Shell({ children, code }: { children: ReactNode; code?: string }) {
   return (
     <div className={`fs ${s.page}`}>
       <header className={s.band}>
@@ -81,6 +81,12 @@ function Shell({ children }: { children: ReactNode }) {
             <SandboxTag />
           </div>
           <p>Mike’s Plumbing is a fictional business. Payments run on the PayPal sandbox: no real money moves.</p>
+          {code ? (
+            // Demo only: a judge who booked by phone opens this page from the email, then sees the job as Mike would.
+            <a className={s.ownerLink} href={`/api/dashboard/claim?code=${encodeURIComponent(code)}`}>
+              Trying the demo? See this job in Mike’s dashboard
+            </a>
+          ) : null}
         </footer>
       </main>
     </div>
@@ -314,7 +320,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
   if (job.state === "cancelled") {
     const releasedHold = pays.find((p) => p.kind === "hold" && p.status === "voided" && p.paypal_authorization_id);
     return (
-      <Shell>
+      <Shell code={job.job_code}>
         <h1 className={s.title}>Booking cancelled</h1>
         <Amount tone="none" icon={Ban} figure="$0.00" unit="charged">
           {releasedHold ? (
@@ -337,7 +343,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
     const paidChanges = decided.filter((c) => c.status === "approved");
     const total = charged + paidChanges.reduce((sum, c) => sum + c.delta_cents, 0);
     return (
-      <Shell>
+      <Shell code={job.job_code}>
         <h1 className={s.title}>Job done</h1>
         <Amount tone="ok" icon={Check} figure={formatUsd(charged)} unit="charged">
           Mike charged the real cost from your {holdText} hold.{" "}
@@ -389,7 +395,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
     const amount = formatUsd(pendingChange.delta_cents);
     const order = pendingChange.payment;
     return (
-      <Shell>
+      <Shell code={job.job_code}>
         <h1 className={s.title}>Approve the extra work</h1>
         <Amount tone="wait" icon={Plus} figure={amount} unit="extra">
           Mike found more work on site. This is a <strong>separate PayPal payment for exactly {amount}</strong>, charged when you approve. Your {holdText} hold
@@ -426,7 +432,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
 
   if (quote.length === 0 && !hold) {
     return (
-      <Shell>
+      <Shell code={job.job_code}>
         <h1 className={s.title}>Estimate visit booked</h1>
         <Amount tone="none" icon={Check} figure="$0.00" unit="to pay">
           Mike looks at the job and gives you a written quote before any work or payment. Nothing is held or charged.
@@ -446,7 +452,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
   const held = hold?.status === "authorized" || hold?.status === "captured" || job.state !== "quoted";
   if (!held) {
     return (
-      <Shell>
+      <Shell code={job.job_code}>
         <h1 className={s.title}>Approve your booking</h1>
         <Amount tone="ok" icon={DollarSign} figure={holdText} unit="hold">
           PayPal will hold up to {holdText}. Nothing is charged now. Mike charges only the real cost after the
@@ -476,7 +482,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
   const onJob = job.state === "in_progress";
   const heading = latest ? (latest.status === "approved" ? "Extra work paid" : "Extra work declined") : onJob ? "Mike’s on the job" : "You’re booked";
   return (
-    <Shell>
+    <Shell code={job.job_code}>
       <LiveRefresh />
       <h1 className={s.title}>{heading}</h1>
       {latest?.status === "approved" ? (

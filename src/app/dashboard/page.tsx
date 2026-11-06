@@ -209,7 +209,7 @@ export default async function TodayPage() {
               <JobRow key={job.key} job={job} label={job.label} now={now} />
             ))}
           </ol>
-          {!today.hasLive ? <FindBooking /> : null}
+          <FindBooking />
         </section>
 
         <section className={s.money} aria-label="Money">
