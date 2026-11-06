@@ -79,6 +79,23 @@ function useReturnFromPayPal(flag: string, action: () => Promise<unknown>) {
   }, [params, flag, action]);
 }
 
+/**
+ * Before showing an error, ask the server again: the payment may have gone through anyway (PayPal's webhook finishes
+ * an approval even when this page's own request fails, e.g. during a deploy). If it did, the page re-renders as paid
+ * and this component unmounts; only if nothing changed after a few seconds does `fail` run.
+ */
+function useRecheck() {
+  const router = useRouter();
+  return useCallback(
+    (fail: () => void) => {
+      router.refresh();
+      setTimeout(() => router.refresh(), 1500);
+      setTimeout(fail, 4500);
+    },
+    [router],
+  );
+}
+
 function Working({ children }: { children: ReactNode }) {
   return (
     <p className={s.working} role="status">
@@ -90,6 +107,7 @@ function Working({ children }: { children: ReactNode }) {
 
 export function HoldApproval({ code, orderId, clientId, approvalUrl }: { code: string; orderId: string; clientId: string; approvalUrl: string | null }) {
   const router = useRouter();
+  const recheck = useRecheck();
   const [state, setState] = useState<"idle" | "working" | "error" | "declined">("idle");
 
   const placeHold = useCallback(async (): Promise<Outcome> => {
@@ -105,16 +123,29 @@ export function HoldApproval({ code, orderId, clientId, approvalUrl }: { code: s
         setState("declined");
         return "declined";
       }
-      setState(res.status === 409 ? "idle" : "error");
-      return res.status === 409 ? "retry" : "error";
+      if (res.status === 409) {
+        setState("idle");
+        return "retry";
+      }
+      recheck(() => setState("error"));
+      return "error";
     } catch {
-      setState("error");
+      recheck(() => setState("error"));
       return "error";
     }
-  }, [code, router]);
+  }, [code, router, recheck]);
 
   useReturnFromPayPal("approved", placeHold);
-  const { target, script } = usePayPalButtons({ clientId, intent: "authorize", orderId, onApprove: placeHold, onError: () => setState("error") });
+  const { target, script } = usePayPalButtons({
+    clientId,
+    intent: "authorize",
+    orderId,
+    onApprove: placeHold,
+    onError: () => {
+      setState("working");
+      recheck(() => setState("error"));
+    },
+  });
 
   return (
     <div className={s.pay}>
@@ -143,7 +174,7 @@ function Declined({ what }: { what: "hold" | "payment" }) {
   return (
     <p className={s.error} role="alert">
       PayPal declined that way to pay, so {what === "hold" ? "no hold was placed" : "nothing was charged"}. Choose another one in PayPal, or tap{" "}
-      <b>Debit or Credit Card</b> and use the sandbox test card 4012 0000 3333 0026.
+      <b>Debit or Credit Card</b> and use the sandbox test card 4032 0304 2122 9932 (05/27, CVC 379).
     </p>
   );
 }
@@ -164,6 +195,7 @@ export function ChangeApproval({
   holdCents: number;
 }) {
   const router = useRouter();
+  const recheck = useRecheck();
   const [state, setState] = useState<ChangeState>("idle");
   const busy = state === "paying" || state === "declining";
 
@@ -186,20 +218,31 @@ export function ChangeApproval({
           setState("fundingDeclined");
           return "declined";
         }
-        if (decision === "approve") setState(res.status === 409 ? "idle" : "error");
+        if (decision === "approve" && res.status === 409) setState("idle");
+        else if (decision === "approve") recheck(() => setState("error"));
         else setState("declineError");
         return "error";
       } catch {
-        setState(decision === "approve" ? "error" : "declineError");
+        if (decision === "approve") recheck(() => setState("error"));
+        else setState("declineError");
         return "error";
       }
     },
-    [code, router],
+    [code, router, recheck],
   );
   const approve = useCallback(() => decide("approve"), [decide]);
 
   useReturnFromPayPal("change-approved", approve);
-  const { target, script } = usePayPalButtons({ clientId, intent: "capture", orderId, onApprove: approve, onError: () => setState("error") });
+  const { target, script } = usePayPalButtons({
+    clientId,
+    intent: "capture",
+    orderId,
+    onApprove: approve,
+    onError: () => {
+      setState("paying");
+      recheck(() => setState("error"));
+    },
+  });
   const amount = formatUsd(amountCents);
 
   return (

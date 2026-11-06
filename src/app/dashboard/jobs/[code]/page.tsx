@@ -203,7 +203,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
           <CustomerLink code={job.job_code} note={`${who} approves on this page${job.channel === "phone" ? ", from the link in the email we sent," : ""} or by scanning this code.`} />
           <p className={s.demoHint}>
             <b>Trying Ringside?</b> Play the customer: open their page and approve with PayPal’s test card{" "}
-            <span className={s.demoCard}>4012 0000 3333 0026</span>, any future expiry and code. Add charges and Job done open here
+            <span className={s.demoCard}>4032 0304 2122 9932</span>, expiry 05/27, CVC 379. Add charges and Job done open here
             straight after.
           </p>
         </section>

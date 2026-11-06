@@ -90,7 +90,7 @@ runs on the PayPal sandbox.
 
 **For the judges:** open the [live demo](https://ringside-4bup.onrender.com) and try Ringside as the demo business's
 customer: call Mike's Plumbing in the browser or on **[+1 (989) 534-9779](tel:+19895349779)**, then approve the hold with
-PayPal's sandbox test card `4012 0000 3333 0026` (any future expiry and code; no PayPal account needed). Then open the
+PayPal's sandbox test card `4032 0304 2122 9932` (expiry 05/27, CVC 379; no PayPal account needed). Then open the
 owner's dashboard to add charges and finish the job. No mic? **Book without calling** on the call page runs the same quote and PayPal hold from a short form, and a recorded call shows the conversation.
 
 ## How it's different

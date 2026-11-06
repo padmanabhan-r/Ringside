@@ -26,7 +26,7 @@ function TryIt() {
           <Link href="/call">Talk in your browser</Link> or ring <a href={BUSINESS_LINE.tel}>{BUSINESS_LINE.display}</a>.
         </li>
         <li>
-          <b>Approve the hold</b> with PayPal’s test card <span className={s.card}>4012 0000 3333 0026</span>. No PayPal account
+          <b>Approve the hold</b> with PayPal’s test card <span className={s.card}>4032 0304 2122 9932</span> (05/27, CVC 379). No PayPal account
           needed.
         </li>
         <li>
