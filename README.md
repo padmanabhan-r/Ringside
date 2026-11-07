@@ -101,6 +101,18 @@ customer: call Mike's Plumbing in the browser or on **[+1 (989) 534-9779](tel:+1
 PayPal's sandbox test card `4032 0304 2122 9932` (expiry 05/27, CVC 379; no PayPal account needed). Then open the
 owner's dashboard to add charges and finish the job. No mic? **Book without calling** on the call page runs the same quote and PayPal hold from a short form, and a recorded call shows the conversation.
 
+## The problem
+
+The money step of a service job fails both sides today:
+
+| Side | What the numbers say | Source |
+|---|---|---|
+| The business waits to be paid | **59%** of US small businesses have invoices overdue by 30 days or more, up from 47% a year earlier; those waiting are owed **$17.7K** on average | Intuit QuickBooks, [2026 Small Business Late Payments Report](https://quickbooks.intuit.com/r/small-business-data/small-business-late-payments-report-2026/) (1,305 US owners, December 2025) |
+| The customer is told not to pay first | The FTC's advice to homeowners: "Don't pay the full amount for the project up front," and make the final payment only when the work is done | FTC Consumer Advice, [How To Avoid a Home Improvement Scam](https://consumer.ftc.gov/articles/how-avoid-home-improvement-scam) |
+
+So the business can't afford to wait for its money, and the customer shouldn't hand it over before the work. A PayPal
+hold sits between the two: the money is reserved before the visit, and only the real cost is taken when the job is done.
+
 ## Watch it
 
 [![Ringside demo video: a real phone call becomes a paid job, with a PayPal hold, extra work approved on site and the real cost captured (2:59)](assets/screens/video.jpg)](https://youtu.be/AHosWs7t01Y)
