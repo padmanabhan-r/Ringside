@@ -39,7 +39,7 @@
     <td align="center" width="145">
       <img src="assets/logos/claude.svg" width="56" height="56" alt="Claude"><br>
       <b>Claude</b><br>
-      <sub>The change orders. Turns what Mike says on site into priced lines from his rate card and price book.</sub>
+      <sub>The understanding. Sonnet turns what Mike says on site into priced lines; Haiku answers Ask your books and matches a typed problem to the price book.</sub>
     </td>
     <td align="center" width="145">
       <img src="assets/logos/aggrid.png" width="56" height="56" alt="AG Grid"><br>
@@ -70,7 +70,7 @@
 ![Render](https://img.shields.io/badge/Render-Web_·_Postgres_·_Workflows-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Render SDK](https://img.shields.io/badge/Render_SDK-1.3-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Resend](https://img.shields.io/badge/Resend-email-0f1b2d?style=flat-square&logo=resend&labelColor=0f1b2d)
-![Vitest](https://img.shields.io/badge/Vitest-5_·_156_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
+![Vitest](https://img.shields.io/badge/Vitest-5_·_163_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
 ![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-0f1b2d?style=flat-square&logo=githubactions&labelColor=0f1b2d)
 
 </div>
@@ -169,7 +169,8 @@ Every business on Ringside runs the same flow; the screens below are the demo bu
 
 4. **Job done.** Mike enters the real cost, inside the quoted range and never above the hold, and confirms it with a
    second tap. PayPal captures exactly that and releases the rest. The close-out then sends a PayPal invoice, marked
-   paid, as the customer's receipt, and closes the job. It runs on Render Workflows and is safe to replay.
+   paid, as the customer's receipt, emails it to them, and closes the job. It runs on Render Workflows and is safe to
+   replay.
 5. **Mike's desk.** On a laptop the same dashboard shows the day's bookings, what is held, waiting and paid this week,
    and every call with its cost, plus **Mike's Books**: his week in AG Studio, with an agent that answers questions like
    "Who still owes me?" from his own data. Mike installs the dashboard on his phone as an app: one tap where the browser
@@ -184,13 +185,14 @@ in code.
 
 ## Architecture
 
-<img src="assets/architecture.png" width="100%" alt="Ringside's architecture: a customer calls the Twilio number or the browser call page; the ElevenLabs agent (GLM 5.2) calls Ringside's ten server tools on Render; Ringside holds, captures and voids through PayPal Orders and Payments (server SDK), sends the receipt with Invoicing and verifies webhooks; Claude Sonnet 5.5 parses spoken change orders and Haiku 5.5 answers Ask your books; Postgres and Render Workflows run underneath; the customer approves in PayPal on the job page and the owner works from the dashboard; Resend and web push carry links and notifications">
+<img src="assets/architecture.png" width="100%" alt="Ringside's architecture: a customer calls the Twilio number or the browser call page; the ElevenLabs agent (GLM 5.2) calls Ringside's ten server tools on Render; Ringside holds, captures and voids through PayPal Orders and Payments (server SDK), sends the receipt with Invoicing and verifies webhooks; Claude Sonnet 5.5 parses spoken change orders and Haiku 5.5 answers Ask your books and matches a typed problem to the price book; Postgres and Render Workflows run underneath; the customer approves in PayPal on the job page and the owner works from the dashboard; Resend and web push carry links and notifications">
 
 The diagram's source is [`assets/src/architecture.html`](assets/src/architecture.html), rendered with headless Chrome.
 
 ## Real runs
 
-Measured against the real PayPal sandbox, the phone line and the Anthropic API on 2026-11-05. Nothing here is scripted.
+Measured against the real PayPal sandbox, the phone line, the Anthropic API and Render on 2026-11-05 and 11-06. Nothing
+here is mocked.
 
 | What | Result | How |
 |---|---|---|
@@ -198,12 +200,13 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Capture a hold | 1.5–2.6 s | same |
 | Capture more than the hold | 115% allowed ($200.10 on $174.00); +$75 and +69% refused with `MAX_CAPTURE_AMOUNT_EXCEEDED` | same |
 | Retry a final capture with the same `PayPal-Request-Id` | PayPal returns the original capture; nothing is charged twice | same |
-| Second payment for a change order | $119.25 captured as its own payment (captures took 1.5–2.6 s), later on the receipt invoice | same, and `scripts/sandbox/receipt-invoice.mjs` |
+| Second payment for a change order | $119.25 captured as its own payment, later on the receipt invoice | same, and `scripts/sandbox/receipt-invoice.mjs` |
 | Orders through the PayPal server SDK | create and get for both intents; a replayed create with the same request ID returns the same order, a new ID a new one; authorize or capture before approval gives `ORDER_NOT_APPROVED` (13 checks) | `scripts/sandbox/sdk-orders.ts` |
 | Ask the books | "Who still owes me?" → "Luis in Bay City hasn't approved the $225.00 hold for the running toilet. Everything else is paid or secured" (4 real calls to Claude Haiku 5.5) | Mike's Books on the dev server |
 | Turn speech into change-order lines | "a shut-off valve and 45 more minutes" → valve + 3 × 15 min = $119.25; a water softener (not on the card) reported, not priced; 3.2–4.7 s, under a cent a call | `scripts/sandbox/change-order-parser.rec.ts` |
 | Send the receipt invoice | created, sent and marked paid in 5.9 s; a replay made one GET and sent nothing twice | `scripts/sandbox/receipt-flow.ts` |
-| A whole job on the live site | A browser call booked a $99.00 service visit and the customer approved the hold in PayPal; $22.00 of extra work was approved and captured 1 s after approval, the $99.00 hold was captured at job done, and the receipt invoice was marked paid 13 s later. PayPal sent `CHECKOUT.ORDER.APPROVED` twice, `PAYMENT.CAPTURE.COMPLETED` twice and `INVOICING.INVOICE.PAID` | the 3 min 56 s call's ElevenLabs log and PayPal's sandbox webhook event log |
+| A whole job on the live site | A browser call booked a $99.00 service visit and the customer approved the hold in PayPal; $22.00 of extra work was approved and captured 1 s after approval, the $99.00 hold was captured at job done, and the receipt invoice was marked paid 13 s later. PayPal sent `CHECKOUT.ORDER.APPROVED` twice, `PAYMENT.CAPTURE.COMPLETED` twice and `INVOICING.INVOICE.PAID` twice | the 3 min 56 s call's ElevenLabs log and PayPal's sandbox webhook event log |
+| Close-out on Render Workflows | Two `closeJob` runs in production (2026-11-05 and 11-06), each sending the receipt and closing the job: both completed on the first attempt, in 5.4 s and 5.3 s | Render's task-run history for the `ringside-close-out` workflow |
 | A real phone call to the agent | answered with the AI disclosure; replies 0.5–0.65 s after the caller stops (1.3 s at most) over 99 s, on the first test agent's model | a live call to the Twilio number |
 
 ## The tech, part by part
@@ -219,18 +222,18 @@ Measured against the real PayPal sandbox, the phone line and the Anthropic API o
 | Customer page | Next.js page with PayPal's JavaScript SDK buttons and guest card checkout | Approve the hold, approve or decline extra work, see the charge and receipt. If PayPal declines the buyer's funding source (`INSTRUMENT_DECLINED`), PayPal reopens to choose another and nothing is held or charged ([`src/app/j/[code]/page.tsx`](src/app/j/[code]/page.tsx), [`src/lib/holds.ts`](src/lib/holds.ts)) |
 | Change-order parser | Claude Sonnet 5.5 (`claude-sonnet-5-5`, Anthropic API), structured output with a strict JSON schema | Names rate-card items, quantities and price-book jobs only; the code takes every price from the card or the job's range and rejects unknown items, prices from the model and quantities past the card's limits ([`src/lib/change-order-parser.ts`](src/lib/change-order-parser.ts), [`src/lib/change-pricing.ts`](src/lib/change-pricing.ts)) |
 | Problem matcher | Claude Haiku 5.5 (`claude-haiku-5-5`), structured output whose only allowed answer is a price-book code | Book without calling: "my kitchen tap won't stop dripping" becomes one job from the book; the job, its range and the hold always come from the book, a gas smell gets safety advice instead of a booking, and matches are limited per visitor and per day ([`src/lib/problem-matcher.ts`](src/lib/problem-matcher.ts)) |
-| Mike's app | Next.js, installable PWA, the browser's speech recognition | Today with the job he's on first, the job screen with Add charges, Job done and Cancel job (which voids the PayPal hold and releases the money), a QR code for on-site approval, find a phone booking by its job code ([`src/app/dashboard/`](src/app/dashboard/page.tsx)) |
-| Receipts | PayPal Invoicing v2 | After the capture, an invoice for the job and any extra work, recorded as paid: emailed by PayPal when it has the payer's email, otherwise a link, and Ringside's own receipt email to a phone caller ("MP-8589: your receipt from Mike's Plumbing, $315.00 paid"). Repeat-safe through the invoice's own state ([`src/lib/receipts.ts`](src/lib/receipts.ts)) |
+| Mike's app | Next.js, installable PWA, the browser's speech recognition | Today with the job he's on first, the job screen with Add charges, Job done and Cancel job (which voids the PayPal hold and releases the money), Withdraw for extra work the customer hasn't answered, Retry for a receipt that didn't go out, a QR code for on-site approval, phone bookings appearing on their own (or found by job code), and alerts for new bookings, approvals and declined payments ([`src/app/dashboard/`](src/app/dashboard/page.tsx)) |
+| Receipts | PayPal Invoicing v2 | After the capture, an invoice for the job and any extra work, recorded as paid: emailed by PayPal when it has the payer's email, otherwise a link, and Ringside's own receipt email to any customer who gave an email ("MP-8589: your receipt from Mike's Plumbing, $315.00 paid"). Repeat-safe through the invoice's own state ([`src/lib/receipts.ts`](src/lib/receipts.ts)) |
 | Close-out | Render Workflows (`@renderinc/sdk`) | Receipt, then close the job; retried by Render, every step idempotent; runs inline when no workflow key is set ([`workflows/close-out.ts`](workflows/close-out.ts), [`src/lib/close-out.ts`](src/lib/close-out.ts)) |
 | Webhooks | PayPal Webhooks, signature verified | An approval completes even if the customer closes the page; captures, voids and paid invoices are recorded ([`src/app/api/paypal/webhook/route.ts`](src/app/api/paypal/webhook/route.ts)) |
-| Customer emails | Resend | After a phone call, the PayPal link goes to the email the caller confirmed letter by letter; that address stays with the job for its own emails: Mike's extra work to approve, then the receipt. Every subject starts with the job code ([`src/lib/email.ts`](src/lib/email.ts)) |
+| Customer emails | Resend | The PayPal link goes to the email a phone caller confirmed letter by letter, or the one typed on Book without calling. That address then gets the job's emails: booked, extra work to approve, paid, declined or withdrawn, the receipt, a cancellation or an expired hold. Every subject starts with the job code ([`src/lib/email.ts`](src/lib/email.ts), [`src/lib/customer-notices.ts`](src/lib/customer-notices.ts)) |
 | Mike's Books | AG Studio 3.0 (AG Grid 36.2, AG Charts 14.2) in view mode, themed from the app's tokens; the Studio Agent Framework with Claude Haiku 5.5 through a server proxy | Mike's week on the desk: custom figure-tile and payment-timeline widgets, money by day, the jobs grid with status pills, and "Ask your books", which reads the books through a `read_books` tool and can point the timeline at a job; capped per request, visit and day ([`src/app/dashboard/books/`](src/app/dashboard/books/page.tsx), [`src/app/api/books/ai/route.ts`](src/app/api/books/ai/route.ts)) |
 | PayPal server SDK | `@paypal/paypal-server-sdk` 2.5, generated by APIMatic; written with APIMatic's PayPal context plugin | Orders and Payments run through PayPal's official SDK with the stored request IDs; Invoicing and webhook checks stay on REST, which the SDK doesn't cover ([`src/lib/paypal.ts`](src/lib/paypal.ts)) |
-| Demo sessions | A cookie per visitor; Postgres 18; a job state machine | Each visitor sees only their own jobs plus labelled sample jobs that can't be charged ([`src/lib/dashboard.ts`](src/lib/dashboard.ts), [`src/lib/job-state.ts`](src/lib/job-state.ts), [`db/migrations/`](db/migrations/001_init.sql)) |
+| Demo sessions | A cookie per visitor; Postgres 18; a job state machine | Each visitor sees their own jobs, every phone booking from the last three days (there is one shared phone line), and labelled sample jobs that can't be charged ([`src/lib/dashboard.ts`](src/lib/dashboard.ts), [`src/lib/job-state.ts`](src/lib/job-state.ts), [`db/migrations/`](db/migrations/001_init.sql)) |
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Figtree, lucide-react | Landing page, call page, customer page, Mike's app ([`src/app/`](src/app/page.tsx)) |
 | Hosting | Render web service, Render Postgres and a Render workflow from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
 | Monitor | GitHub Actions on a schedule | Every 30 minutes: the database, PayPal's sandbox credentials, the voice agent and the main pages; once a day a real sandbox booking through Book without calling ([`scripts/monitor/live-check.mjs`](scripts/monitor/live-check.mjs), [`.github/workflows/monitor.yml`](.github/workflows/monitor.yml)) |
-| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 156 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
+| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 163 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
 
 PayPal runs in the sandbox only: the server refuses to start unless `PAYPAL_ENV=sandbox`.
 
@@ -270,7 +273,7 @@ npm run dev                   # http://localhost:3000
 | `TWILIO_PHONE_NUMBER`, `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET`, `TWILIO_AUTH_TOKEN` | Importing the phone line into ElevenLabs (setup only) |
 | `TWILIO_TEST_CALLER_ID` | A verified phone of yours for `scripts/gates/test-call.mjs` (optional: a Twilio number can't call itself) |
 | `LLM_API_KEY`, `LLM_MODEL` | Anthropic API key for the change-order parser, Ask your books and the problem matcher; `LLM_MODEL` is the parser's model (optional; default `claude-sonnet-5-5`) |
-| `RESEND_API_KEY`, `EMAIL_FROM` | Emailing the PayPal link to phone callers (optional: without them the agent reads out the job code) |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Customer emails: the PayPal link after a phone call, then booking, extra-work, receipt, cancellation and hold-expiry notices (optional: without them the agent reads out the job code) |
 | `AG_STUDIO_LICENSE_KEY` | AG Studio's licence (without it, a trial watermark shows) |
 | `BOOKS_LLM_MODEL` | Ask your books' model (optional; default `claude-haiku-5-5`) |
 | `MATCH_LLM_MODEL` | Book without calling's problem matcher (optional; default `claude-haiku-5-5`) |
@@ -284,8 +287,8 @@ each one comes from.
 
 Working end to end in the sandbox: the phone and browser calls, the quote from the price book, the PayPal hold and its
 approval (PayPal or guest card), the spoken change order as a second payment, job done with the final capture, the
-receipt invoice and the close-out, Mike's installable app, and Mike's Books with its agent. Each step is checked
-against the real APIs, and a whole job has run end to end on the live site.
+receipt invoice and the close-out on Render Workflows, cancelling with the hold voided, Mike's installable app, and Mike's
+Books with its agent. Each step is checked against the real APIs, and whole jobs have run end to end on the live site.
 
 - PayPal runs in the sandbox only, in USD.
 - A hold can grow by at most 15% at capture, so extra work is always a separate payment.
