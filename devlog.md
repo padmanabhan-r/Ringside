@@ -3,7 +3,7 @@
 - **Project:** Ringside
 - **Event:** PayPal AI Hackathon, "Build what's next with PayPal and AI" (Devpost)
 - **What it does:** call-to-cash for small service businesses (it turns a phone call into a paid job): answers a phone or browser call, quotes from the business's price book, holds the money with a PayPal authorization, gets the customer's approval for extra work found on site as a second payment, and captures the real cost when the owner says the job is done
-- **Problem:** The owner of a small service business misses calls while on a job, and has to ask for extra money at the door after the work is done
+- **Problem:** A small service business has no single flow from a customer's call to its cash: booking is a back-and-forth, most tools stop at "booked", and payment is either taken in full up front or chased after the job, with extra work argued at the door
 - **Status:** deployed
 - **Live app:** https://ringside-4bup.onrender.com
 - **Demo:** not recorded

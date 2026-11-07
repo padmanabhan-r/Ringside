@@ -10,8 +10,9 @@ web
 
 - **Primary: the owner of a small service business** that quotes a job, does it, then charges the real cost (plumbers,
   electricians, HVAC, handymen, cleaners, locksmiths, landscapers and the like). Demo persona: Mike, of Mike's Plumbing in Saginaw,
-  Michigan (fictional business). He is the business, the dispatcher and the cashier. The phone rings while he is under a sink; later,
-  on site, the job grows and the customer has to agree to pay more before the work is done. He uses Ringside on his
+  Michigan (fictional business). He is the business, the dispatcher and the cashier, and nothing ties a customer's call to his
+  cash: booking is a back-and-forth, and payment is either all up front or chased afterwards. Later, on site, the job
+  grows and the customer has to agree to pay more before the work is done. He uses Ringside on his
   phone, on site, with busy or wet hands.
 - **Customers:** homeowners calling with a plumbing problem. They talk to the agent (phone or browser), approve a
   PayPal hold on their phone, and later approve the change in price.
