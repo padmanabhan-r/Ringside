@@ -93,7 +93,10 @@ ${e.windowText ? `<p style="margin:0 0 14px;font-size:14px;color:#59626c">Visit 
 async function sendEmail(to: string, idempotencyKey: string, content: { subject: string; text: string; html: string }): Promise<boolean> {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
-  if (!key || !from) return false;
+  if (!key || !from) {
+    console.warn(`email: not sent (${idempotencyKey.split("-")[0]}): RESEND_API_KEY or EMAIL_FROM is missing in this service`);
+    return false;
+  }
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },

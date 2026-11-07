@@ -75,6 +75,17 @@ services:
           type: web
           name: ringside
           envVarKey: PAYPAL_CLIENT_SECRET
+      # The close-out also emails the customer's receipt (PayPal's own invoice only reaches the sandbox payer).
+      - key: RESEND_API_KEY
+        fromService:
+          type: web
+          name: ringside
+          envVarKey: RESEND_API_KEY
+      - key: EMAIL_FROM
+        fromService:
+          type: web
+          name: ringside
+          envVarKey: EMAIL_FROM
 
 databases:
   - name: ringside-db
