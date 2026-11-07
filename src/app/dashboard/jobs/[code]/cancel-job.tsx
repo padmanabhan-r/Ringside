@@ -46,7 +46,9 @@ export function CancelJob({ code, customer, holdCents, approved }: { code: strin
           <p id="cancel-ask" className={s.ask}>
             {approved
               ? `Cancel this job? PayPal releases ${customer}’s ${usd(holdCents)} hold right away. Nothing is charged.`
-              : `Cancel this job? ${customer} hasn’t approved the ${usd(holdCents)} hold yet, so nothing is held or charged.`}
+              : holdCents > 0
+                ? `Cancel this job? ${customer} hasn’t approved the ${usd(holdCents)} hold yet, so nothing is held or charged.`
+                : `Cancel this job? Nothing is held or charged.`}
           </p>
           <div className={s.row}>
             <button type="button" className={s.yes} onClick={cancel} disabled={busy}>

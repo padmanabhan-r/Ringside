@@ -13,6 +13,7 @@ import { FindBooking } from "../../find-booking";
 import { hourLabel, windowLabel } from "../../format";
 import { AddCharges, type PriceItem } from "./add-charges";
 import { CancelJob } from "./cancel-job";
+import { RetryReceipt, WithdrawChange } from "./owner-actions";
 import { JobDone } from "./job-done";
 import s from "./job.module.css";
 import m from "./missing.module.css";
@@ -54,6 +55,15 @@ const EVENT_LABELS: Record<string, string> = {
   claimed_in_dashboard: "Opened in the dashboard",
   hold_released: "Hold released with PayPal",
   job_cancelled: "Job cancelled",
+  hold_declined: "PayPal declined the customer’s way to pay",
+  hold_expired: "Hold expired: PayPal released it",
+  change_order_withdrawn: "Extra work withdrawn",
+  change_payment_declined: "PayPal declined the extra-work payment",
+  capture_failed: "PayPal refused the charge",
+  change_order_emailed: "Extra work emailed to the customer",
+  customer_emailed: "Customer emailed",
+  receipt_emailed: "Receipt emailed",
+  cancel_emailed: "Cancellation emailed",
 };
 
 async function siteBase(): Promise<string> {
@@ -152,9 +162,10 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
   const paidChanges = changes.filter((c) => c.status === "approved").reduce((sum, c) => sum + c.delta_cents, 0);
   const cancelled = job.state === "cancelled";
   const releasedHold = payments.find((p) => p.kind === "hold" && p.status === "voided" && p.paypal_authorization_id);
-  // Mike may cancel a job that hasn't started: booked with an approved hold, or quoted with the hold still waiting.
-  const cancellable =
-    hold && !capture && ((job.state === "booked" && hold.status === "authorized") || (job.state === "quoted" && hold.status !== "authorized" && hold.status !== "voided"));
+  // Mike may cancel until money moves: nothing captured, no paid extra work, nothing waiting on the customer. That
+  // covers estimate visits and calls that ended before the link (no hold at all) too.
+  const cancellable = !capture && !paidChanges && (job.state === "quoted" || job.state === "booked" || job.state === "in_progress");
+  const heldCents = hold && (hold.status === "authorized" || hold.status === "pending" || hold.status === "created") ? hold.amount_cents : 0;
 
   return (
     <div className={s.page}>
@@ -238,6 +249,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
                 ))}
               </ul>
               <CustomerLink code={job.job_code} note={emailedTo ? `Emailed to ${emailedTo} to approve. On site, ${who} can also scan this code.` : `${who} approves it on the same page as the booking: scan this code on site or open their booking page.`} />
+              <WithdrawChange code={job.job_code} changeOrderId={waiting.id} customer={who} amountCents={waiting.delta_cents} />
             </div>
           ) : working ? (
             <AddCharges code={job.job_code} customer={who} items={PRICE_ITEMS} draft={draft ? { id: draft.id, transcript: draft.transcript, delta_cents: draft.delta_cents, lines: draft.lines } : undefined} />
@@ -279,7 +291,10 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
                   Receipt ready: open the PayPal receipt <ExternalLink aria-hidden="true" />
                 </a>
               ) : (
-                <StatusPill tone="info">Receipt on its way</StatusPill>
+                <>
+                  <StatusPill tone="info">Receipt on its way</StatusPill>
+                  <RetryReceipt code={job.job_code} />
+                </>
               )}
             </div>
           ) : range ? (
@@ -291,7 +306,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
         </section>
       ) : null}
 
-      {cancellable ? <CancelJob code={job.job_code} customer={who} holdCents={hold.amount_cents} approved={hold.status === "authorized"} /> : null}
+      {cancellable ? <CancelJob code={job.job_code} customer={who} holdCents={heldCents} approved={hold?.status === "authorized"} /> : null}
 
       <Timeline detail={detail} />
     </div>

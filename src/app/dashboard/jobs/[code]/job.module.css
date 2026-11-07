@@ -898,3 +898,54 @@
   font-size: 17px;
   font-weight: 800;
 }
+
+/* Owner actions: withdraw unanswered extra work, retry a receipt. */
+.withdraw,
+.retry {
+  margin: 10px 0 0;
+}
+
+.quietSmall {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quietSmall svg {
+  width: 16px;
+  height: 16px;
+}
+
+.withdrawAsk {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.linkButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--brand-ink);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.retryNote {
+  margin-left: 10px;
+  font-size: 14px;
+  color: var(--text-3);
+}

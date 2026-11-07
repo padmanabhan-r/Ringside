@@ -6,7 +6,7 @@ import { changeOrders, type ChangeOrderLine, type ChangeOrderView } from "@/lib/
 import { findJobByCode, lineItems, payments, type Job, type LineItem } from "@/lib/jobs";
 import { formatUsd, multiplyCents } from "@/lib/money";
 import { isItemCode, RATE_CARD } from "@/lib/rate-card";
-import { formatWindow } from "@/lib/slots";
+import { formatWindow, windowStarted } from "@/lib/slots";
 import { LiveRefresh } from "./live-refresh";
 import { ChangeApproval, HoldApproval } from "./paypal-approval";
 import { TestCard } from "./test-card";
@@ -343,6 +343,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
     const released = holdCents - charged;
     const paidChanges = decided.filter((c) => c.status === "approved");
     const total = charged + paidChanges.reduce((sum, c) => sum + c.delta_cents, 0);
+    const receiptInvoice = pays.find((p) => p.kind === "invoice");
     return (
       <Shell code={job.job_code}>
         <h1 className={s.title}>Job done</h1>
@@ -350,12 +351,16 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
           Mike charged the real cost from your {holdText} hold.{" "}
           {released > 0 ? (
             <>
-              PayPal released the other <strong>{formatUsd(released)}</strong> and emails your receipt.
+              PayPal released the other <strong>{formatUsd(released)}</strong>.
             </>
-          ) : (
-            "PayPal emails your receipt."
-          )}
+          ) : null}{" "}
+          {job.customer_email ? "Your receipt is on its way to your email." : receiptInvoice?.approval_url ? "Your PayPal receipt is below." : "Your receipt is on its way."}
         </Amount>
+        {receiptInvoice?.approval_url ? (
+          <a className={s.fallback} href={receiptInvoice.approval_url} target="_blank" rel="noreferrer">
+            Open your PayPal receipt
+          </a>
+        ) : null}
         <section className={s.card} aria-labelledby="payments">
           <h2 id="payments" className={s.cardTitle}>
             What you paid
@@ -451,6 +456,20 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
   }
 
   const held = hold?.status === "authorized" || hold?.status === "captured" || job.state !== "quoted";
+  // An old link after the visit window has started: no hold for a visit that can't happen as booked.
+  if (!held && windowStarted(job.slot_start)) {
+    return (
+      <Shell code={job.job_code}>
+        <h1 className={s.title}>This visit time has passed</h1>
+        <section className={s.card}>
+          <p>This booking wasn’t approved before its visit window, so nothing is held or charged. Call Mike’s Plumbing to book a new time.</p>
+        </section>
+        <a className={s.btnPrimary} href="/call">
+          Call Mike’s Plumbing
+        </a>
+      </Shell>
+    );
+  }
   if (!held) {
     return (
       <Shell code={job.job_code}>
@@ -472,7 +491,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
             Approve the hold with PayPal
           </a>
         ) : (
-          <p className={s.notice}>The PayPal link isn’t ready yet. Stay on the call and the assistant will send it.</p>
+          <p className={s.notice}>The PayPal link isn’t ready yet. Stay on the call and the assistant will send it; if the call ended, call again to finish booking.</p>
         )}
         <Track steps={holdTrack("hold")} />
       </Shell>

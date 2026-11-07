@@ -9,7 +9,7 @@ import { checkServiceArea } from "@/lib/service-area";
 import { localDate, TIME_ZONE } from "@/lib/slots";
 import s from "./book-form.module.css";
 
-type Field = "service" | "name" | "street" | "zip" | "slot" | "confirmed";
+type Field = "service" | "name" | "street" | "zip" | "email" | "slot" | "confirmed";
 interface Slot {
   id: string;
   label: string;
@@ -41,6 +41,7 @@ export function BookForm({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
   const [street, setStreet] = useState("");
   const [zip, setZip] = useState("");
+  const [email, setEmail] = useState("");
   const [slot, setSlot] = useState("");
   const [slots, setSlots] = useState<Slot[] | null>(null);
   const [slotsError, setSlotsError] = useState<string | null>(null);
@@ -80,7 +81,7 @@ export function BookForm({ onClose }: { onClose: () => void }) {
   const results = useMemo(() => (query.trim().length > 2 ? searchServices(query, 6) : []), [query]);
   const area = /^\d{5}$/.test(zip) ? checkServiceArea({ zip }) : "unknown";
   const estimate = service?.kind === "estimate";
-  const payload = { service: service?.code ?? "", name, street, zip, slot };
+  const payload = { service: service?.code ?? "", name, street, zip, slot, email };
 
   const send = async (step: "check" | "book") => {
     setBusy(true);
@@ -288,6 +289,18 @@ export function BookForm({ onClose }: { onClose: () => void }) {
                   placeholder="e.g. 48602"
                   aria-invalid={invalid("zip") ?? (area === "outside" ? true : undefined)}
                   aria-describedby="zip-help"
+                />
+              </label>
+              <label className={`${s.field} ${s.wide}`}>
+                <span>Email for updates (optional)</span>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  maxLength={120}
+                  placeholder="So Mike can send extra work to approve and your receipt"
+                  aria-invalid={invalid("email")}
                 />
               </label>
               <p id="zip-help" className={area === "outside" ? s.zipOut : s.zipHelp}>
