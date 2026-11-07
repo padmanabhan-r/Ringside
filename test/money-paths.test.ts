@@ -13,7 +13,7 @@ describe("PayPal refusing the final charge", () => {
 });
 
 describe("Mike's notifications for the new events", () => {
-  const job = { id: "job-1", demo_session_id: "s", job_code: "MP-1234", customer_name: "Dana Reyes", problem: "Dripping tap", slot_start: null, slot_end: null };
+  const job = { id: "job-1", demo_session_id: "s", channel: "phone" as const, job_code: "MP-1234", customer_name: "Dana Reyes", problem: "Dripping tap", slot_start: null, slot_end: null };
   it("covers estimate visits, declined payments and expired holds", () => {
     expect(formatJobPush(job, { kind: "new_estimate" }).title).toBe("New estimate visit booked");
     expect(formatJobPush(job, { kind: "payment_declined", amountCents: 25000 }).body).toContain("$250.00");

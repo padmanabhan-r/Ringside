@@ -7,6 +7,7 @@ const NOW = new Date("2026-11-05T15:00:00Z");
 const job: PushJob = {
   id: "00000000-0000-4000-8000-000000000001",
   demo_session_id: "00000000-0000-4000-8000-000000000002",
+  channel: "web",
   job_code: "MP-4127",
   customer_name: "Dana Whitfield",
   problem: "Dripping kitchen tap",

@@ -1,6 +1,7 @@
 // Notifications on Mike's phone (web push): his installed dashboard buzzes when a hold is approved, extra work is paid
-// or declined, or a call leaves a new quote. Only the job's own demo session hears about it (its browser session plus
-// any session that claimed the job by code). Push never sits in the money path: it is fired after the payment state is
+// or declined, or a call leaves a new quote. A web job reaches only its own demo session (its browser session plus any
+// session that claimed the job by code). A phone-call job reaches every dashboard with notifications on, because phone
+// calls show on every dashboard (dashboard.ts, PHONE_DAYS): a call has no browser session of its own. Push never sits in the money path: it is fired after the payment state is
 // saved, never awaited there, and every failure is swallowed, so a slow or broken push service can't touch a payment.
 // Without VAPID keys in the environment everything here quietly does nothing.
 import webpush, { WebPushError, type PushSubscription } from "web-push";
@@ -19,7 +20,7 @@ export type JobEvent =
   | { kind: "payment_declined"; amountCents: Cents }
   | { kind: "hold_expired"; amountCents: Cents };
 
-export type PushJob = Pick<Job, "id" | "demo_session_id" | "job_code" | "customer_name" | "problem" | "slot_start" | "slot_end">;
+export type PushJob = Pick<Job, "id" | "demo_session_id" | "channel" | "job_code" | "customer_name" | "problem" | "slot_start" | "slot_end">;
 
 export interface PushMessage {
   title: string;
@@ -180,8 +181,18 @@ export async function sendToSessions(sessions: readonly string[], message: PushM
   return result;
 }
 
-/** The sessions that see this job on their dashboard: the one it was booked in, and any that claimed it by code. */
+/** Phone-call jobs fan out to at most this many of the most recently subscribed dashboards. */
+const MAX_PHONE_SESSIONS = 100;
+
+/** The sessions that see this job on their dashboard: the one it was booked in, and any that claimed it by code; for a
+ * phone call, every dashboard with notifications on. */
 async function jobSessions(job: PushJob): Promise<string[]> {
+  if (job.channel === "phone") {
+    const subscribed = await db()<{ demo_session_id: string }[]>`
+      select demo_session_id from push_subscriptions group by demo_session_id
+      order by max(created_at) desc limit ${MAX_PHONE_SESSIONS}`;
+    return [...new Set([job.demo_session_id, ...subscribed.map((r) => r.demo_session_id)])];
+  }
   const claims = await db()<{ demo_session_id: string }[]>`select demo_session_id from session_claims where job_id = ${job.id}`;
   return [...new Set([job.demo_session_id, ...claims.map((c) => c.demo_session_id)])];
 }
