@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cancelEmailContent, changeEmailContent, holdEmailContent, receiptEmailContent, isValidEmail, maskEmail, normaliseEmail, spellEmail } from "../src/lib/email";
+import { cancelEmailContent, changeEmailContent, holdEmailContent, noticeEmailContent, receiptEmailContent, isValidEmail, maskEmail, normaliseEmail, spellEmail } from "../src/lib/email";
 
 describe("caller email", () => {
   it("normalises what speech-to-text hears", () => {
@@ -93,5 +93,15 @@ describe("the cancellation email", () => {
     const { subject, text } = cancelEmailContent({ to: "dana@example.com", jobCode: "MP-5404", problem: "Dripping tap", releasedCents: 25000, link: "https://x/j/MP-5404" });
     expect(subject).toBe("MP-5404: your Mike’s Plumbing visit is cancelled");
     expect(text).toContain("PayPal has released your $250.00 hold: nothing was charged.");
+  });
+});
+
+describe("job notices", () => {
+  it("lead with the job code and carry one button to the job page", () => {
+    const { subject, text, html } = noticeEmailContent({ to: "dana@example.com", jobCode: "MP-1234", key: "booked-MP-1234", subject: "you’re booked", heading: "You’re booked", problem: "Dripping tap", lines: ["Mike will come Monday."], link: "https://x/j/MP-1234", button: "See your booking" });
+    expect(subject).toBe("MP-1234: you’re booked");
+    expect(text).toContain("See your booking: https://x/j/MP-1234");
+    expect(html).toContain("Mike will come Monday.");
+    expect(html).not.toContain("<script");
   });
 });

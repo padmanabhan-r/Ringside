@@ -16,11 +16,12 @@ describe("job state machine", () => {
     }
   });
 
-  it("allows cancelling before work starts, not after", () => {
+  it("allows cancelling until money moves (cancel.ts refuses a started job with anything charged), never after Job done", () => {
     expect(canTransition("new_call", "cancelled")).toBe(true);
     expect(canTransition("quoted", "cancelled")).toBe(true);
     expect(canTransition("booked", "cancelled")).toBe(true);
-    expect(canTransition("in_progress", "cancelled")).toBe(false);
+    expect(canTransition("in_progress", "cancelled")).toBe(true);
+    expect(canTransition("change_pending", "cancelled")).toBe(false);
     expect(canTransition("completed", "cancelled")).toBe(false);
   });
 

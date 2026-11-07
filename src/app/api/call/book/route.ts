@@ -5,6 +5,8 @@ import { db } from "@/lib/db";
 import { PayPalError } from "@/lib/paypal";
 import { formatWindow, slotFromId } from "@/lib/slots";
 import { demoSession } from "../demo-session";
+import { isValidEmail, normaliseEmail } from "@/lib/email";
+import { findJobByCode, setCustomerEmail } from "@/lib/jobs";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +78,9 @@ export async function POST(req: NextRequest) {
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
   const book = body.step === "book";
   try {
+    const emailText = typeof body.email === "string" ? body.email.trim() : "";
+    const formEmail = emailText ? normaliseEmail(emailText) : undefined;
+    if (formEmail && !isValidEmail(formEmail)) return reply({ error: "That email doesn’t look right. Fix it or leave it empty.", field: "email" }, 422);
     if (book) {
       if (typeof body.formId !== "string" || !UUID.test(body.formId)) return reply({ error: "Start the booking again." }, 400);
       const conversationId = `form-${body.formId}`;
@@ -102,6 +107,11 @@ export async function POST(req: NextRequest) {
           )
         ).job_code;
       if (!started?.slot_start) await tools.book_slot({ job_code: code, slot_id: checked.slotId }, ctx);
+      // An address typed on the form gets the same job emails a phone caller's does (extra work, receipt, cancellation).
+      if (formEmail) {
+        const job = await findJobByCode(code);
+        if (job) await setCustomerEmail(job.id, formEmail);
+      }
       // The visitor confirmed the read-back on the form: the same "yes" the agent needs before it may send a link.
       // A second call returns the hold already made (same order, same stored request ID).
       await tools.send_hold_link({ job_code: code, customer_confirmed: true }, ctx);

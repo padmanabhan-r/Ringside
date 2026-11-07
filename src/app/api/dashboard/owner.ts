@@ -3,6 +3,8 @@ import { ChangeOrderError } from "@/lib/change-orders";
 import { ChangeOrderParseError } from "@/lib/change-order-parser";
 import { JobDoneError } from "@/lib/job-done";
 import { IllegalTransitionError } from "@/lib/job-state";
+import { StaleJobError } from "@/lib/jobs";
+import { CancelError } from "@/lib/cancel";
 import { PayPalError } from "@/lib/paypal";
 import { RateCardError } from "@/lib/rate-card";
 
@@ -11,7 +13,9 @@ export function ownerError(where: string, error: unknown): NextResponse {
   if (error instanceof ChangeOrderError || error instanceof ChangeOrderParseError || error instanceof RateCardError || error instanceof JobDoneError) {
     return NextResponse.json({ error: error.message }, { status: 422 });
   }
+  if (error instanceof CancelError) return NextResponse.json({ error: error.message }, { status: 422 });
   if (error instanceof IllegalTransitionError) return NextResponse.json({ error: "That step doesn't fit where this job is now." }, { status: 409 });
+  if (error instanceof StaleJobError) return NextResponse.json({ error: "This job just changed. Reload the page and try again." }, { status: 409 });
   if (error instanceof PayPalError) {
     console.error(`${where}: PayPal ${error.issue} (debug_id ${error.debugId})`);
     return NextResponse.json({ error: "PayPal didn't accept that just now. Try again in a moment." }, { status: 502 });

@@ -4,7 +4,8 @@
 import { db } from "./db";
 import { parseChangeOrder } from "./change-order-parser";
 import { maskEmail, sendChangeEmail } from "./email";
-import { addEvent, findJobByCode, payments, setState, startPayment, updatePayment, type Job, type Payment } from "./jobs";
+import { notifyCustomer } from "./customer-notices";
+import { addEvent, findJobByCode, payments, setState, startPayment, updatePayment, withJobLock, type Job, type Payment } from "./jobs";
 import { declinesFor, FUNDING_DECLINED } from "./holds";
 import { approvalUrl, captureOrder, createOrder, getOrder, payerEmail, PayPalError } from "./paypal";
 import { notifyJobEvent } from "./push";
@@ -16,7 +17,7 @@ export interface ChangeOrder {
   job_id: string;
   transcript: string;
   delta_cents: number;
-  status: "pending_owner" | "pending_customer" | "approved" | "declined";
+  status: "pending_owner" | "pending_customer" | "approved" | "declined" | "withdrawn";
   created_at: Date;
 }
 
@@ -109,8 +110,15 @@ export async function proposeChangeOrder(job: Job, input: { transcript: string }
  * sees it on their job page to approve or decline. Repeating the call returns the same order.
  */
 export async function confirmChangeOrder(job: Job, changeOrderId: string, baseUrl: string): Promise<ChangeOrderView> {
+  return withJobLock(job.id, async () => {
+    const [fresh] = await db()<Job[]>`select * from jobs where id = ${job.id}`;
+    return confirmChangeOrderLocked(fresh ?? job, changeOrderId, baseUrl);
+  });
+}
+
+async function confirmChangeOrderLocked(job: Job, changeOrderId: string, baseUrl: string): Promise<ChangeOrderView> {
   const co = await findChangeOrder(job, changeOrderId);
-  if (co.status === "approved" || co.status === "declined") throw new ChangeOrderError(`This change order was already ${co.status}`);
+  if (co.status === "approved" || co.status === "declined" || co.status === "withdrawn") throw new ChangeOrderError(`This change order was already ${co.status}`);
   const pendingElsewhere = await db()<{ id: string }[]>`
     select id from change_orders where job_id = ${job.id} and status = 'pending_customer' and id <> ${co.id}`;
   if (pendingElsewhere.length) throw new ChangeOrderError("The customer still has another change to approve first");
@@ -179,6 +187,24 @@ async function emailCustomer(job: Job, co: ChangeOrder, lines: ChangeOrderLine[]
   }
 }
 
+/**
+ * Mike takes back extra work he sent that the customer hasn't answered, so the job isn't blocked for good. Nothing was
+ * charged: the change's PayPal order was never captured, and a late approval of it finds nothing pending.
+ */
+export async function withdrawChangeOrder(job: Job, changeOrderId: string): Promise<void> {
+  await withJobLock(job.id, async () => {
+    const co = await findChangeOrder(job, changeOrderId);
+    if (co.status !== "pending_customer") throw new ChangeOrderError(co.status === "approved" ? "The customer already paid for this extra work" : "There's nothing waiting on the customer to withdraw");
+    const [fresh] = await db()<Job[]>`select * from jobs where id = ${job.id}`;
+    await db()`update change_orders set status = 'withdrawn', updated_at = now() where id = ${co.id}`;
+    const payment = await paymentOf(co.id);
+    if (payment && payment.status !== "captured") await updatePayment(payment.id, { status: "voided" });
+    if (fresh) await setState(fresh, "in_progress", { changeOrderId: co.id, withdrawn: true });
+    await addEvent(job.id, "change_order_withdrawn", { changeOrderId: co.id, deltaCents: co.delta_cents });
+    await notifyCustomer(fresh ?? job, { kind: "change_withdrawn", changeOrderId: co.id, amountCents: co.delta_cents });
+  });
+}
+
 export async function discardChangeOrder(job: Job, changeOrderId: string): Promise<void> {
   const co = await findChangeOrder(job, changeOrderId);
   if (co.status !== "pending_owner") throw new ChangeOrderError("Only an unsent change order can be discarded");
@@ -217,10 +243,17 @@ async function markPaid(job: Job, co: ChangeOrder, payment: Payment, captureId: 
   await setState(job, "in_progress", { changeOrderId: co.id });
   await addEvent(job.id, "change_order_paid", { changeOrderId: co.id, amountCents: payment.amount_cents, captureId });
   notifyJobEvent(job, { kind: "change_paid", amountCents: payment.amount_cents });
+  await notifyCustomer(job, { kind: "change_paid", changeOrderId: co.id, amountCents: payment.amount_cents });
 }
 
 /** The customer approved the change in PayPal: take exactly that payment. Safe to call more than once. */
 export async function approveChangeOrder(jobCode: string): Promise<ChangeDecision> {
+  const found = await findJobByCode(jobCode);
+  if (!found) return { status: "not_found" };
+  return withJobLock(found.id, () => approveChangeOrderLocked(jobCode));
+}
+
+async function approveChangeOrderLocked(jobCode: string): Promise<ChangeDecision> {
   const { job, co, payment } = await pendingChange(jobCode);
   if (!job) return { status: "not_found" };
   if (!co || !payment?.paypal_order_id) return { status: "nothing_pending" };
@@ -229,12 +262,20 @@ export async function approveChangeOrder(jobCode: string): Promise<ChangeDecisio
   }
   try {
     const capture = await captureOrder(payment.paypal_order_id, changeCaptureRequestId(payment, await declinesFor(payment.id, "change_payment_declined")));
+    // PayPal can answer a capture with a DECLINED capture rather than an error: nothing was taken.
+    if (capture.status === "DECLINED") {
+      await addEvent(job.id, "change_payment_declined", { paymentId: payment.id, changeOrderId: co.id, issue: "CAPTURE_DECLINED", captureId: capture.captureId });
+      notifyJobEvent(job, { kind: "payment_declined", amountCents: payment.amount_cents });
+      return { status: "payment_declined" };
+    }
+    if (capture.status === "PENDING") await addEvent(job.id, "capture_pending", { paymentId: payment.id, captureId: capture.captureId });
     await markPaid(job, co, payment, capture.captureId);
     return { status: "paid", amountCents: capture.amountCents, captureId: capture.captureId };
   } catch (error) {
     if (error instanceof PayPalError && error.issue === "ORDER_NOT_APPROVED") return { status: "not_approved" };
     if (error instanceof PayPalError && error.issue && FUNDING_DECLINED.has(error.issue)) {
       await addEvent(job.id, "change_payment_declined", { paymentId: payment.id, changeOrderId: co.id, issue: error.issue, debugId: error.debugId });
+      notifyJobEvent(job, { kind: "payment_declined", amountCents: payment.amount_cents });
       return { status: "payment_declined" };
     }
     if (error instanceof PayPalError && error.issue === "ORDER_ALREADY_CAPTURED") {
@@ -250,6 +291,12 @@ export async function approveChangeOrder(jobCode: string): Promise<ChangeDecisio
 
 /** The customer said no: nothing is charged, the job carries on at the original hold. */
 export async function declineChangeOrder(jobCode: string): Promise<ChangeDecision> {
+  const found = await findJobByCode(jobCode);
+  if (!found) return { status: "not_found" };
+  return withJobLock(found.id, () => declineChangeOrderLocked(jobCode));
+}
+
+async function declineChangeOrderLocked(jobCode: string): Promise<ChangeDecision> {
   const { job, co, payment } = await pendingChange(jobCode);
   if (!job) return { status: "not_found" };
   if (!co || co.status !== "pending_customer") return { status: "nothing_pending" };
@@ -258,5 +305,6 @@ export async function declineChangeOrder(jobCode: string): Promise<ChangeDecisio
   await setState(job, "in_progress", { changeOrderId: co.id, declined: true });
   await addEvent(job.id, "change_order_declined", { changeOrderId: co.id });
   notifyJobEvent(job, { kind: "change_declined", amountCents: co.delta_cents });
+  await notifyCustomer(job, { kind: "change_declined", changeOrderId: co.id, amountCents: co.delta_cents });
   return { status: "declined" };
 }

@@ -213,3 +213,8 @@ export function formatWindow(start: Date, end: Date, now = new Date(), timeZone 
   const hour = (d: Date) => new Intl.DateTimeFormat("en-US", { timeZone, hour: "numeric" }).format(d).toLowerCase();
   return `${day}, ${hour(start)} – ${hour(end)}`;
 }
+
+/** Whether a visit window has already started (an old booking link can't be approved then). */
+export function windowStarted(start: Date | null, now = new Date()): boolean {
+  return start !== null && start.getTime() < now.getTime();
+}

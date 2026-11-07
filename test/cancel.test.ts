@@ -14,6 +14,8 @@ vi.mock("@/lib/jobs", () => ({
   setState: vi.fn(async (job: Job, next: Job["state"]) => {
     job.state = next;
   }),
+  withJobLock: vi.fn(async (_id: string, fn: () => Promise<unknown>) => fn()),
+  findJobById: vi.fn(async () => undefined),
 }));
 
 vi.mock("@/lib/paypal", async (importOriginal) => ({
@@ -107,11 +109,29 @@ describe("cancel a job", () => {
     expect(db.updates).toEqual([["pay-1", "voided"]]);
   });
 
-  it("refuses once the work has started or the job is charged", async () => {
-    db.payments = [hold("authorized")];
-    await expect(cancelJob(job("in_progress"))).rejects.toThrow(CancelError);
+  it("refuses once anything is charged, extra work is paid or waiting, or the job is done", async () => {
     db.payments = [hold("captured")];
     await expect(cancelJob(job("booked"))).rejects.toThrow(CancelError);
+    db.payments = [hold("authorized"), { ...hold("captured"), id: "pay-2", kind: "change", paypal_authorization_id: null }];
+    await expect(cancelJob(job("in_progress"))).rejects.toThrow(/extra work/);
+    db.payments = [hold("authorized")];
+    await expect(cancelJob(job("change_pending"))).rejects.toThrow(/withdraw it first/);
+    await expect(cancelJob(job("completed"))).rejects.toThrow(CancelError);
+    expect(paypal.voidAuthorization).not.toHaveBeenCalled();
+  });
+
+  it("cancels a started job while nothing has been charged, voiding the hold (2026-11-06 audit: stuck in progress)", async () => {
+    db.payments = [hold("authorized")];
+    const j = job("in_progress");
+    await expect(cancelJob(j)).resolves.toEqual({ status: "cancelled", releasedCents: 25000 });
+    expect(paypal.voidAuthorization).toHaveBeenCalledTimes(1);
+    expect(j.state).toBe("cancelled");
+  });
+
+  it("cancels an estimate visit or a call that ended before the link: no hold, nothing to void", async () => {
+    db.payments = [];
+    const j = job("booked");
+    await expect(cancelJob(j)).resolves.toEqual({ status: "cancelled", releasedCents: 0 });
     expect(paypal.voidAuthorization).not.toHaveBeenCalled();
   });
 });

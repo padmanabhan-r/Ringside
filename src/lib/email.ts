@@ -267,3 +267,50 @@ export function cancelEmailContent(e: CancelEmail) {
 export async function sendCancelEmail(e: CancelEmail): Promise<boolean> {
   return sendEmail(e.to, `cancel-${e.jobCode}`, cancelEmailContent(e));
 }
+
+/** A short update about a job: a heading, a few plain lines and one button to the job page. */
+export interface NoticeEmail {
+  to: string;
+  jobCode: string;
+  /** Unique per update, so a retry never sends the same one twice. */
+  key: string;
+  subject: string;
+  heading: string;
+  problem: string;
+  lines: string[];
+  link: string;
+  button: string;
+}
+
+export function noticeEmailContent(e: NoticeEmail) {
+  const subject = `${e.jobCode}: ${e.subject}`;
+  const text = [
+    "Hi,",
+    "",
+    ...e.lines,
+    "",
+    `${e.button}: ${e.link}`,
+    `Job code: ${e.jobCode}`,
+    "",
+    "This is a demo with a fictional business on the PayPal sandbox. No real money moves.",
+    "Mike’s Plumbing, Saginaw, Michigan · Powered by Ringside",
+  ].join("\n");
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+  const html = `<!doctype html><html><body style="margin:0;background:#f7f7f6;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#182834">
+<div style="max-width:480px;margin:0 auto;padding:28px 20px">
+<p style="margin:0 0 4px;font-size:18px;font-weight:600">Mike’s Plumbing</p>
+<p style="margin:0 0 22px;font-size:13px;color:#59626c">Saginaw, Michigan · Powered by Ringside</p>
+<div style="background:#fff;border:1px solid #d6d8d9;border-radius:12px;padding:20px">
+<p style="margin:0 0 6px;font-size:20px;font-weight:600">${esc(e.heading)}</p>
+<p style="margin:0 0 14px;font-size:14px;color:#59626c">${esc(e.problem)} · Job ${esc(e.jobCode)}</p>
+${e.lines.map((l) => `<p style="margin:0 0 10px;font-size:15px">${esc(l)}</p>`).join("")}
+<a href="${esc(e.link)}" style="display:block;margin-top:16px;text-align:center;background:#1557c0;color:#fff;font-weight:600;font-size:16px;text-decoration:none;padding:14px;border-radius:8px">${esc(e.button)}</a>
+</div>
+<p style="margin:18px 0 0;font-size:12px;color:#8a9197">Demo with a fictional business on the PayPal sandbox. No real money moves.</p>
+</div></body></html>`;
+  return { subject, text, html };
+}
+
+export async function sendNoticeEmail(e: NoticeEmail): Promise<boolean> {
+  return sendEmail(e.to, e.key, noticeEmailContent(e));
+}

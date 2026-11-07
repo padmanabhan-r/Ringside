@@ -12,7 +12,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ co
     const status =
       result.status === "not_found" || result.status === "no_hold"
         ? 404
-        : result.status === "not_approved" || result.status === "cancelled"
+        : result.status === "not_approved" || result.status === "cancelled" || result.status === "too_late"
           ? 409
           : result.status === "declined"
             ? 422

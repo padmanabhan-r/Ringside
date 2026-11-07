@@ -14,7 +14,10 @@ export type JobEvent =
   | { kind: "hold_approved"; amountCents: Cents }
   | { kind: "change_paid"; amountCents: Cents }
   | { kind: "change_declined"; amountCents: Cents }
-  | { kind: "new_quote"; holdCents: Cents };
+  | { kind: "new_quote"; holdCents: Cents }
+  | { kind: "new_estimate" }
+  | { kind: "payment_declined"; amountCents: Cents }
+  | { kind: "hold_expired"; amountCents: Cents };
 
 export type PushJob = Pick<Job, "id" | "demo_session_id" | "job_code" | "customer_name" | "problem" | "slot_start" | "slot_end">;
 
@@ -86,6 +89,12 @@ export function formatJobPush(job: PushJob, event: JobEvent, now = new Date()): 
       };
     case "new_quote":
       return { ...base, title: "New call: quote sent", body: `${who} · ${line} · hold of up to ${formatUsd(event.holdCents)} on its way` };
+    case "new_estimate":
+      return { ...base, title: "New estimate visit booked", body: `${who} · ${line} · no payment until you price the job` };
+    case "payment_declined":
+      return { ...base, title: "PayPal declined a payment", body: `${who}’s way to pay was declined for ${formatUsd(event.amountCents)} · nothing taken; they can choose another` };
+    case "hold_expired":
+      return { ...base, title: "A hold expired", body: `PayPal released ${who}’s ${formatUsd(event.amountCents)} hold · ${line} · the job is cancelled` };
   }
 }
 

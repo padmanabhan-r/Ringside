@@ -199,6 +199,8 @@ export async function sendReceipt(job: Job): Promise<ReceiptResult> {
     const all = await payments(job.id);
     const existing = all.find((p) => p.kind === "invoice");
     if (existing?.paypal_invoice_id && (existing.status === "sent" || existing.status === "ready")) {
+      // Done already; a retry still delivers the customer's receipt email if it didn't go out the first time.
+      await emailReceiptOnce(job, all, await paidChanges(job.id), existing.approval_url);
       return { status: existing.status, invoiceId: existing.paypal_invoice_id, url: existing.approval_url, amountCents: existing.amount_cents };
     }
     const capture = all.find((p) => p.kind === "capture" && p.status === "captured" && p.paypal_capture_id);
@@ -231,25 +233,36 @@ export async function sendReceipt(job: Job): Promise<ReceiptResult> {
     const url = invoice.detail?.metadata?.recipient_view_url ?? null;
     await updatePayment(row.id, { paypal_invoice_id: invoice.id, status, approval_url: url });
     await addEvent(job.id, emailed ? "receipt_sent" : "receipt_ready", { invoiceId: invoice.id, amountCents: plan.totalCents, captures: plan.captures.length });
-    // PayPal emails its invoice to the PayPal account that paid, and the sandbox never reaches a real inbox; so the
-    // receipt also goes to the address the caller confirmed on the call. Never blocks the receipt itself.
-    if (job.customer_email) {
-      try {
-        const sent = await sendReceiptEmail({
-          to: job.customer_email,
-          jobCode: job.job_code,
-          problem: tidyProblem(job.problem, "Your job"),
-          finalCents: capture.amount_cents,
-          holdCents: hold?.amount_cents ?? capture.amount_cents,
-          extraCents: changes.reduce((sum, c) => sum + c.amountCents, 0),
-          link: `${process.env.APP_BASE_URL || ""}/j/${job.job_code}`,
-          invoiceUrl: url,
-        });
-        if (sent) await addEvent(job.id, "receipt_emailed", { to: maskEmail(job.customer_email) });
-      } catch (error) {
-        console.error(`receipt email ${job.job_code}:`, error);
-      }
-    }
+    await emailReceiptOnce(job, all, changes, url);
     return { status, invoiceId: invoice.id, url, amountCents: plan.totalCents };
   });
+}
+
+/**
+ * PayPal emails its invoice to the PayPal account that paid, and the sandbox never reaches a real inbox; so the receipt
+ * also goes to the address the customer gave us. Sent once per job (the event marks it), retried by a later run if it
+ * failed, and never blocks the receipt itself.
+ */
+async function emailReceiptOnce(job: Job, all: Payment[], changes: PaidChange[], invoiceUrl: string | null): Promise<void> {
+  if (!job.customer_email) return;
+  const [done] = await db()<{ n: number }[]>`select count(*)::int as n from events where job_id = ${job.id} and type = 'receipt_emailed'`;
+  if (done && done.n > 0) return;
+  const capture = all.find((p) => p.kind === "capture" && p.status === "captured");
+  if (!capture) return;
+  const hold = all.find((p) => p.kind === "hold" && p.paypal_order_id);
+  try {
+    const sent = await sendReceiptEmail({
+      to: job.customer_email,
+      jobCode: job.job_code,
+      problem: tidyProblem(job.problem, "Your job"),
+      finalCents: capture.amount_cents,
+      holdCents: hold?.amount_cents ?? capture.amount_cents,
+      extraCents: changes.reduce((sum, c) => sum + c.amountCents, 0),
+      link: `${process.env.APP_BASE_URL || ""}/j/${job.job_code}`,
+      invoiceUrl,
+    });
+    if (sent) await addEvent(job.id, "receipt_emailed", { to: maskEmail(job.customer_email) });
+  } catch (error) {
+    console.error(`receipt email ${job.job_code}:`, error);
+  }
 }

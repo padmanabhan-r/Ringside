@@ -174,6 +174,7 @@ export const tools = {
     await setSlot(job, slot.start, slot.end);
     await setState(job, "booked", { estimateVisit: true });
     if (ctx.conversationId) await linkCall({ conversationId: ctx.conversationId, demoSessionId: ctx.demoSessionId, channel: ctx.channel, jobId: job.id, outcome: "booked_hold" });
+    notifyJobEvent(job, { kind: "new_estimate" });
     return { job_code: job.job_code, say_code: spokenCode(job.job_code), note: "Estimate visit booked. No payment until Mike approves the scope and price." };
   },
 

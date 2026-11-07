@@ -6,7 +6,9 @@
 import { approveChangeOrder } from "@/lib/change-orders";
 import { db } from "@/lib/db";
 import { approveHold } from "@/lib/holds";
-import { addEvent, findPaymentByOrder, updatePayment, type Payment } from "@/lib/jobs";
+import { notifyCustomer } from "@/lib/customer-notices";
+import { addEvent, findJobById, findPaymentByOrder, setState, updatePayment, withJobLock, type Payment } from "@/lib/jobs";
+import { notifyJobEvent } from "@/lib/push";
 import { fromPayPalValue } from "@/lib/money";
 
 export interface PayPalEvent {
@@ -94,10 +96,21 @@ export async function handlePayPalEvent(event: PayPalEvent): Promise<EventOutcom
     case "PAYMENT.AUTHORIZATION.VOIDED": {
       payment = await paymentBy("paypal_authorization_id", resource.id);
       detail.authorizationId = resource.id;
-      // A void we didn't make is the hold expiring (or voided in PayPal): show it as released.
+      // A void we didn't make is the hold expiring (or voided in PayPal): show it as released, and if the work hasn't
+      // started the job can't go ahead on that hold, so it's cancelled and both sides are told.
       if (payment?.kind === "hold" && payment.status === "authorized") {
-        await updatePayment(payment.id, { status: "voided" });
+        const hold = payment;
+        await updatePayment(hold.id, { status: "voided" });
         handled = "hold_voided";
+        await withJobLock(hold.job_id, async () => {
+          const job = await findJobById(hold.job_id);
+          if (!job || (job.state !== "quoted" && job.state !== "booked")) return;
+          await setState(job, "cancelled", { by: "paypal", reason: "hold_expired" });
+          await addEvent(job.id, "hold_expired", { amountCents: hold.amount_cents, authorizationId: resource.id });
+          notifyJobEvent(job, { kind: "hold_expired", amountCents: hold.amount_cents });
+          await notifyCustomer(job, { kind: "hold_expired", holdCents: hold.amount_cents });
+          handled = "hold_expired_job_cancelled";
+        });
       }
       break;
     }

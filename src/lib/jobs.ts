@@ -115,12 +115,38 @@ export async function payments(jobId: string): Promise<Payment[]> {
   return db()<Payment[]>`select * from payments where job_id = ${jobId} order by created_at`;
 }
 
+export class StaleJobError extends Error {
+  override name = "StaleJobError";
+}
+
+/**
+ * Moves a job to its next state, but only from the state the caller read: if something else changed it meanwhile (a
+ * cancel racing an approval), nothing is written and StaleJobError says so.
+ */
 export async function setState(job: Job, next: JobState, payload: Record<string, unknown> = {}): Promise<void> {
   if (job.state === next) return;
   assertTransition(job.state, next);
-  await db()`update jobs set state = ${next}, updated_at = now() where id = ${job.id}`;
+  const rows = await db()`update jobs set state = ${next}, updated_at = now() where id = ${job.id} and state = ${job.state} returning id`;
+  if (!rows.length) throw new StaleJobError(`Job ${job.job_code} changed while this was in progress; reload and try again`);
   await addEvent(job.id, `state:${next}`, payload);
   job.state = next;
+}
+
+/**
+ * One money action at a time per job: approving the hold, cancelling, finishing, and sending, approving, declining or
+ * withdrawing extra work all hold this lock, so a cancel can't land in the middle of an authorize. The lock lives in a
+ * transaction on its own connection; the work inside uses the pool as usual.
+ */
+export async function withJobLock<T>(jobId: string, fn: () => Promise<T>): Promise<T> {
+  return db().begin(async (tx) => {
+    await tx`select pg_advisory_xact_lock(hashtext(${`job:${jobId}`}))`;
+    return fn();
+  }) as Promise<T>;
+}
+
+export async function findJobById(id: string): Promise<Job | undefined> {
+  const [job] = await db()<Job[]>`select * from jobs where id = ${id}`;
+  return job;
 }
 
 /** Records the chosen visit window. The job becomes "booked" only once the customer approves the PayPal hold. */

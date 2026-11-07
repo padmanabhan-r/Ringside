@@ -19,7 +19,8 @@ const TRANSITIONS: Readonly<Record<JobState, readonly JobState[]>> = {
   new_call: ["quoted", "cancelled"],
   quoted: ["booked", "cancelled"],
   booked: ["in_progress", "cancelled"],
-  in_progress: ["change_pending", "completed"],
+  // Cancelling a started job is allowed only while nothing has been charged (checked in cancel.ts).
+  in_progress: ["change_pending", "completed", "cancelled"],
   change_pending: ["in_progress"],
   completed: ["closed"],
   closed: [],

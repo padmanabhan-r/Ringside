@@ -1,8 +1,9 @@
 // Mike cancels a job and PayPal releases the customer's hold. Hard rules: cancelling never captures, and the void
 // reuses a request ID derived from the hold payment's own stored one, so a retry or a double tap voids once.
-// Only a job that hasn't started can be cancelled (quoted or booked: see the state machine in job-state.ts).
+// A job can be cancelled until money moves: quoted, booked, or started with nothing charged and no extra work
+// waiting on the customer (see job-state.ts). Paid extra work would need a refund, which Ringside doesn't do.
 import { maskEmail, sendCancelEmail } from "./email";
-import { addEvent, payments, setState, updatePayment, type Job, type Payment } from "./jobs";
+import { addEvent, findJobById, payments, setState, updatePayment, withJobLock, type Job, type Payment } from "./jobs";
 import { PayPalError, voidAuthorization } from "./paypal";
 import { tidyProblem } from "./problem-text";
 
@@ -25,14 +26,25 @@ function released(holds: Payment[]): number {
 }
 
 export async function cancelJob(job: Job): Promise<CancelResult> {
+  // One money action per job at a time; read the job afresh inside the lock.
+  return withJobLock(job.id, async () => {
+    return cancelJobLocked((await findJobById(job.id)) ?? job);
+  });
+}
+
+async function cancelJobLocked(job: Job): Promise<CancelResult> {
   const all = await payments(job.id);
   const holds = all.filter((p) => p.kind === "hold");
   if (job.state === "cancelled") return { status: "cancelled", releasedCents: released(holds) };
-  if (job.state !== "quoted" && job.state !== "booked") {
-    throw new CancelError(`A job that is ${job.state.replace("_", " ")} can't be cancelled here: the work has started.`);
+  if (job.state === "change_pending") throw new CancelError("The customer still has extra work to approve: withdraw it first, then cancel.");
+  if (job.state !== "quoted" && job.state !== "booked" && job.state !== "in_progress") {
+    throw new CancelError(`A job that is ${job.state.replace("_", " ")} can't be cancelled.`);
   }
   if (all.some((p) => p.kind === "capture" && p.status === "captured") || holds.some((p) => p.status === "captured")) {
     throw new CancelError("This job has already been charged, so it can't be cancelled.");
+  }
+  if (all.some((p) => p.kind === "change" && p.status === "captured")) {
+    throw new CancelError("The customer has paid for extra work on this job. Finish it with Job done, or refund the extra work in PayPal first.");
   }
 
   let releasedCents = 0;
