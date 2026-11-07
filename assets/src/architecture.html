@@ -48,55 +48,58 @@
       <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#7d8aa0"/></marker>
       <marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#1557c0"/></marker>
     </defs>
-    <g fill="none" stroke="#7d8aa0" stroke-width="2">
-      <path d="M270 190 C300 190 300 170 330 170" marker-end="url(#a)"/>
-      <path d="M270 210 C300 210 300 285 330 285" marker-end="url(#a)"/>
-      <path d="M580 170 C610 170 610 200 640 200" marker-end="url(#a)"/>
-      <path d="M580 285 C610 285 610 250 640 250" marker-end="url(#a)"/>
-      <path d="M790 330 L790 400" marker-start="url(#a)" marker-end="url(#a)"/>
-      <path d="M270 560 C420 560 470 600 640 600" marker-start="url(#a)" marker-end="url(#a)"/>
-      <path d="M270 850 C420 850 470 735 640 735" marker-start="url(#a)" marker-end="url(#a)"/>
-      <path d="M1220 735 C1245 735 1245 745 1270 745" marker-end="url(#a)"/>
-      <path d="M1220 765 C1250 765 1245 880 1270 880" marker-end="url(#a)"/>
-      <path d="M800 785 L800 815" marker-end="url(#a)"/>
-      <path d="M1060 785 L1060 815" marker-end="url(#a)"/>
+    <!-- Every connector is a straight run or a right-angle join; boxes are placed so lines meet them square-on. -->
+    <g fill="none" stroke="#7d8aa0" stroke-width="2" stroke-linejoin="round">
+      <path d="M270 205 H300 M300 170 V294"/>
+      <path d="M300 170 H330" marker-end="url(#a)"/>
+      <path d="M300 294 H330" marker-end="url(#a)"/>
+      <path d="M580 170 H610 M580 294 H610 M610 170 V294"/>
+      <path d="M610 232 H640" marker-end="url(#a)"/>
+      <path d="M840 282 V400" marker-start="url(#a)" marker-end="url(#a)"/>
+      <path d="M270 540 H640" marker-start="url(#a)" marker-end="url(#a)"/>
+      <path d="M270 725 H640" marker-start="url(#a)" marker-end="url(#a)"/>
+      <path d="M1220 682 H1270" marker-end="url(#a)"/>
+      <path d="M1220 806 H1270" marker-end="url(#a)"/>
+      <path d="M800 820 V850" marker-end="url(#a)"/>
+      <path d="M1090 820 V850" marker-end="url(#a)"/>
     </g>
     <g fill="none" stroke="#1557c0" stroke-width="3">
-      <path d="M1220 520 L1270 520" marker-start="url(#p)" marker-end="url(#p)"/>
-      <path d="M270 515 C420 515 450 383 640 383 L1150 383 C1210 383 1230 372 1270 372" stroke-dasharray="7 6" marker-end="url(#p)"/>
+      <path d="M1220 470 H1270" marker-start="url(#p)" marker-end="url(#p)"/>
     </g>
   </svg>
 
-  <div class="box person" style="left:40px; top:140px; width:230px;">
+  <div class="box person" style="left:40px; top:150px; width:230px; height:110px;">
     <h2>Customer</h2>
     <p>Calls the business with a problem: a dripping tap, a running toilet.</p>
   </div>
-  <div class="box person" style="left:40px; top:480px; width:230px;">
+  <div class="box person" style="left:40px; top:470px; width:230px; height:140px;">
     <h2>Customer’s phone</h2>
-    <p>Opens the job page from the email or a QR code and approves in PayPal, as a guest with a card if they like.</p>
+    <p>Opens the job page from the email or a QR code and approves in PayPal.</p>
   </div>
-  <div class="box person" style="left:40px; top:770px; width:230px;">
+  <div class="box person" style="left:40px; top:660px; width:230px; height:130px;">
     <h2>The owner</h2>
     <p>Mike’s dashboard on his phone (an installable app with notifications) and on his desk.</p>
   </div>
 
-  <div class="box" style="left:330px; top:122px; width:250px;">
+  <div class="box" style="left:330px; top:130px; width:250px; height:80px;">
     <h2>Twilio number</h2>
     <p>The business line, connected straight to the agent.</p>
   </div>
-  <div class="box" style="left:330px; top:236px; width:250px;">
+  <div class="box" style="left:330px; top:240px; width:250px; height:108px;">
     <h2>Browser call</h2>
     <p><code>/call</code> over WebRTC with <code>@elevenlabs/react</code>, or Book without calling.</p>
   </div>
 
-  <div class="box voice" style="left:640px; top:130px; width:330px;">
+  <div class="box voice" style="left:640px; top:130px; width:400px; height:152px;">
     <h2>ElevenLabs Agent</h2>
     <p>Speaks as the business’s AI assistant, says it is AI, quotes, books and sends the PayPal link only after a yes. Calls end at six minutes with a goodbye.</p>
     <span class="tag">LLM GLM 5.2 · voice Chris</span>
   </div>
-  <span class="lbl" style="left:800px; top:336px;">10 server tools (webhooks, shared secret)</span>
+  <span class="lbl" style="left:852px; top:332px;">10 server tools (webhooks, shared secret)</span>
+  <span class="lbl" style="left:300px; top:516px;">job page: approves in PayPal</span>
+  <span class="lbl" style="left:300px; top:701px;">dashboard and phone alerts</span>
 
-  <div class="box app" style="left:640px; top:400px; width:580px; height:385px;">
+  <div class="box app" style="left:640px; top:400px; width:580px; height:420px;">
     <h2>Ringside on Render</h2>
     <p>Next.js 16 · TypeScript · one demo session per visitor · integer cents · a job state machine</p>
     <div class="chips">
@@ -111,16 +114,16 @@
     </div>
   </div>
 
-  <div class="box infra" style="left:660px; top:815px; width:280px; padding:10px 14px;">
+  <div class="box infra" style="left:660px; top:850px; width:280px; padding:10px 14px;">
     <h2 style="font-size:16px;">Render Postgres</h2>
     <p>Jobs, calls, payments, events</p>
   </div>
-  <div class="box infra" style="left:960px; top:815px; width:260px; padding:10px 14px;">
+  <div class="box infra" style="left:960px; top:850px; width:260px; padding:10px 14px;">
     <h2 style="font-size:16px;">Render Workflows</h2>
     <p>Close-out, safe to replay</p>
   </div>
 
-  <div class="box paypal" style="left:1270px; top:300px; width:290px;">
+  <div class="box paypal" style="left:1270px; top:360px; width:290px;">
     <h2>PayPal (sandbox)</h2>
     <ul>
       <li>Orders v2: <b>AUTHORIZE</b> hold, <b>CAPTURE</b> extra work <small>(server SDK by APIMatic)</small></li>
@@ -131,16 +134,15 @@
     </ul>
     <span class="tag" style="background:#e9f0fc;color:#0f47a8;">PayPal-Request-Id on every POST</span>
   </div>
-  <span class="lbl" style="left:1092px; top:356px; color:#1557c0;">customer approves</span>
 
-  <div class="box claude" style="left:1270px; top:690px; width:290px;">
+  <div class="box claude" style="left:1270px; top:612px; width:290px;">
     <h2>Claude (Anthropic API)</h2>
     <p><b>Sonnet 5.5</b>: the owner’s spoken extra work → priced lines.<br><b>Haiku 5.5</b>: Ask your books; a described problem → a price-book job.</p>
     <span class="tag">structured output · prices from the book</span>
   </div>
-  <div class="box infra" style="left:1270px; top:860px; width:290px; padding:10px 14px;">
+  <div class="box infra" style="left:1270px; top:782px; width:290px; padding:10px 14px;">
     <h2 style="font-size:16px;">Resend · Web push</h2>
-    <p>Link by email after a phone call; buzz Mike’s phone</p>
+    <p>Emails the customer at each step; buzzes Mike’s phone</p>
   </div>
 </body>
 </html>
