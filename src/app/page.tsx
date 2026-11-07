@@ -47,6 +47,10 @@ export default function Home() {
             <p className={s.lede}>
               <b>Ringside is call-to-cash for small service businesses: it turns a phone call into a paid job.</b>
             </p>
+            <p className={s.forWho}>
+              For plumbers, electricians, HVAC techs, carpenters, handymen, cleaners and locksmiths: anyone who quotes a job,
+              does it, then gets paid.
+            </p>
             {/* Phones only: the two doors' buttons, so the first screen has a way in (the doors follow further down). */}
             <div className={s.quickDoors}>
               <Link className={`${s.quickButton} ${s.buttonCall}`} href="/call">

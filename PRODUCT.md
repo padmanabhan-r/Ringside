@@ -83,7 +83,7 @@ payment before the work is done. A PayPal invoice, marked paid, is the customer'
   get their own AI phone agent, price book, PayPal payments and dashboard. Everything public shows Ringside first and
   Mike's Plumbing only as the fictional example business running on it.
 - **Positioning: Ringside is for every small service business** (owner, 2026-11-05): plumbers, electricians, HVAC,
-  handymen, cleaners, locksmiths and others who quote, do the job and charge the real cost. It is not a plumbing app;
+  carpenters, handymen, cleaners, locksmiths and others who quote, do the job and charge the real cost. It is not a plumbing app;
   Mike's Plumbing is only the labelled demo business.
 - **The landing page is a demo hub for judges** (owner, 2026-11-05). In real use a business's customers see only its
   booking page (call the business), and the owner's dashboard is a separate, private app only the owner signs in to.

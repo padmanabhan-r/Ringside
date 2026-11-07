@@ -76,7 +76,7 @@
 </div>
 
 **Ringside is call-to-cash for small service businesses: it turns a phone call into a paid job.** It is built for the
-plumber, electrician, HVAC tech, cleaner or locksmith who is the business, the dispatcher and the cashier at once. A
+plumber, electrician, HVAC tech, carpenter, handyman, cleaner or locksmith who is the business, the dispatcher and the cashier at once. A
 business signs up and gets its own AI phone agent, its price book, PayPal payments and a dashboard on its phone. Ringside
 answers the business's calls while the owner is on a job, quotes from the price book, holds the customer's money with
 PayPal before the visit, gets the customer's yes when the job grows on site, and charges the real cost when the work is

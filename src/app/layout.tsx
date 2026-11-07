@@ -7,7 +7,7 @@ const geist = Geist({ subsets: ["latin"], weight: ["400", "500", "600", "700"], 
 // The field-service world's friendly geometric sans (redesign 2026-11-05).
 const figtree = Figtree({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-ui" });
 
-const DESCRIPTION = "Call-to-cash for small service businesses: Ringside turns a phone call into a paid job, holding the money with PayPal.";
+const DESCRIPTION = "Call-to-cash for small service businesses (plumbers, electricians, HVAC techs, carpenters, handymen, cleaners): Ringside turns a phone call into a paid job, holding the money with PayPal.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ringside-4bup.onrender.com"),

@@ -72,7 +72,7 @@ export function SandboxTag() {
 
 export function PoweredByRingside() {
   return (
-    <Link className={s.powered} href="/" title="Ringside: call-to-cash for small service businesses">
+    <Link className={s.powered} href="/" title="Ringside: call-to-cash for plumbers, electricians, HVAC techs, carpenters and other small service businesses">
       Powered by <b>RINGSIDE</b>
     </Link>
   );
