@@ -21,6 +21,9 @@ const MODEL = process.env.BOOKS_LLM_MODEL || "claude-haiku-5-5";
 const MAX_OUTPUT_TOKENS = 600;
 const MAX_ITEMS = 24;
 const MAX_TEXT = 2_000;
+/** The books themselves come back through tool results: a week of demo jobs runs past 2,000 characters, and clipping it
+ * there left the model reading half the list ("the output was cut off before the last few jobs"). */
+const MAX_TOOL_TEXT = 24_000;
 const REQUESTS_PER_HOUR = 30;
 const REQUESTS_PER_DAY = 400;
 const TOOLS = new Set(["read_books", "show_job"]);
@@ -80,7 +83,7 @@ interface TurnBody {
   tools?: TurnTool[];
 }
 
-const clip = (text: unknown) => String(text ?? "").slice(0, MAX_TEXT);
+const clip = (text: unknown, max = MAX_TEXT) => String(text ?? "").slice(0, max);
 
 function parseArgs(json: string | undefined): Record<string, unknown> {
   try {
@@ -109,7 +112,7 @@ function toMessages(items: TurnItem[]): Anthropic.MessageParam[] {
     } else if (item.type === "function_call" && item.callId && item.name && TOOLS.has(item.name)) {
       push("assistant", { type: "tool_use", id: item.callId, name: item.name, input: parseArgs(item.arguments) });
     } else if (item.type === "function_call_output" && item.callId) {
-      push("user", { type: "tool_result", tool_use_id: item.callId, content: clip(item.output) });
+      push("user", { type: "tool_result", tool_use_id: item.callId, content: clip(item.output, MAX_TOOL_TEXT) });
     }
   }
   // A trimmed history must still open with the user, and every tool_result needs its tool_use.
