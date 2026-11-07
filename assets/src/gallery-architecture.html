@@ -1,0 +1,104 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Ringside architecture</title>
+<!-- Source of assets/gallery/architecture.jpg: the architecture diagram on a 3:2 canvas for the Devpost gallery. Render: headless Chrome at 1920x1280. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700;800&display=block">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #071a3d; font-family: "Figtree", sans-serif; color: #fff; }
+  #ground { position: absolute; inset: 0; background: radial-gradient(1300px 900px at 50% 48%, #11377f 0%, #0c2a63 48%, #071a3d 100%); }
+  #title { position: absolute; left: 0; right: 0; top: 110px; text-align: center; font-size: 24px; font-weight: 800; letter-spacing: .16em; color: #a9c1ee; }
+  .node { position: absolute; width: 220px; height: 190px; border-radius: 26px; background: #fff; color: #0f1b2d; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 10px; box-shadow: 0 30px 70px rgba(0,0,0,.38); transform-origin: 50% 50%; }
+  .node img, .node svg { width: 76px; height: 76px; }
+  .node b { font-size: 32px; font-weight: 800; } .node small { font-size: 18px; color: #4f5968; font-weight: 600; text-align: center; padding: 0 12px; }
+  svg#wires { position: absolute; inset: 0; }
+  .lbl { font: 700 18px "Figtree", sans-serif; letter-spacing: .02em; }
+  #sdk { position: absolute; left: 1320px; top: 312px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px;
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); font-size: 18px; font-weight: 700; color: #dbe6fb; white-space: nowrap; }
+  #sdk img { width: 18px; height: 18px; filter: brightness(0) invert(1); }
+  #inside { position: absolute; left: 130px; top: 790px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; width: 980px; }
+  #inside span { font-size: 18px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #a9c1ee; margin-right: 6px; }
+  #inside i { display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+    font-style: normal; font-size: 18px; font-weight: 700; color: #e6eefc; white-space: nowrap; }
+  #inside img { width: 20px; height: 20px; object-fit: contain; }
+  #banner { position: absolute; left: 50%; bottom: 70px; transform: translateX(-50%); padding: 16px 36px; border-radius: 999px; background: #f2a93b; color: #2b1a00; font-size: 38px; font-weight: 800; white-space: nowrap; }
+  html { height: 1280px; } body { position: relative; top: 100px; overflow: visible; } #ground { inset: -100px 0; }
+</style></head>
+<body>
+<div id="ground"></div>
+<div id="title">HOW IT WORKS</div>
+<svg id="wires" viewBox="0 0 1920 1080"><defs id="defs"></defs><g id="edges"></g></svg>
+<div id="nodes"></div>
+<div id="sdk"><img src="../logos/paypal.svg">PayPal server SDK · APIMatic</div>
+<div id="inside"><span>Inside Ringside</span><i><img src="../logos/claude.svg">Claude · prices extra work, matches web bookings</i><i><img src="../logos/aggrid.png">AG Grid · Mike’s books</i><i>Postgres · Resend email</i></div>
+<div id="banner">No money moves without a person saying yes</div>
+<script>
+const MARK = `<svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#1557c0"/><path d="M41.2 15.5a19 19 0 0 1-6.4 23.1" stroke="#fff" stroke-opacity="0.5" stroke-width="2.4" stroke-linecap="round"/><path d="M17.5 35V13h8.2a6.6 6.6 0 0 1 0 13.2h-8.2M25.4 26.2 32 35" stroke="#fff" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const PERSON = `<svg viewBox="0 0 24 24" fill="none" stroke="#1557c0" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>`;
+const BROWSER = `<svg viewBox="0 0 24 24" fill="none" stroke="#1557c0" stroke-width="2" stroke-linecap="round"><rect x="2.5" y="4" width="19" height="16" rx="2.5"/><path d="M2.5 9h19M6 6.6h.01M8.5 6.6h.01"/></svg>`;
+const PHONE = `<svg viewBox="0 0 24 24" fill="none" stroke="#1557c0" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="3"/><circle cx="12" cy="18" r="1"/></svg>`;
+// cards in one row, evenly spaced (220 wide, 140 apart), Render below Ringside. [id, x, y, icon, name, sub, appears at (s)]
+const NODES = [
+  ["caller", 130, 360, PERSON, "Customer", "phone or browser", 0.8],
+  ["twilio", 490, 360, `<img src="../logos/twilio.svg">`, "Twilio", "the phone number", 2.4],
+  ["eleven", 850, 360, `<img src="../logos/elevenlabs.svg">`, "ElevenLabs", "voice agent", 3.9],
+  ["ringside", 1210, 360, MARK, "Ringside", "tools · rate card", 7.6],
+  ["paypal", 1570, 360, `<img src="../logos/paypal.svg">`, "PayPal", "hold · capture", 10.8],
+  ["render", 1210, 700, `<img src="../logos/render.svg">`, "Render", "workflow · receipt", 15.5],
+];
+// dotted connectors that draw themselves in: [path, colour, label, label x, label y, starts drawing (s), takes (s)]
+const EDGES = [
+  ["M362 455 L478 455", "#8fb6ff", "phone", 420, 432, 1.4, 1.0],
+  ["M722 455 L838 455", "#8fb6ff", "", 0, 0, 3.0, 0.9],
+  ["M300 562 L300 640 L960 640 L960 562", "#8fb6ff", "browser call", 630, 623, 3.1, 1.3],
+  ["M180 562 L180 720 L1150 720 L1150 505 L1198 505", "#c9b8ff", "book without calling", 660, 703, 6.8, 1.6],
+  ["M1082 455 L1198 455", "#8fb6ff", "tool calls", 1140, 432, 8.4, 1.0],
+  ["M1442 430 L1558 430", "#8fb6ff", "orders", 1500, 407, 10.3, 1.0],
+  ["M1558 482 L1442 482", "#f2a93b", "webhooks", 1500, 514, 13.3, 1.0],
+  ["M1320 562 L1320 688", "#8fb6ff", "close-out", 1384, 630, 14.9, 1.0],
+  ["M1442 795 C1690 795 1690 680 1690 562", "#3fbf6a", "receipt invoice", 1580, 838, 16.3, 1.4],
+];
+window.duration = 21.6;
+const $ = (id) => document.getElementById(id);
+const clamp = (x) => Math.max(0, Math.min(1, x));
+const ease = (x) => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const ramp = (t, a, d) => ease((t - a) / d);
+const NS = "http://www.w3.org/2000/svg";
+const nodes = NODES.map(([id, x, y, icon, name, sub, at]) => {
+  const el = document.createElement("div"); el.className = "node"; el.style.left = x + "px"; el.style.top = y + "px";
+  el.innerHTML = `${icon}<b>${name}</b><small>${sub}</small>`; $("nodes").appendChild(el); return [el, at];
+});
+const mk = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+const edges = EDGES.map(([d, col, label, lx, ly, at, dur], i) => {
+  // the reveal: a solid copy of the path, drawn with a dash offset, used as a mask over the dotted line
+  const m = mk("mask", { id: `m${i}`, maskUnits: "userSpaceOnUse", x: 0, y: 0, width: 1920, height: 1080 }, $("defs"));
+  const rev = mk("path", { d, fill: "none", stroke: "#fff", "stroke-width": 16, "stroke-linecap": "round" }, m);
+  const len = rev.getTotalLength(); rev.style.strokeDasharray = `${len} ${len}`;
+  const dotted = mk("path", { d, fill: "none", stroke: col, "stroke-width": 5, "stroke-linecap": "round", "stroke-dasharray": "0.1 13", mask: `url(#m${i})` }, $("edges"));
+  // the arrowhead, placed at the end along the path's direction
+  const a = rev.getPointAtLength(len), b = rev.getPointAtLength(len - 6), ang = Math.atan2(a.y - b.y, a.x - b.x) * 180 / Math.PI;
+  const head = mk("path", { d: "M-2 -9 L12 0 L-2 9 Z", fill: col, transform: `translate(${a.x} ${a.y}) rotate(${ang})` }, $("edges"));
+  const tx = label ? mk("text", { class: "lbl", x: lx, y: ly, "text-anchor": "middle", fill: col === "#f2a93b" ? "#f2c27b" : col === "#c9b8ff" ? "#ddd2ff" : "#cddcf8" }, $("edges")) : null;
+  if (tx) tx.textContent = label;
+  return { rev, dotted, head, tx, len, at, dur };
+});
+window.ready = Promise.all([document.fonts.ready, ...[...document.images].map((im) => im.decode().catch(() => {}))]);
+window.seek = (t) => {
+  $("title").style.opacity = ramp(t, 0.2, 0.6);
+  nodes.forEach(([el, at]) => { const p = ramp(t, at, 0.6); el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * 14}px) scale(${0.94 + 0.06 * p})`; });
+  edges.forEach(({ rev, dotted, head, tx, len, at, dur }) => {
+    const draw = ramp(t, at, dur);
+    rev.style.strokeDashoffset = len * (1 - draw);
+    dotted.style.opacity = draw > 0 ? 1 : 0;
+    dotted.style.strokeDashoffset = -((t - at) * 22);   // the dots keep drifting forward once drawn
+    const h = ramp(t, at + dur - 0.15, 0.3); head.style.opacity = h;
+    if (tx) tx.style.opacity = ramp(t, at + dur * 0.5, 0.5);
+  });
+  $("sdk").style.opacity = ramp(t, 11.2, 0.6);
+  $("inside").style.opacity = ramp(t, 9.0, 0.6);
+  const b = ramp(t, 18.3, 0.6); $("banner").style.opacity = b; $("banner").style.transform = `translate(-50%, ${(1 - b) * 18}px)`;
+};
+window.sheetTimes = [{ t: 2.2, label: "drawing" }, { t: 4.6, label: "agent" }, { t: 9.6, label: "PayPal" }, { t: 12.2, label: "webhooks" }, { t: 15.8, label: "capture" }, { t: 19.5, label: "rule" }];
+// README still: the diagram's finished state (the same page animates in the demo video)
+window.ready.then(() => window.seek(30));
+</script></body></html>
