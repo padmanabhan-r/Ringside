@@ -51,6 +51,7 @@ const agentConfig = {
   },
   platform_settings: {
     call_limits: { daily_limit: 40, agent_concurrency_limit: 2, bursting_enabled: false },
+    auth: { enable_auth: true }, // conversations only through Ringside's tokens or the Twilio number
     privacy: { retention_days: 30 },
   },
 };

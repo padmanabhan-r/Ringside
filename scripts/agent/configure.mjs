@@ -158,5 +158,8 @@ await el("PATCH", `/v1/convai/agents/${AGENT}`, {
     turn: { turn_timeout: 15 },
     conversation: { max_duration_seconds: MAX_CALL_SECONDS },
   },
+  // Only conversations Ringside starts: the browser call gets a short-lived token from /api/call/session and the
+  // phone line comes through Twilio, so nobody can open a session with the agent ID alone and bypass our limits.
+  platform_settings: { auth: { enable_auth: true } },
 });
 console.log(`agent: ${AGENT} now has ${toolIds.length} tools, the Ringside prompt, LLM ${LLM}, calls capped at ${MAX_CALL_SECONDS} s`);
