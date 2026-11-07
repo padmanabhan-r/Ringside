@@ -285,7 +285,8 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
               </p>
               {typeof receiptTo === "string" ? <StatusPill tone="ok">Receipt emailed to {receiptTo}</StatusPill> : null}
               {receipt?.status === "sent" ? (
-                <StatusPill tone="ok">Receipt emailed to {who}</StatusPill>
+                // PayPal's own invoice goes to the PayPal account that paid; the customer's inbox is receiptTo above.
+                <StatusPill tone="ok">PayPal receipt sent</StatusPill>
               ) : receipt?.status === "ready" && receipt.approval_url ? (
                 <a className={s.openLink} href={receipt.approval_url} target="_blank" rel="noreferrer">
                   Receipt ready: open the PayPal receipt <ExternalLink aria-hidden="true" />
