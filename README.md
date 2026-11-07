@@ -71,7 +71,7 @@
 ![Render](https://img.shields.io/badge/Render-Web_·_Postgres_·_Workflows-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Render SDK](https://img.shields.io/badge/Render_SDK-1.3-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Resend](https://img.shields.io/badge/Resend-email-0f1b2d?style=flat-square&logo=resend&labelColor=0f1b2d)
-![Vitest](https://img.shields.io/badge/Vitest-5_·_163_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
+![Vitest](https://img.shields.io/badge/Vitest-5_·_164_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
 ![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-0f1b2d?style=flat-square&logo=githubactions&labelColor=0f1b2d)
 
 </div>
@@ -258,7 +258,7 @@ Each sponsor tool does a real job in Ringside, and each can be opened in the cod
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Figtree, lucide-react | Landing page, call page, customer page, Mike's app ([`src/app/`](src/app/page.tsx)) |
 | Hosting | Render web service, Render Postgres and a Render workflow from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
 | Monitor | GitHub Actions on a schedule | Every 30 minutes: the database, PayPal's sandbox credentials, the voice agent and the main pages; once a day a real sandbox booking through Book without calling ([`scripts/monitor/live-check.mjs`](scripts/monitor/live-check.mjs), [`.github/workflows/monitor.yml`](.github/workflows/monitor.yml)) |
-| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 163 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
+| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 164 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
 
 PayPal runs in the sandbox only: the server refuses to start unless `PAYPAL_ENV=sandbox`.
 
