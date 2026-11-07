@@ -12,9 +12,8 @@ if (missing.length) {
 }
 const { ELEVENLABS_API_KEY: KEY, ELEVENLABS_AGENT_ID: AGENT, APP_BASE_URL: BASE } = process.env;
 const SECRET_NAME = "ringside_tool_secret";
-// The cheapest agent LLM that stays available through judging ($0.0022 per call minute, 2026-11-05): gpt-5-nano is
-// cheaper but OpenAI shuts the gpt-5 family down on Dec 11 and the demo runs to Dec 15. Low reasoning keeps replies
-// quick. Override with ELEVENLABS_AGENT_LLM.
+// The agent's LLM: GLM 5.2 at medium reasoning (owner's choice, 2026-11-05), not on ElevenLabs' deprecation list before
+// judging ends on Dec 15. Override with ELEVENLABS_AGENT_LLM and ELEVENLABS_AGENT_REASONING.
 const LLM = process.env.ELEVENLABS_AGENT_LLM || "glm-52"; // owner, 2026-11-05: GLM 5.2 ($0.0173/min LLM); GLM 4.5 Air is retired (all traffic rerouted)
 const REASONING = process.env.ELEVENLABS_AGENT_REASONING || "medium";
 const MAX_CALL_SECONDS = 360;

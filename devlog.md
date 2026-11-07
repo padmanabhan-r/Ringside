@@ -10,17 +10,17 @@
 - **Repo:** private
 - **Stack:** TypeScript, Next.js 16.4.5 (App Router), React 19.3.1, Postgres 18 (`postgres` 3.4.9, plain SQL migrations), AG Studio 3.0.0, Node 24, Vitest 5
 - **Hosting:** Render (always-on web service and Postgres; a Render Workflows close-out service defined in `render.yaml`)
-- **Auth:** none (each demo visitor gets a session cookie that scopes the dashboard to their own jobs; the agent's tools sit behind a shared-secret header)
+- **Auth:** none (each demo visitor gets a session cookie that scopes the dashboard to their own jobs, plus every phone booking from the last three days, since there is one shared phone line; the agent's tools sit behind a shared-secret header)
 - **External services:** PayPal REST (sandbox) and JS SDK, ElevenLabs Agents, Twilio, Anthropic API, Resend (email), Render API (workflow task runs), Web Push (VAPID)
-- **AI models (product):** GLM 5.2 (`glm-52`, medium reasoning) as the ElevenLabs voice agent's LLM; `claude-sonnet-5-5` turns a spoken change order into rate-card lines (structured output); `claude-haiku-5-5` answers "Ask your books"
+- **AI models (product):** GLM 5.2 (`glm-52`, medium reasoning) as the ElevenLabs voice agent's LLM; `claude-sonnet-5-5` turns a spoken change order into rate-card lines (structured output); `claude-haiku-5-5` answers "Ask your books" and matches a typed problem to one price-book job on Book without calling
 - **AI models (build):** Claude Code with claude-opus-5-5
 - **Event deadline:** 2026-11-12 12:00 PST = 2026-11-13 01:30 IST
 - **PayPal APIs used:** OAuth (`POST /v1/oauth2/token`); Orders v2 through `@paypal/paypal-server-sdk` 2.5.0 (`POST /v2/checkout/orders`, `GET /v2/checkout/orders/{id}`, `POST /v2/checkout/orders/{id}/authorize`, `POST /v2/checkout/orders/{id}/capture`); Payments v2 through the SDK (`POST /v2/payments/authorizations/{id}/capture`, `POST /v2/payments/authorizations/{id}/void`); Invoicing v2 as REST (`POST /v2/invoicing/invoices`, `GET /v2/invoicing/invoices/{id}`, `POST /v2/invoicing/search-invoices`, `POST /v2/invoicing/invoices/{id}/send`, `POST /v2/invoicing/invoices/{id}/payments`); Webhooks (`POST /v1/notifications/verify-webhook-signature`, receiver at `/api/paypal/webhook`, `POST /v1/notifications/webhooks` in a setup script); JS SDK buttons on the approval page
 - **Voice stack:** ElevenLabs agent on GLM 5.2 with the Chris voice, ten server tools, a 6-minute call cap with a spoken wrap-up and a 15 s turn timeout; browser calls through `@elevenlabs/react` with a server-minted conversation token; Twilio US number imported into ElevenLabs and answering inbound calls (outbound blocked by Twilio 21216)
 - **Sponsor tools used:** Render (web service, Postgres 18, Workflows close-out service with an inline fallback); AG Grid (AG Studio 3.0.0 for Mike's Books, with the Studio Agent Framework behind "Ask your books"); APIMatic (PayPal's APIMatic-generated server SDK for Orders and Payments). Bryntum dropped
-- **Model and voice spend:** from field notes: one 99 s inbound call, 798 ElevenLabs call credits plus $0.0078 LLM; four change-order parser calls on `claude-sonnet-5-5`, under $0.01 each; Render $13.30/mo from the $50 hackathon credit. Not recorded yet: the later test calls and the "Ask your books" runs
+- **Model and voice spend:** from field notes: one 99 s inbound call, 798 ElevenLabs call credits plus $0.0078 LLM; four change-order parser calls on `claude-sonnet-5-5`, under $0.01 each; Render $13.30/mo from the $50 hackathon credit; "Ask your books": four Claude Haiku calls, about $0.001 each; live test calls on GLM 5.2 ran about 750 to 790 ElevenLabs credits a minute, of which the model was about 39% (field notes, 2026-11-06)
 - **Started:** 2026-11-05T06:24:33+05:30
-- **Last updated:** 2026-11-05T17:55:37+05:30
+- **Last updated:** 2026-11-07T08:51:13+05:30
 
 ## Log
 
@@ -168,20 +168,89 @@ rewrote the README for the app as built.
   d907e49.
 - **Tests:** `npx vitest run` at cda7e44: 12 files, 98 tests passed; `npm run typecheck` and `npm run lint` clean.
 
+### 2026-11-05 - 935b448
+Got the repo ready to go public and widened the ways in. Moved the agent to `gpt-6-luna` so it outlasts the gpt-5
+shutdown, kept the project's agent notes local, and added a favicon, home-screen icon and link preview. Mike can now
+cancel a job that hasn't started, which voids the PayPal hold (`src/lib/cancel.ts`). Visitors without a mic can book
+without calling, and can describe the problem in their own words: Claude Haiku picks the one price-book job that fits,
+preferring a repair to a replacement (`src/lib/problem-matcher.ts`). The agent now asks which day and time of day suit
+the caller instead of offering the next two slots. Repositioned the pitch as call-to-cash, added an architecture
+diagram and probed PayPal partner onboarding in the sandbox (`scripts/sandbox/partner-*`).
+
+- **Decision:** describe partner onboarding as the next step instead of building it; a Merchant app gets 403 on the
+  Partner Referrals API and needs a Platform app.
+- **Fixed:** the matcher first chose "Kitchen faucet replacement" for a dripping tap; it now sees the whole price book
+  and prefers the smallest job, confirmed on real calls (a dripping tap became a faucet leak repair, $125-$250).
+- **Built with:** Claude Code, claude-opus-5-5.
+
+### 2026-11-05 - 49a1461
+Polished the screens and ran the first live calls. Mike can add any job from his price book as extra work, at a price
+he sets inside its range, checked in code (`src/lib/change-pricing.ts`). A spacing pass evened out Today, the call page
+and the lists, and the two Today columns now always end level. Added the business model and the problem matcher to the
+README, and a 3:2 gallery for Devpost. Tuned the agent from live calls: it understands spoken dates ("November 8th"),
+the server tells it the real time left on every tool reply, and while a hold is pending it keeps waiting instead of
+hanging up. Moved the agent to medium reasoning, then to GLM 5.2 (`glm-52`) at the owner's request.
+
+- **Measured:** a whole job on the live site from a browser call: the $99.00 hold approved, $22.00 of extra work
+  captured 1 s after approval, the hold captured at job done and the receipt invoice paid 13 s later, from PayPal's
+  webhook event log (MP-8531).
+- **Failed:** the agent hung up twice at about three minutes while the caller was paying; it had been left to judge
+  the time itself.
+- **Fixed:** every tool reply carries `time_left_secs`, and `check_hold` says to keep waiting while a hold is pending.
+- **Failed:** a blank `LLM_MODEL` from `.env.example` would have sent an empty model name.
+- **Fixed:** blank settings now fall back to the defaults.
+- **Tests:** 147 passed at 7ad1568.
+- **Built with:** Claude Code, claude-opus-5-5.
+
+### 2026-11-06 - 689df10
+A day of live phone tests with the owner, each followed by a fix. A guest card that PayPal declined
+(`INSTRUMENT_DECLINED`) used to leave a dead end; now PayPal reopens for another way to pay, and a fresh request ID
+is used only after a recorded decline, so a decline is never replayed. The test card is now one generated by PayPal's
+sandbox card generator. Phone calls and phone bookings show on every dashboard for three days, with each call's length
+and cost read from ElevenLabs, and job titles are tidied from the agent's notes. Customers now get emails, each subject
+starting with the job code: extra work to approve, the receipt after Job done, and a cancellation. Job done reads as a
+small bill, a GitHub Actions monitor checks the live demo every 30 minutes, and the agent handles echo calmly.
+
+- **Measured:** live cancel of a booked job voided its $250.00 authorization; a job done captured $125.00 of a $250.00
+  hold and released the rest, with the extra work paid separately (PayPal sandbox, MP-5404 and MP-8589).
+- **Measured:** the monitor ran on GitHub with a real sandbox booking; every check passed (run 42167874695).
+- **Failed:** "PayPal couldn't take the payment" showed although the payment went through; the page's own request hit
+  a deploy and PayPal's webhook captured the payment two seconds later.
+- **Fixed:** the page now re-checks with the server before showing a payment error.
+- **Tests:** 157 passed at 2daee30.
+- **Built with:** Claude Code, claude-opus-5-5.
+
+### 2026-11-07 - e2c2572
+Closed the gaps from a scenario audit of the money flow. Each money action on a job holds a per-job lock, and state
+changes apply only from the state they read. A job with nothing charged can be cancelled even after the work started,
+including estimate visits and calls that ended before the link. Mike can withdraw unanswered extra work and retry a
+receipt. An approval after the visit window places no hold, and a hold PayPal lets expire cancels a job that hasn't
+started. Customers are told each step by email (booked, extra work paid, declined or withdrawn, hold expired); the
+booking form takes an optional email. Redrew the architecture diagram with straight connectors and grounded the README
+in the code after a docs audit.
+
+- **Measured:** Render's task-run history shows two production close-outs on Render Workflows, both completed on the
+  first attempt, in 5.4 s and 5.3 s (2026-11-05 and 11-06).
+- **Failed:** a test-only type error stopped one Render build at 132a45d; the live site stayed on the previous version.
+- **Fixed:** c24618a, live after the next deploy; `npm run typecheck` (which includes `test/`) now runs before pushing.
+- **Tests:** `npx vitest run`: 19 files, 163 tests passed; `scripts/monitor/live-check.mjs --book` passed against the
+  live site.
+- **Built with:** Claude Code, claude-opus-5-5.
+
 ## Known limitations
 - PayPal runs in the sandbox only, in USD.
 - A hold can be captured at no more than 115% of its amount, so extra work is always a separate payment.
 - Outbound calls from the Twilio account are blocked (21216); the phone line is tested with inbound calls only.
 - Phone callers get the PayPal link by email; texting it needs US A2P 10DLC registration.
-- No real PayPal webhook delivery is recorded yet, and no live run of the Render Workflows close-out is recorded; the
-  close-out runs inline when the workflow isn't configured.
-- The agent briefly ran on `gpt-5-nano`; OpenAI shuts the gpt-5 family down on Dec 11 (per ElevenLabs' changelog), before
-  the demo stops on Dec 15, so it moved to `gpt-6-luna`, the cheapest model not on a deprecation list.
+- The close-out runs inline when the Render workflow isn't configured.
+- The agent briefly ran on `gpt-5-nano` (OpenAI shuts the gpt-5 family down on Dec 11), then `gpt-6-luna`; it now runs
+  on GLM 5.2, which costs more per minute of call.
+- There is no refund path in the app; paid extra work on a cancelled job would be refunded from PayPal's dashboard.
+- PayPal's sandbox sometimes declines guest test cards; the page recovers by reopening PayPal.
 - Speaking extra work uses the browser's speech recognition; where it is missing, Mike types or picks.
 - The Books chart's value axis shows plain numbers, not dollars.
 
 ## Next steps
 - Record the demo video and have outside testers run the hosted demo.
-- Show a forced close-out replay ending in exactly one capture in Render's run history.
-- Confirm a real PayPal webhook delivery on the live site.
+- Rebuild the recorded call on `/call` from a tuned real call.
 - Write the Devpost submission; make the repo public after a full-history secrets scan.

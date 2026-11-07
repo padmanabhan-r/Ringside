@@ -30,25 +30,26 @@ person saying yes.
 ## Positioning
 
 The live call and the mid-job change order are the star. The owner speaks the extra work, a model turns it into
-rate-card line items, the owner confirms, and the customer approves the new total before the work is done. Ringside is
-not an invoicing agent; an invoice exists only for a leftover balance the hold can't cover.
+priced lines from the rate card and price book, the owner confirms, and the customer approves it as its own PayPal
+payment before the work is done. A PayPal invoice, marked paid, is the customer's receipt.
 
 ## Operating Context
 
-- **Phone:** the caller dials the business's Twilio number. The agent reads out a short job code; the caller opens
-  `/j/<code>` to approve the hold. Links are not sent by SMS.
+- **Phone:** the caller dials the business's Twilio number. The agent spells the caller's email back and emails the
+  PayPal link to `/j/<code>`; it also reads out the job code as a fallback. Links are not sent by SMS.
 - **Browser call (`/call`):** "Call Mike's Plumbing" starts the same ElevenLabs agent; the page also shows the phone
-  number, the quote and the hold link when ready, and a "skip the call" replay of a recorded call for visitors without
-  a mic.
-- **Customer approval (`/pay`, `/j/<code>`):** PayPal buttons approve the hold; later the change order shows the old
-  total, the change and the new total, with approve or decline.
-- **Owner on site (`/onsite`):** push-to-talk for the change order and "job done"; the parsed line items are shown for
-  the owner to confirm before anything reaches the customer.
+  number, the quote and the hold link when ready, "Watch a recorded call" for visitors without a mic, and Book without
+  calling, where they describe the problem or pick the job.
+- **Customer approval (`/j/<code>`):** PayPal buttons (or a guest card) approve the hold; later the extra work shows
+  its lines and total as a separate payment, with approve or decline. The customer is emailed at each step.
+- **Owner on site (`/dashboard/jobs/<code>`):** Add charges (speak, type or pick from the price list) and Job done; the
+  priced lines are shown for the owner to confirm before anything reaches the customer. He can also cancel, withdraw
+  unanswered extra work and retry a receipt.
 - **Owner dashboard:** today's jobs as cards on a phone; on a desk, the books in AG Grid (every job, payment and
   call), plus each job's timeline of events.
-- **Every page** shows the sandbox buyer login to use for approvals and a Reset demo button. Each visitor's demo
-  session is isolated.
-- The job close-out (capture, balance invoice, close) runs on Render Workflows.
+- **Payment pages** show the sandbox test card. Each visitor's demo session is isolated, except phone bookings, which
+  show on every dashboard for three days (one shared phone line).
+- The job close-out (receipt invoice, then close) runs on Render Workflows after Job done captures the payment.
 
 ## Capabilities and Constraints
 
@@ -110,7 +111,7 @@ not an invoicing agent; an invoice exists only for a leftover balance the hold c
 
 - Real sandbox runs: authorize ~1.8–2.0 s, capture ~1.5–2.6 s; over-capture capped at 115% of the hold; a replayed
   capture with the same request ID returns the original capture.
-- Live deploy: https://ringside-4bup.onrender.com (placeholder page for now).
+- Live deploy: https://ringside-4bup.onrender.com.
 - No users, testimonials, customer counts or market statistics exist. Do not invent them; a missed-call or
   disputed-extras statistic needs a sourced number before it is used.
 
