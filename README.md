@@ -10,6 +10,7 @@
 [![Mike's dashboard](https://img.shields.io/badge/Open-Mike's_dashboard-0b3a8a?style=for-the-badge&logo=googlehome&logoColor=white)](https://ringside-4bup.onrender.com/dashboard)
 
 [![Event](https://img.shields.io/badge/event-PayPal_AI_Hackathon-003087?style=flat-square&labelColor=0f1b2d)](https://paypalaihackathon.devpost.com)
+[![Theme](https://img.shields.io/badge/theme-agentic_commerce_for_services-1557c0?style=flat-square&labelColor=0f1b2d)](#how-its-different)
 [![Deadline](https://img.shields.io/badge/deadline-Nov_12_2026_12%3A00_PST-1557c0?style=flat-square&labelColor=0f1b2d)](https://paypalaihackathon.devpost.com/details/dates)
 [![Status](https://img.shields.io/badge/status-live_demo-1f8a3b?style=flat-square&labelColor=0f1b2d)](#status-and-limits)
 [![PayPal](https://img.shields.io/badge/PayPal-sandbox_only-1f8a3b?style=flat-square&labelColor=0f1b2d)](#status-and-limits)
@@ -84,6 +85,10 @@ there is no single flow from a customer's call to the business's cash: booking i
 customer and for the business: it answers the call, quotes from the price book, holds the customer's money with PayPal
 before the visit instead of taking it all up front, gets the customer's yes when the job grows on site, and charges the
 real cost when the work is done.
+
+**It is agentic commerce for services.** The AI agent doesn't stop at the booking: on the call it quotes from the
+price book, reads the amount back and, after the customer's yes, creates the PayPal hold for them to approve. It can never capture or
+refund; only the owner's Job done takes money from the hold.
 
 **The demo runs one example business on Ringside: Mike's Plumbing**, a fictional one-person plumber in Saginaw,
 Michigan. Its customers, jobs and calls are fictional too. Ringside is a prototype built for the PayPal AI Hackathon and
