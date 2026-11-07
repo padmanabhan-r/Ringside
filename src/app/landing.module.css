@@ -858,7 +858,7 @@
 }
 
 .changeLines dt {
-  color: var(--text-3);
+  color: var(--text-2);
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;

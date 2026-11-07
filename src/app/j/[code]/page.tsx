@@ -1,5 +1,6 @@
-import { Ban, CalendarDays, Check, Clock, DollarSign, FileText, Hash, Lock, MapPin, Plus, ReceiptText, SearchX, Tag, Wrench, type LucideIcon } from "lucide-react";
+import { Ban, CalendarDays, Check, Clock, DollarSign, FileText, Hash, Lock, MapPin, Plus, ReceiptText, Tag, Wrench, type LucideIcon } from "lucide-react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 import { MikesWordmark, PoweredByRingside, SandboxTag, StatusPill } from "@/components/brand";
 import { changeOrders, type ChangeOrderLine, type ChangeOrderView } from "@/lib/change-orders";
@@ -262,38 +263,7 @@ function WhatNext({ when, onJob }: { when?: string; onJob: boolean }) {
 export default async function JobPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
   const job = await findJobByCode(code);
-  if (!job) {
-    let shown = code;
-    try {
-      shown = decodeURIComponent(code);
-    } catch {
-      // A malformed escape: show what is left of it.
-    }
-    shown = shown.toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 12);
-    const looksRight = /^MP-\d{4}$/.test(shown);
-    return (
-      <Shell>
-        <h1 className={s.title}>No booking found</h1>
-        <section className={`${s.card} ${s.notFound}`}>
-          <SearchX className={s.notFoundIcon} aria-hidden="true" />
-          <p>
-            {looksRight ? (
-              <>
-                There’s no booking with the code <b>{shown}</b>. Check the code the assistant read out at the end of your call.
-              </>
-            ) : (
-              <>
-                {shown ? <b>{shown}</b> : "That"} isn’t a booking code. Codes look like MP-4127; the assistant reads yours out at the end of the call.
-              </>
-            )}
-          </p>
-        </section>
-        <a className={s.btnPrimary} href="/call">
-          Call Mike’s Plumbing to book
-        </a>
-      </Shell>
-    );
-  }
+  if (!job) notFound();
 
   const [lines, pays, cos] = await Promise.all([lineItems(job.id), payments(job.id), changeOrders(job.id)]);
   const quote = lines.filter((l) => l.source === "quote");

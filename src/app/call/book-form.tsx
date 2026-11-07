@@ -299,7 +299,7 @@ export function BookForm({ onClose }: { onClose: () => void }) {
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
                   maxLength={120}
-                  placeholder="So Mike can send extra work to approve and your receipt"
+                  placeholder="For extra-work approvals and your receipt"
                   aria-invalid={invalid("email")}
                 />
               </label>

@@ -6,6 +6,7 @@ import {
   canTransition,
   isJobState,
   isTerminal,
+  timelineEvents,
 } from "@/lib/job-state";
 
 describe("job state machine", () => {
@@ -43,5 +44,13 @@ describe("job state machine", () => {
   it("recognises states", () => {
     expect(isJobState("quoted")).toBe(true);
     expect(isJobState("expired")).toBe(false);
+  });
+});
+
+describe("timelineEvents", () => {
+  it("keeps only the first state:in_progress and drops unlabelled events", () => {
+    const events = [{ type: "state:booked" }, { type: "state:in_progress" }, { type: "change_order_paid" }, { type: "state:in_progress" }, { type: "noise" }];
+    const shown = timelineEvents(events, (t) => t !== "noise");
+    expect(shown.map((e) => e.type)).toEqual(["state:booked", "state:in_progress", "change_order_paid"]);
   });
 });

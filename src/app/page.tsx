@@ -105,7 +105,7 @@ export default function Home() {
               <span className={s.noMic}>
                 No mic?{" "}
                 <Link className={s.replayLink} href="/call?replay">
-                  Watch a recorded call
+                  Read a recorded call
                 </Link>{" "}
                 or{" "}
                 <Link className={s.replayLink} href="/call?book">

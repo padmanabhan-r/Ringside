@@ -401,8 +401,12 @@
 }
 
 .fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   justify-self: center;
-  padding: 6px 4px;
+  min-height: 44px;
+  padding: 6px 12px;
   font-size: 14px;
   font-weight: 600;
   color: var(--brand-ink);

@@ -49,8 +49,8 @@ const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? "" : "s"}`;
 /** Each tile's look, by widget id: Studio keeps only the format fields a widget declares a shape for. */
 export const FIGURES: Record<string, FigureStyle> = {
   "fig-charged": { label: "Charged this week", tone: "ok", icon: "dollar", display: "sum", unit: "job" },
-  "fig-held": { label: "Held", tone: "wait", icon: "clock", display: "sum", unit: "job" },
-  "fig-waiting": { label: "Waiting", tone: "wait", icon: "hourglass", display: "sum", unit: "item" },
+  "fig-held": { label: "Held this week", tone: "wait", icon: "clock", display: "sum", unit: "job" },
+  "fig-waiting": { label: "Waiting this week", tone: "wait", icon: "hourglass", display: "sum", unit: "item" },
   "fig-calls": { label: "Calls", tone: "brand", icon: "phone", display: "count", unit: "call" },
 };
 

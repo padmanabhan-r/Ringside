@@ -1,7 +1,7 @@
 "use client";
 
 import { ConversationProvider, useConversation } from "@elevenlabs/react";
-import { CalendarCheck, Mic, MicOff, Phone, PhoneOff, RotateCcw, SkipForward, Sparkles, Square, Video } from "lucide-react";
+import { CalendarCheck, Mic, MicOff, Phone, PhoneOff, RotateCcw, SkipForward, Sparkles, Square, FileText } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BookForm } from "./book-form";
 import { BookingCard } from "./booking-card";
@@ -307,12 +307,12 @@ function Call({
         {isReplay ? (
           <>
             <span className={`${s.disc} ${s.discReplay}`} aria-hidden="true">
-              <Video strokeWidth={2.2} />
+              <FileText strokeWidth={2.2} />
             </span>
             <div className={s.status}>
               <p className={s.statusTitle}>
-                {phase === "replayed" ? "Recorded call finished" : "Playing a recorded call"}
-                <span className={phase === "replayed" ? `${s.recTag} ${s.recDone}` : s.recTag}>{phase === "replayed" ? "Recorded" : "Recording"}</span>
+                {phase === "replayed" ? "Replay finished" : "Replaying a past call (transcript only)"}
+                <span className={phase === "replayed" ? `${s.recTag} ${s.recDone}` : s.recTag}>{phase === "replayed" ? "Replayed" : "Replay"}</span>
               </p>
               <p className={s.statusNote}>A past test call, played back. Not live: nothing here dials Mike or touches PayPal.</p>
               <div className={s.progress} aria-hidden="true">
@@ -348,7 +348,7 @@ function Call({
                 </>
               )}
             </div>
-            <Elapsed seconds={elapsed} label={phase === "replayed" ? "Call length" : "Recording"} />
+            <Elapsed seconds={elapsed} label={phase === "replayed" ? "Call length" : "Replay"} />
           </>
         ) : live || phase === "starting" ? (
           <>
@@ -390,7 +390,7 @@ function Call({
             <div className={s.status}>
               <p className={s.statusTitle}>{phase === "ended" ? "Call ended" : "Talk to Mike’s assistant"}</p>
               <p className={s.disclosure}>
-                You’ll talk to an AI assistant; the call may be recorded. It runs on ElevenLabs and its AI model provider.
+                You’ll talk to an AI assistant; the call is recorded. It runs on ElevenLabs and its AI model provider.
               </p>
               <p className={s.altPhone}>
                 Prefer the phone? Call{" "}
@@ -399,7 +399,7 @@ function Call({
                 </a>
               </p>
               <button type="button" className={`${s.link} ${s.barReplay}`} onClick={() => replay()}>
-                <Video aria-hidden="true" /> No mic? Watch a recorded call.
+                <FileText aria-hidden="true" /> No mic? Read a recorded call.
               </button>
             </div>
             <span className={s.divider} aria-hidden="true" />
@@ -458,7 +458,7 @@ function Call({
           {!live && phase !== "starting" && !isReplay ? (
             <div className={s.noMic}>
               <button type="button" className={s.link} onClick={() => replay()}>
-                <Video aria-hidden="true" /> No mic? Watch a recorded call.
+                <FileText aria-hidden="true" /> No mic? Read a recorded call.
               </button>
             </div>
           ) : null}

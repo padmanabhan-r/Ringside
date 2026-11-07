@@ -925,6 +925,11 @@ a.approve:active {
   .barReplay {
     display: inline-flex;
   }
+
+  /* The link already shows in the call bar here; once is enough. */
+  .transcript .noMic {
+    display: none;
+  }
 }
 
 @media (max-width: 720px) {

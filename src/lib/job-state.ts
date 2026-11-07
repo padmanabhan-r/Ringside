@@ -56,3 +56,18 @@ export function nextStates(from: JobState): readonly JobState[] {
 export function isTerminal(state: JobState): boolean {
   return TRANSITIONS[state].length === 0;
 }
+
+/**
+ * Events worth showing on a job's timeline. Extra work moves a job back to "in progress" each time it is settled,
+ * which writes another state:in_progress event; only the first means "work started", so later ones are left out.
+ */
+export function timelineEvents<T extends { type: string }>(events: T[], labelled: (type: string) => boolean): T[] {
+  let started = false;
+  return events.filter((e) => {
+    if (!labelled(e.type)) return false;
+    if (e.type !== "state:in_progress") return true;
+    if (started) return false;
+    started = true;
+    return true;
+  });
+}

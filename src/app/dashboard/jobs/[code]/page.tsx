@@ -15,6 +15,7 @@ import { AddCharges, type PriceItem } from "./add-charges";
 import { CancelJob } from "./cancel-job";
 import { RetryReceipt, WithdrawChange } from "./owner-actions";
 import { JobDone } from "./job-done";
+import { timelineEvents } from "@/lib/job-state";
 import s from "./job.module.css";
 import m from "./missing.module.css";
 
@@ -93,7 +94,7 @@ async function CustomerLink({ code, note }: { code: string; note: string }) {
 }
 
 function Timeline({ detail }: { detail: JobDetail }) {
-  const items = detail.events.filter((e) => EVENT_LABELS[e.type]);
+  const items = timelineEvents(detail.events, (type) => Boolean(EVENT_LABELS[type]));
   if (!items.length) return null;
   return (
     <section className={s.card} aria-labelledby="timeline">
@@ -278,10 +279,10 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
           </h2>
           {capture ? (
             <div className={s.charged}>
-              <p className={s.chargedAmount}>Charged {formatUsd(capture.amount_cents)}</p>
+              <p className={s.chargedAmount}>Charged {formatUsd(capture.amount_cents + paidChanges)} in all</p>
               <p className={s.cardSub}>
-                {formatUsd(hold.amount_cents - capture.amount_cents)} of the {formatUsd(hold.amount_cents)} hold released
-                {paidChanges ? `, plus ${formatUsd(paidChanges)} of extra work paid separately` : ""}.
+                {formatUsd(capture.amount_cents)} taken from the {formatUsd(hold.amount_cents)} hold; the other {formatUsd(hold.amount_cents - capture.amount_cents)} was released.
+                {paidChanges ? ` Extra work of ${formatUsd(paidChanges)} was paid separately.` : ""}
               </p>
               {typeof receiptTo === "string" ? <StatusPill tone="ok">Receipt emailed to {receiptTo}</StatusPill> : null}
               {receipt?.status === "sent" ? (

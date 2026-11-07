@@ -344,6 +344,7 @@
 }
 
 .refCode {
+  white-space: nowrap;
   font-weight: 700;
   color: var(--brand-ink);
 }

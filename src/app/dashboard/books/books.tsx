@@ -42,8 +42,8 @@ function Figures({ data }: { data: BooksData }) {
   const f = data.figures;
   const items = [
     { label: "Charged this week", value: formatUsd(f.chargedCents), note: `${f.chargedJobs} job${f.chargedJobs === 1 ? "" : "s"}`, tone: s.fig_ok },
-    { label: "Held", value: formatUsd(f.heldCents), note: `${f.heldJobs} job${f.heldJobs === 1 ? "" : "s"}`, tone: s.fig_wait },
-    { label: "Waiting", value: formatUsd(f.waitingCents), note: `${f.waitingItems} item${f.waitingItems === 1 ? "" : "s"}`, tone: s.fig_wait },
+    { label: "Held this week", value: formatUsd(f.heldCents), note: `${f.heldJobs} job${f.heldJobs === 1 ? "" : "s"}`, tone: s.fig_wait },
+    { label: "Waiting on customer this week", value: formatUsd(f.waitingCents), note: `${f.waitingItems} item${f.waitingItems === 1 ? "" : "s"}`, tone: s.fig_wait },
     { label: "Calls", value: String(f.calls), note: `${formatUsd(f.callCostCents)} total`, tone: s.fig_brand },
   ];
   return (
