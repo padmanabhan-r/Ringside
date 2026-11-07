@@ -4,7 +4,7 @@
 
 # Ringside
 
-[![Watch the demo](https://img.shields.io/badge/Watch_the_demo-2%3A59-c8281c?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/DsTQNwpYstY)
+[![Watch the demo](https://img.shields.io/badge/Watch_the_demo-2%3A59-c8281c?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/AHosWs7t01Y)
 [![Live demo](https://img.shields.io/badge/Live_demo-ringside--4bup.onrender.com-1557c0?style=for-the-badge&logo=render&logoColor=white)](https://ringside-4bup.onrender.com)
 [![Call Mike's Plumbing](https://img.shields.io/badge/Try_it-call_in_the_browser-1f8a3b?style=for-the-badge&logo=googlechrome&logoColor=white)](https://ringside-4bup.onrender.com/call)
 [![Mike's dashboard](https://img.shields.io/badge/Open-Mike's_dashboard-0b3a8a?style=for-the-badge&logo=googlehome&logoColor=white)](https://ringside-4bup.onrender.com/dashboard)
@@ -98,7 +98,7 @@ owner's dashboard to add charges and finish the job. No mic? **Book without call
 
 ## Watch it
 
-[![Ringside demo video: a real phone call becomes a paid job, with a PayPal hold, extra work approved on site and the real cost captured (2:59)](assets/screens/video.jpg)](https://youtu.be/DsTQNwpYstY)
+[![Ringside demo video: a real phone call becomes a paid job, with a PayPal hold, extra work approved on site and the real cost captured (2:59)](assets/screens/video.jpg)](https://youtu.be/AHosWs7t01Y)
 
 A real phone call to the demo line, the customer approving the PayPal hold while still on the call, Mike adding extra
 work from his phone, the customer paying it, and the real cost captured at job done, in 2:59.
