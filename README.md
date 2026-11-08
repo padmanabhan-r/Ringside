@@ -107,7 +107,7 @@ The money step of a service job fails both sides today:
 
 | Side | What the numbers say | Source |
 |---|---|---|
-| The business waits to be paid | **59%** of US small businesses have invoices overdue by 30 days or more, up from 47% a year earlier; those waiting are owed **$17.7K** on average | Intuit QuickBooks, [2026 Small Business Late Payments Report](https://quickbooks.intuit.com/r/small-business-data/small-business-late-payments-report-2026/) (1,305 US owners, December 2025) |
+| The business waits to be paid | **59%** of US small businesses (up to 250 employees) have invoices overdue by 30 days or more, up from 47% a year earlier; those waiting are owed **$17.7K** on average | Intuit QuickBooks, [2026 Small Business Late Payments Report](https://quickbooks.intuit.com/r/small-business-data/small-business-late-payments-report-2026/) (1,305 US owners, December 2025) |
 | The customer is told not to pay first | The FTC's advice to homeowners: "Don't pay the full amount for the project up front," and make the final payment only when the work is done | FTC Consumer Advice, [How To Avoid a Home Improvement Scam](https://consumer.ftc.gov/articles/how-avoid-home-improvement-scam) |
 
 So the business can't afford to wait for its money, and the customer shouldn't hand it over before the work. A PayPal
@@ -122,7 +122,7 @@ work from his phone, the customer paying it, and the real cost captured at job d
 
 ## How it's different
 
-AI phone agents for trades are everywhere now, typically $99 to $299 a month[^price], and most stop at the booking; a
+AI phone agents for trades are everywhere now, from $29 a month as an add-on[^price], and most stop at the booking; a
 few text a deposit link. Field-service suites take payments, as office paperwork after the job. Ringside carries the
 whole job to the payment: a hold, not a charge, before the visit, extra work approved on site, and only the real cost
 captured.
@@ -136,7 +136,7 @@ captured.
 | Charges the real cost, never more than the customer approved | No | An invoice after the job | Yes, captured from the hold; the rest is released |
 | Receipt | No | Yes | Yes, a PayPal invoice marked paid |
 
-[^price]: Typical small-business pricing from [The AI Savvy's 2026 overview](https://theaisavvy.com/blog/ai-receptionist-for-plumbers-and-hvac-companies/california/san-diego); a few start lower with call limits.
+[^price]: Jobber's Receptionist add-on, which answers calls and texts and books jobs into the calendar, is $29 a month ([Jobber pricing](https://www.getjobber.com/pricing/), checked 2026-11-08).
 
 ## How it works
 
@@ -356,7 +356,7 @@ business on one sandbox merchant.
   Platform app, the next step.
 - **Billing:** the subscription through PayPal's Subscriptions API.
 - **Onboarding:** sign-up, Connect with PayPal, a price book from a template or an AI import, and call forwarding.
-- **A pilot with local trades,** after the demo video and with the public demo kept up through the end of judging.
+- **A pilot with local trades,** after the demo video and with the public demo kept up until the winners are announced.
 
 ## Repository
 

@@ -230,14 +230,14 @@ export default async function TodayPage() {
             <span className={`${s.figIcon} ${s.figHeld}`}>
               <Lock aria-hidden="true" />
             </span>
-            <span className={s.figLabel}>Held today</span>
+            <span className={s.figLabel}>Held for upcoming visits</span>
             <span className={`${s.figValue} ${s.valHeld}`}>{formatUsd(today.money.heldCents)}</span>
           </div>
           <div className={s.figure}>
             <span className={`${s.figIcon} ${s.figWait}`}>
               <Clock aria-hidden="true" />
             </span>
-            <span className={s.figLabel}>Waiting on customer today</span>
+            <span className={s.figLabel}>Waiting on customers</span>
             <span className={`${s.figValue} ${s.valWait}`}>{formatUsd(today.money.waitingCents)}</span>
           </div>
           <div className={s.figure}>
