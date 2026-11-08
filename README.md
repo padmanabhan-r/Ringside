@@ -18,32 +18,32 @@
 
 <table align="center">
   <tr>
-    <td align="center" width="145">
+    <td align="center" valign="top" width="145">
       <img src="assets/logos/paypal.svg" width="56" height="56" alt="PayPal"><br>
       <b>PayPal</b><br>
       <sub>The money. A hold at booking, a second payment for extra work, the real cost captured at job done, an invoice as the receipt.</sub>
     </td>
-    <td align="center" width="145">
+    <td align="center" valign="top" width="145">
       <img src="assets/logos/elevenlabs.svg" width="56" height="56" alt="ElevenLabs"><br>
       <b>ElevenLabs</b><br>
       <sub>The voice. Answers the phone and the browser call, quotes from the price book and sends the PayPal link.</sub>
     </td>
-    <td align="center" width="145">
+    <td align="center" valign="top" width="145">
       <img src="assets/logos/twilio.svg" width="56" height="56" alt="Twilio"><br>
       <b>Twilio</b><br>
       <sub>The phone line. The business's US number, connected straight to the agent.</sub>
     </td>
-    <td align="center" width="145">
+    <td align="center" valign="top" width="145">
       <img src="assets/logos/render.svg" width="56" height="56" alt="Render"><br>
       <b>Render</b><br>
       <sub>The platform. Runs the app and its Postgres, and the job close-out on Render Workflows.</sub>
     </td>
-    <td align="center" width="145">
+    <td align="center" valign="top" width="145">
       <img src="assets/logos/claude.svg" width="56" height="56" alt="Claude"><br>
       <b>Claude</b><br>
       <sub>The understanding. Sonnet turns what Mike says on site into priced lines; Haiku answers Ask your books and matches a typed problem to the price book.</sub>
     </td>
-    <td align="center" width="145">
+    <td align="center" valign="top" width="145">
       <img src="assets/logos/aggrid.png" width="56" height="56" alt="AG Grid"><br>
       <b>AG Grid</b><br>
       <sub>The books. Mike's week of jobs, payments and calls in AG Studio, with an "Ask your books" agent.</sub>
