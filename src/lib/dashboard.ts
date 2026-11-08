@@ -6,7 +6,7 @@ import type { JobState } from "./job-state";
 import { addEvent, findJobByCode, lineItems, payments, type Job, type LineItem, type Payment } from "./jobs";
 import { formatUsd } from "./money";
 import { SAMPLE_CALLS, SAMPLE_EARLIER, SAMPLE_NOW, SAMPLE_TODAY, sampleCallSummary, sampleCallTime, sampleWindow, type SampleJob } from "./samples";
-import { localDate } from "./slots";
+import { localDate, windowStarted } from "./slots";
 import { fillCallDetails } from "./call-details";
 import { tidyProblem } from "./problem-text";
 
@@ -105,7 +105,12 @@ function first(name: string | null): string {
 }
 
 /** One job's money as the dashboard reads it, from its real payments and change orders. */
-export function describeJob(job: Job & { final_cents: number | null; mine?: boolean }, pays: Payment[], changes: ChangeOrderView[]): DashJob {
+export function describeJob(
+  job: Job & { final_cents: number | null; mine?: boolean },
+  pays: Payment[],
+  changes: ChangeOrderView[],
+  now = new Date(),
+): DashJob {
   const hold = pays.find((p) => p.kind === "hold");
   const capture = pays.find((p) => p.kind === "capture" && p.status === "captured");
   const paidChanges = changes.filter((c) => c.status === "approved");
@@ -150,6 +155,11 @@ export function describeJob(job: Job & { final_cents: number | null; mine?: bool
   }
   if (hold?.status === "authorized") {
     return { ...base, tone: "ok", status: `Hold approved, up to ${formatUsd(hold.amount_cents)}`, pill: "Hold approved", amount: `up to ${formatUsd(hold.amount_cents)}`, heldCents: hold.amount_cents };
+  }
+  // Not approved before the visit window started: the customer's page says the time has passed and nothing is held
+  // (j/[code]/page.tsx), so the dashboard says the same instead of still waiting on the customer.
+  if (hold && windowStarted(job.slot_start, now)) {
+    return { ...base, tone: "none", status: "Not approved before the visit, nothing held", pill: "Not approved in time", amount: "Nothing held" };
   }
   if (hold) {
     return { ...base, tone: "wait", status: `Waiting for ${who} to approve the ${formatUsd(hold.amount_cents)} hold`, pill: "Waiting for approval", amount: `${formatUsd(hold.amount_cents)} hold`, waitingCents: hold.amount_cents };
