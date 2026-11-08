@@ -159,11 +159,11 @@ Every business on Ringside runs the same flow; the screens below are the demo bu
 <div align="center">
 <table>
   <tr>
-    <td align="center" width="50%">
+    <td align="center" valign="top" width="50%">
       <img src="assets/screens/approve.jpg" width="230" alt="The approval page on a phone: a $250.00 hold, the reassurance that nothing is charged now and never more than the hold, PayPal's buttons and the sandbox test card"><br>
       <sub><b>The customer approves the hold</b></sub>
     </td>
-    <td align="center" width="50%">
+    <td align="center" valign="top" width="50%">
       <img src="assets/screens/app-today.jpg" width="230" alt="Mike's app on a phone: Thursday, the job he is on now with Add charges and Job done buttons, then the rest of the day"><br>
       <sub><b>Mike's day, job he's on first</b></sub>
     </td>
@@ -182,11 +182,11 @@ Every business on Ringside runs the same flow; the screens below are the demo bu
 <div align="center">
 <table>
   <tr>
-    <td align="center" width="50%">
+    <td align="center" valign="top" width="50%">
       <img src="assets/screens/app-job.jpg" width="230" alt="The job screen: Add charges with a mic button, a price-list picker and a text box; Job done below"><br>
       <sub><b>Mike adds charges</b></sub>
     </td>
-    <td align="center" width="50%">
+    <td align="center" valign="top" width="50%">
       <img src="assets/screens/approve-change.jpg" width="230" alt="The customer's page: $119.25 extra, a shut-off valve $48.00 and labour 45 minutes $71.25, a separate PayPal payment, approve or decline"><br>
       <sub><b>The customer approves the extra</b></sub>
     </td>
