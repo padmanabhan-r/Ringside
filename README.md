@@ -293,7 +293,7 @@ git clone https://github.com/padmanabhan-r/Ringside && cd Ringside
 npm ci
 cp .env.example .env          # fill in the values below
 docker run -d --name ringside-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=ringside \
-  -p 127.0.0.1:5432:5432 postgres:18   # if 5432 is taken, map another port and change DATABASE_URL
+  -p 127.0.0.1:5432:5432 postgres:18   # if 5432 or the name is taken, change both and DATABASE_URL to match
 # .env.example already points DATABASE_URL at this database
 node --env-file=.env scripts/migrate.mjs
 # the next three need your keys; skip them to run the site without keys
