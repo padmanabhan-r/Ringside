@@ -13,8 +13,11 @@ import {
   updatePayment,
   bookedSlots,
   setState,
+  jobOfCall,
+  requoteJob,
   type Job,
 } from "./jobs";
+import { addToJobPlan } from "./add-to-job";
 import { formatUsd } from "./money";
 import { approvalUrl, createOrder, type OrderItem } from "./paypal";
 import { PriceBookError, SECTION_TITLES, SERVICE_VISIT, quote, rangeText, searchServices } from "./price-book";
@@ -126,6 +129,16 @@ export const tools = {
 
   /** Saves the job and quotes it from the price book: a range, held at the top. */
   async create_quote(args: Args, ctx: ToolContext) {
+    // One job per call: more work for the same visit goes on that job (add_to_job), never a second job and hold.
+    if (ctx.conversationId && args.separate_visit !== true) {
+      const prior = await jobOfCall(ctx.conversationId);
+      if (prior) {
+        throw new ToolError(
+          `This call already has job ${prior.job_code}. To add work to the same visit, call add_to_job with job_code ${prior.job_code}. ` +
+            "Only if the caller wants a separate visit at another address, call create_quote again with separate_visit: true.",
+        );
+      }
+    }
     const zip = str(args, "zip", false);
     const area = checkServiceArea({ zip, city: str(args, "city", false) });
     if (area !== "inside") throw new ToolError(area === "outside" ? "Outside the service area: do not book or take payment." : "Check the service area first: ask for the ZIP code.");
@@ -153,6 +166,57 @@ export const tools = {
       range: q.lowCents === q.holdCents ? formatUsd(q.holdCents) : `${formatUsd(q.lowCents)} to ${formatUsd(q.holdCents)}`,
       hold_amount: formatUsd(q.holdCents),
       read_back: `That's ${what}. PayPal will hold up to ${formatUsd(q.holdCents)}; nothing is charged now, and Mike charges only the real cost when the job is done.`,
+    };
+  },
+
+  /**
+   * More work for a job already quoted on this call. Before its hold is approved, the same job is re-quoted for
+   * everything and one new link follows. Once the hold is approved, the money stays as it is and the request goes to
+   * Mike as extra work he prices on site and the customer approves before he does it.
+   */
+  async add_to_job(args: Args, ctx: ToolContext) {
+    const job = await requireJob(ctx, args);
+    let added;
+    try {
+      added = quote(args.service_codes);
+    } catch (error) {
+      if (error instanceof PriceBookError) throw new ToolError(error.message);
+      throw error;
+    }
+    const hold = (await payments(job.id)).find((p) => p.kind === "hold" && p.status !== "voided");
+    const quoted = (await lineItems(job.id)).filter((l) => l.source === "quote");
+    const plan = addToJobPlan({ state: job.state, holdStatus: hold?.status, quotedCodes: quoted.map((l) => l.item_code), newCodes: added.services.map((s) => s.code) });
+    if (plan.kind === "refuse") throw new ToolError(plan.reason);
+    const say = (services: Parameters<typeof rangeText>[0][]) => services.map((s) => `${s.name.toLowerCase()}, ${rangeText(s)}`).join("; ");
+    if (plan.kind === "extra_for_mike") {
+      const services = added.services.filter((s) => plan.codes.includes(s.code));
+      await addEvent(job.id, "extra_requested", {
+        services: services.map((s) => ({ code: s.code, name: s.name, lowCents: s.lowCents, highCents: s.highCents })),
+      });
+      const held = hold ? `Your hold stays at ${formatUsd(hold.amount_cents)}. ` : "";
+      return {
+        job_code: job.job_code,
+        added_as: "extra work for Mike to confirm on site",
+        read_back:
+          `I've added ${say(services)} to your visit for Mike. ${held}Mike confirms it when he's there and sends it to you ` +
+          "to approve as extra work before he does it; nothing more is held or charged now.",
+        next: "Say the read_back. Don't create another job or send another link, and don't promise anything else about the price.",
+      };
+    }
+    let all;
+    try {
+      all = quote(plan.codes);
+    } catch (error) {
+      if (error instanceof PriceBookError) throw new ToolError(error.message);
+      throw error;
+    }
+    await requoteJob(job.id, all.services.map((s) => ({ code: s.code, name: s.name, lowCents: s.lowCents, highCents: s.highCents })), hold?.id);
+    return {
+      job_code: job.job_code,
+      range: all.lowCents === all.holdCents ? formatUsd(all.holdCents) : `${formatUsd(all.lowCents)} to ${formatUsd(all.holdCents)}`,
+      hold_amount: formatUsd(all.holdCents),
+      read_back: `That's ${say(all.services)}. PayPal will hold up to ${formatUsd(all.holdCents)}; nothing is charged now, and Mike charges only the real cost when the job is done.`,
+      next: "Say the read_back and ask if that's all right. On a yes, call send_hold_link again for this job: any earlier link for it no longer works. Same job code, same visit window.",
     };
   },
 

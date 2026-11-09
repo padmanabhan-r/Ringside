@@ -186,6 +186,36 @@ export async function bookedSlots(demoSessionId: string, from: Date, to: Date): 
   return rows.map((r) => ({ start: r.slot_start, end: r.slot_end }));
 }
 
+/** The job this call already quoted, if any: a call has one job unless the caller asks for a separate visit. */
+export async function jobOfCall(conversationId: string): Promise<{ id: string; job_code: string } | undefined> {
+  const [row] = await db()<{ id: string; job_code: string }[]>`
+    select j.id, j.job_code from calls c join jobs j on j.id = c.job_id where c.conversation_id = ${conversationId}`;
+  return row;
+}
+
+/**
+ * Re-quotes a job whose hold isn't approved yet: its quote lines are replaced, and its unapproved hold is re-priced
+ * with a fresh PayPal-Request-Id and no order, so send_hold_link creates one PayPal order for the new total. The old
+ * order was never approved, so nothing was ever held on it.
+ */
+export async function requoteJob(jobId: string, lines: readonly QuoteLine[], holdPaymentId?: string): Promise<void> {
+  const total = lines.reduce((sum, l) => sum + l.highCents, 0);
+  await db().begin(async (tx) => {
+    await tx`delete from line_items where job_id = ${jobId} and source = 'quote'`;
+    for (const line of lines) {
+      await tx`insert into line_items (job_id, source, item_code, name, qty, unit_price_cents, price_low_cents)
+               values (${jobId}, 'quote', ${line.code}, ${line.name}, 1, ${line.highCents}, ${line.lowCents})`;
+    }
+    if (holdPaymentId) {
+      await tx`update payments set amount_cents = ${total}, paypal_request_id = ${randomUUID()}, paypal_order_id = null,
+                 approval_url = null, status = 'pending', updated_at = now()
+               where id = ${holdPaymentId} and status not in ('authorized', 'captured')`;
+    }
+    await tx`insert into events (job_id, type, payload)
+             values (${jobId}, 'requoted', ${tx.json({ services: lines.map((l) => l.code), holdCents: total })})`;
+  });
+}
+
 /** Records a payment row with its PayPal-Request-Id before the PayPal call is made. */
 export async function startPayment(jobId: string, kind: Payment["kind"], amountCents: Cents): Promise<Payment> {
   const [row] = await db()<Payment[]>`

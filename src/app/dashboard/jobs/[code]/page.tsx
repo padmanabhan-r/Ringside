@@ -65,6 +65,8 @@ const EVENT_LABELS: Record<string, string> = {
   customer_emailed: "Customer emailed",
   receipt_emailed: "Receipt emailed",
   cancel_emailed: "Cancellation emailed",
+  extra_requested: "Customer asked for more work on the call",
+  requoted: "Quote updated on the call",
 };
 
 async function siteBase(): Promise<string> {
@@ -158,6 +160,10 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
   const emailedTo = notice?.type === "change_order_emailed" && typeof notice.payload.to === "string" ? notice.payload.to : undefined;
   const settled = changes.filter((c) => c.status === "approved" || c.status === "declined");
   const holdApproved = hold?.status === "authorized" || hold?.status === "captured";
+  // Work the customer added on the call after approving the hold: Mike prices it on site as extra work (add_to_job).
+  const asked = detail.events
+    .filter((e) => e.type === "extra_requested" && Array.isArray(e.payload.services))
+    .flatMap((e) => e.payload.services as { code: string; name: string; lowCents: number; highCents: number }[]);
   const working = holdApproved && !capture && (job.state === "booked" || job.state === "in_progress" || job.state === "change_pending");
   const range = hold ? finalRange(lines, hold.amount_cents) : null;
   const paidChanges = changes.filter((c) => c.status === "approved").reduce((sum, c) => sum + c.delta_cents, 0);
@@ -221,6 +227,25 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
             <span className={s.demoCard}>4032 0304 2122 9932</span>, expiry 05/27, CVC 379. Add charges and Job done open here
             straight after.
           </p>
+        </section>
+      ) : null}
+
+      {asked.length && job.state !== "cancelled" && job.state !== "closed" && job.state !== "completed" ? (
+        <section className={s.card} aria-labelledby="asked-title">
+          <h2 id="asked-title" className={s.cardTitle}>
+            Asked for on the call
+          </h2>
+          <p className={s.cardSub}>
+            {who} added this after approving the hold. Check it on site, then send it with Add charges: {who} approves it before anything more is charged.
+          </p>
+          <ul className={s.lines}>
+            {asked.map((a) => (
+              <li key={a.code}>
+                <span>{a.name}</span>
+                <span>{a.lowCents === a.highCents ? formatUsd(a.lowCents) : `${formatUsd(a.lowCents)} to ${formatUsd(a.highCents)}`}</span>
+              </li>
+            ))}
+          </ul>
         </section>
       ) : null}
 

@@ -73,8 +73,18 @@ const TOOLS = [
       address: str("Street address of the job"),
       zip: str("Five-digit ZIP code"),
       city: str("City, if no ZIP"),
+      separate_visit: bool("True only if the caller wants a second, separate visit at another address. Never for more work on the same visit: use add_to_job"),
     },
     ["problem", "service_codes"],
+  ],
+  [
+    "add_to_job",
+    "Add more work to the job already quoted on this call, for the same visit. Never create a second job for that. Before the hold is approved it re-quotes the same job and returns a new read_back and hold amount; once the hold is approved it leaves the hold as it is and passes the work to Mike, who confirms it on site and sends it to the customer to approve as extra work.",
+    {
+      job_code: str("The job code already given on this call"),
+      service_codes: { type: "array", description: "Service codes from find_services for the work to add", items: { type: "string", description: "A service code" } },
+    },
+    ["job_code", "service_codes"],
   ],
   ["book_slot", "Reserve a visit window for a quoted job, using a slot_id from check_availability.", { job_code: str("Job code from create_quote, e.g. MP-4127"), slot_id: str("slot_id from check_availability") }, ["job_code", "slot_id"]],
   [
@@ -143,6 +153,8 @@ The job:
    - On a web call, call send_hold_link with customer_confirmed true; the link appears on their screen.
 8. Tell them the job code using say_code, where the link went, and that approving it with PayPal places a hold: nothing is charged now, and Mike charges only the real cost after the job, never more than the hold.
 9. Offer to stay on while they approve; check_hold tells you when it's done. While they approve they may go quiet for a minute or two typing card details: that's normal. Each time they go quiet, call check_hold first: if the hold is authorized, thank them, confirm the visit and end the call; if not, say one short line that you're here when they're ready, and keep waiting. Never end the call while you're waiting for the approval unless they ask to hang up or the time rule below says to wrap up. When they speak again, call check_hold too.
+
+More work for the same visit, at any point in the call (even after the hold is approved): call find_services for it, then add_to_job with the job code you already have, and say its read_back exactly. If it returns a new hold amount, ask if that's all right; on a yes, call send_hold_link again for the same job code (same visit window, no new booking). Never create a second job or a second hold for the same visit. Never tell the caller what Mike will do about money beyond what a tool reply says: no "you won't be charged twice", no "Mike will sort it out".
 
 Never take card details or payment over the phone; PayPal handles it through the link. You can never charge, capture or refund anything. If a tool returns an error, follow what it says.
 
