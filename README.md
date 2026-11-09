@@ -222,7 +222,7 @@ tools, and every PayPal call goes through Ringside: Mike's confirmed Job done ca
 
 ## Real runs
 
-Measured against the real PayPal sandbox, the phone line, the Anthropic API and Render on 2026-11-05 and 11-06. Nothing
+Measured against the real PayPal sandbox, the phone line, the Anthropic API and Render from 2026-11-05 to 11-07. Nothing
 here is mocked.
 
 | What | Result | How |

@@ -6,7 +6,7 @@ import { BUSINESS_LINE } from "@/lib/business";
 import { PayPalMonogram, PayPalWordmark, RingsideMark } from "./_landing/marks";
 import s from "./landing.module.css";
 
-const GITHUB = "https://github.com/padmanabhan-r/ringside";
+const GITHUB = "https://github.com/padmanabhan-r/Ringside";
 
 // One screen on any desk (owner, 2026-11-05): before the first paint, scale the whole page down just enough to fit the
 // window, never below 74% so text stays readable (a very short window scrolls instead). Phones keep their natural flow.

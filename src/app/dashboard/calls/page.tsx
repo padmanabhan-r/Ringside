@@ -4,7 +4,7 @@ import { StatusPill } from "@/components/brand";
 import { callsToday, loadCalls } from "@/lib/dashboard";
 import { currentSession } from "@/lib/session";
 import { localDate } from "@/lib/slots";
-import { centsShort, durationLabel, hourLabel } from "../format";
+import { centsShort, dayPrefix, durationLabel, hourLabel } from "../format";
 import s from "../lists.module.css";
 
 export const dynamic = "force-dynamic";
@@ -37,7 +37,7 @@ export default async function CallsPage() {
             <span className={s.body}>
               <span className={s.main}>{c.summary}</span>
               <span className={s.sub}>
-                {hourLabel(c.at)} · {c.channel === "web" ? "Browser" : "Phone"}
+                {localDate(c.at) === localDate(now) ? hourLabel(c.at) : `${dayPrefix(c.at, now)} ${hourLabel(c.at)}`} · {c.channel === "web" ? "Browser" : "Phone"}
                 {c.durationSecs !== null ? ` · ${durationLabel(c.durationSecs)}` : ""}
                 <StatusPill tone={o.tone}>{o.label}</StatusPill>
                 {c.sample ? <span className={s.sample}>Sample</span> : null}
