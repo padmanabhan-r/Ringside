@@ -16,6 +16,7 @@ import { CancelJob } from "./cancel-job";
 import { RetryReceipt, WithdrawChange } from "./owner-actions";
 import { JobDone } from "./job-done";
 import { timelineEvents } from "@/lib/job-state";
+import { windowStarted } from "@/lib/slots";
 import s from "./job.module.css";
 import m from "./missing.module.css";
 
@@ -217,7 +218,16 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
         </section>
       ) : null}
 
-      {hold && !holdApproved && !cancelled ? (
+      {hold && !holdApproved && !cancelled && windowStarted(job.slot_start) ? (
+        <section className={s.card}>
+          <h2 className={s.cardTitle}>Not approved before the visit</h2>
+          <p className={s.cardSub}>
+            {who} didn’t approve the {formatUsd(hold.amount_cents)} hold before the visit window, so nothing is held or charged. Book a new time with {who}.
+          </p>
+        </section>
+      ) : null}
+
+      {hold && !holdApproved && !cancelled && !windowStarted(job.slot_start) ? (
         <section className={s.card}>
           <h2 className={s.cardTitle}>Waiting for {who} to approve the hold</h2>
           <p className={s.cardSub}>Add charges and Job done open once {who} approves the {formatUsd(hold.amount_cents)} hold with PayPal.</p>

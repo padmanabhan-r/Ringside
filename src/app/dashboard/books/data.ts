@@ -107,6 +107,7 @@ function shortStatus(view: DashJob, pendingChange: boolean): string {
   if (view.waitingCents > 0) return "Waiting";
   if (view.state === "in_progress") return "In progress";
   if (view.heldCents > 0) return "Hold approved";
+  if (view.pill === "Not approved in time") return "Not approved";
   if (view.status.startsWith("Estimate")) return "Estimate visit";
   return "Quoted";
 }
@@ -249,7 +250,7 @@ export async function loadBooks(session: string | undefined, now = new Date()): 
   });
 
   // The sample tap stands in for the visitor's own job only until they have one.
-  const samples = [...(details.length ? [] : [SAMPLE_NOW]), ...SAMPLE_TODAY, ...SAMPLE_EARLIER];
+  const samples = [...(details.some(({ job }) => job.mine) ? [] : [SAMPLE_NOW]), ...SAMPLE_TODAY, ...SAMPLE_EARLIER];
   samples.forEach((sample) => {
     const key = `sample-${sample.key}`;
     const { start } = sampleWindow(sample, now);

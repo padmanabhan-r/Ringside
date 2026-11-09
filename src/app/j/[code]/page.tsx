@@ -180,7 +180,7 @@ function Track({ steps }: { steps: Step[] }) {
  * The job's progress. The current step names what is being asked of the customer ("Approve the hold", "Approve extra
  * work") and turns into the past tense only once it has happened (finish review: a "now" step must not claim it's done).
  */
-function holdTrack(phase: "hold" | "held" | "change" | "done"): Step[] {
+function holdTrack(phase: "hold" | "held" | "change" | "done", started = true): Step[] {
   const steps: Step[] = [
     { label: "Booked", icon: CalendarDays, state: "done" },
     phase === "hold"
@@ -191,7 +191,9 @@ function holdTrack(phase: "hold" | "held" | "change" | "done"): Step[] {
   steps.push(
     phase === "done"
       ? { label: "Job done", icon: Wrench, state: "done" }
-      : { label: "Mike does the job", icon: Wrench, state: phase === "held" ? "now" : "next" },
+      : phase === "held" && !started
+        ? { label: "Mike's visit", icon: Wrench, state: "next" } // booked: nothing to do until the visit
+        : { label: "Mike does the job", icon: Wrench, state: phase === "held" ? "now" : "next" },
     { label: phase === "done" ? "Receipt sent" : "Receipt", icon: ReceiptText, state: phase === "done" ? "done" : "next" },
   );
   return steps;
@@ -495,7 +497,7 @@ export default async function JobPage({ params }: { params: Promise<{ code: stri
       ))}
       {jobCard()}
       <WhatNext when={when} onJob={onJob} />
-      <Track steps={holdTrack("held")} />
+      <Track steps={holdTrack("held", job.state === "in_progress")} />
     </Shell>
   );
 }

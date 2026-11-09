@@ -246,10 +246,13 @@ export async function loadToday(session: string | undefined, now = new Date()): 
   const others = withLabels(sorted, now, nowLabel !== "Next up");
 
   const onScreen = [nowJob, ...others];
+  // Other callers' jobs from earlier this week are off the list but still count as paid this week, as on Books.
+  const weekStart = localDate(new Date(now.getTime() - 6 * 86_400_000));
+  const sharedEarlier = open.filter((j) => !j.mine && beforeToday(j) && j.start !== null && localDate(j.start) >= weekStart);
   const money = {
     heldCents: onScreen.reduce((sum, j) => sum + j.heldCents, 0),
     waitingCents: onScreen.reduce((sum, j) => sum + j.waitingCents, 0),
-    paidWeekCents: [...onScreen, ...earlier].reduce((sum, j) => sum + j.paidCents, 0),
+    paidWeekCents: [...onScreen, ...earlier, ...sharedEarlier].reduce((sum, j) => sum + j.paidCents, 0),
   };
   return { now: nowJob, nowLabel, others, earlier, money, calls: await loadCalls(session, now), hasLive: open.some((j) => j.mine) };
 }
