@@ -72,7 +72,7 @@
 ![Render](https://img.shields.io/badge/Render-Web_·_Postgres_·_Workflows-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Render SDK](https://img.shields.io/badge/Render_SDK-1.3-0f1b2d?style=flat-square&logo=render&labelColor=0f1b2d)
 ![Resend](https://img.shields.io/badge/Resend-email-0f1b2d?style=flat-square&logo=resend&labelColor=0f1b2d)
-![Vitest](https://img.shields.io/badge/Vitest-5_·_166_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
+![Vitest](https://img.shields.io/badge/Vitest-5_·_169_tests-0f1b2d?style=flat-square&logo=vitest&labelColor=0f1b2d)
 ![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-0f1b2d?style=flat-square&logo=githubactions&labelColor=0f1b2d)
 
 </div>
@@ -256,7 +256,7 @@ Each sponsor tool does a real job in Ringside, and each can be opened in the cod
 | Part | Built with | What it does |
 |---|---|---|
 | Phone line | Twilio US number, imported into ElevenLabs | Callers dial the business and land straight on the agent ([`scripts/gates/setup-voice.mjs`](scripts/gates/setup-voice.mjs)) |
-| Voice agent | ElevenLabs Agents; LLM GLM 5.2 (`glm-52`) with medium reasoning, hosted by ElevenLabs; voice "Chris"; calls capped at 6 minutes | Answers as Mike's AI assistant. Conversations start only through Ringside (the agent requires authentication: the browser call uses a short-lived token from the server, the phone line comes through Twilio), and every tool call carries a shared secret. Its ten server tools read the price book, check the service area, find open windows, save the quote, book it and send the PayPal link only after a yes. Near the time limit every tool reply tells it to wrap up ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`scripts/agent/configure.mjs`](scripts/agent/configure.mjs)) |
+| Voice agent | ElevenLabs Agents; LLM GLM 5.2 (`glm-52`) with medium reasoning, hosted by ElevenLabs; voice "Chris"; calls capped at 6 minutes | Answers as Mike's AI assistant. Conversations start only through Ringside (the agent requires authentication: the browser call uses a short-lived token from the server, the phone line comes through Twilio), and every tool call carries a shared secret. Its eleven server tools read the price book, check the service area, find open windows, save the quote, book it and send the PayPal link only after a yes. More work for the same visit goes on the same job: re-quoted before the hold is approved, or passed to Mike as extra work once it is. Near the time limit every tool reply tells it to wrap up ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`scripts/agent/configure.mjs`](scripts/agent/configure.mjs)) |
 | Browser call | `@elevenlabs/react` over WebRTC, a server-issued conversation token | The same agent in the browser with a live transcript and a booking card that fills in; the conversation is registered to the visitor's session before the first tool call; a recorded call, and **Book without calling**: describe the problem in your own words and Claude Haiku 5.5 matches it to a job in the price book (or pick it yourself), then the same read-back and the agent's own quote, booking and hold tools ([`src/app/call/`](src/app/call/page.tsx)) |
 | Prices | Mike's price book (125 jobs as USD ranges) and a rate card of add-ons, money in integer cents | A quote holds the top of its range; extra work is parts and labour in 15-minute blocks of $23.75, or a whole job at Mike's price inside its range ([`src/lib/price-book.ts`](src/lib/price-book.ts), [`src/lib/rate-card.ts`](src/lib/rate-card.ts)) |
 | Service area | The Saginaw Tri-Cities by ZIP and city | Callers outside it get no booking and no payment ([`src/lib/service-area.ts`](src/lib/service-area.ts)) |
@@ -275,7 +275,7 @@ Each sponsor tool does a real job in Ringside, and each can be opened in the cod
 | App | Next.js 16 (App Router), React 19, TypeScript 5.9, Figtree, lucide-react | Landing page, call page, customer page, Mike's app ([`src/app/`](src/app/page.tsx)) |
 | Hosting | Render web service, Render Postgres and a Render workflow from one Blueprint | Always on; migrations run before every deploy ([`render.yaml`](render.yaml), [`scripts/migrate.mjs`](scripts/migrate.mjs)) |
 | Monitor | GitHub Actions on a schedule | Every 30 minutes: the database, PayPal's sandbox credentials, the voice agent and the main pages; once a day a real sandbox booking through Book without calling ([`scripts/monitor/live-check.mjs`](scripts/monitor/live-check.mjs), [`.github/workflows/monitor.yml`](.github/workflows/monitor.yml)) |
-| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 166 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
+| Checks | Vitest, ESLint, GitHub Actions with a Postgres 18 service | 169 tests, including the PayPal client and the parser against recorded real responses ([`test/`](test/paypal.test.ts)) |
 
 PayPal runs in the sandbox only: the server refuses to start unless `PAYPAL_ENV=sandbox`.
 
@@ -298,7 +298,7 @@ docker run -d --name ringside-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=ri
 node --env-file=.env scripts/migrate.mjs
 # the next three need your keys; skip them to run the site without keys
 node --env-file=.env scripts/gates/setup-voice.mjs   # creates the agent, connects your Twilio number, saves ELEVENLABS_AGENT_ID
-node --env-file=.env scripts/agent/configure.mjs     # the agent's prompt, ten tools, call limits and tool secret
+node --env-file=.env scripts/agent/configure.mjs     # the agent's prompt, eleven tools, call limits and tool secret
 node --env-file=.env scripts/paypal/create-webhook.mjs   # needs the https APP_BASE_URL; prints PAYPAL_WEBHOOK_ID
 npm run dev                   # http://localhost:3000
 ```
