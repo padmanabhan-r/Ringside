@@ -6,7 +6,7 @@
 - **Problem:** A small service business has no single flow from a customer's call to its cash: booking is a back-and-forth, most tools stop at "booked", and payment is either taken in full up front or chased after the job, with extra work argued at the door
 - **Status:** deployed
 - **Live app:** https://ringside-4bup.onrender.com
-- **Demo:** not recorded
+- **Demo:** https://youtu.be/poULqu-DhgI (2:59; unlisted until the repo goes public)
 - **Repo:** private
 - **Stack:** TypeScript, Next.js 16.4.5 (App Router), React 19.3.1, Postgres 18 (`postgres` 3.4.9, plain SQL migrations), AG Studio 3.0.0, Node 24, Vitest 5
 - **Hosting:** Render (always-on web service and Postgres; a Render Workflows close-out service defined in `render.yaml`)
@@ -16,11 +16,11 @@
 - **AI models (build):** Claude Code with claude-opus-5-5
 - **Event deadline:** 2026-11-12 12:00 PST = 2026-11-13 01:30 IST
 - **PayPal APIs used:** OAuth (`POST /v1/oauth2/token`); Orders v2 through `@paypal/paypal-server-sdk` 2.5.0 (`POST /v2/checkout/orders`, `GET /v2/checkout/orders/{id}`, `POST /v2/checkout/orders/{id}/authorize`, `POST /v2/checkout/orders/{id}/capture`); Payments v2 through the SDK (`POST /v2/payments/authorizations/{id}/capture`, `POST /v2/payments/authorizations/{id}/void`); Invoicing v2 as REST (`POST /v2/invoicing/invoices`, `GET /v2/invoicing/invoices/{id}`, `POST /v2/invoicing/search-invoices`, `POST /v2/invoicing/invoices/{id}/send`, `POST /v2/invoicing/invoices/{id}/payments`); Webhooks (`POST /v1/notifications/verify-webhook-signature`, receiver at `/api/paypal/webhook`, `POST /v1/notifications/webhooks` in a setup script); JS SDK buttons on the approval page
-- **Voice stack:** ElevenLabs agent on GLM 5.2 with the Chris voice, ten server tools, a 6-minute call cap with a spoken wrap-up and a 15 s turn timeout; browser calls through `@elevenlabs/react` with a server-minted conversation token; Twilio US number imported into ElevenLabs and answering inbound calls (outbound blocked by Twilio 21216)
-- **Sponsor tools used:** Render (web service, Postgres 18, Workflows close-out service with an inline fallback); AG Grid (AG Studio 3.0.0 for Mike's Books, with the Studio Agent Framework behind "Ask your books"); APIMatic (PayPal's APIMatic-generated server SDK for Orders and Payments). Bryntum dropped
-- **Model and voice spend:** from field notes: one 99 s inbound call, 798 ElevenLabs call credits plus $0.0078 LLM; four change-order parser calls on `claude-sonnet-5-5`, under $0.01 each; Render $13.30/mo from the $50 hackathon credit; "Ask your books": four Claude Haiku calls, about $0.001 each; live test calls on GLM 5.2 ran about 750 to 790 ElevenLabs credits a minute, of which the model was about 39% (field notes, 2026-11-06)
+- **Voice stack:** ElevenLabs agent on GLM 5.2 with the Chris voice, eleven server tools, a 6-minute call cap with a spoken wrap-up and a 15 s turn timeout; browser calls through `@elevenlabs/react` with a server-minted conversation token; Twilio US number imported into ElevenLabs and answering inbound calls (outbound blocked by Twilio 21216)
+- **Sponsor tools used:** Render (web service, Postgres 18, Workflows close-out service with an inline fallback); AG Grid (AG Studio 3.0.0 for Mike's Books, with the Studio Agent Framework behind "Ask your books"); APIMatic (PayPal's APIMatic-generated server SDK for Orders and Payments). Bryntum dropped. Each has its own page with screenshots under `sponsors/`
+- **Model and voice spend:** from field notes: one 99 s inbound call, 798 ElevenLabs call credits plus $0.0078 LLM; four change-order parser calls on `claude-sonnet-5-5`, under $0.01 each; Render $13.30/mo from the $50 hackathon credit; "Ask your books": four Claude Haiku calls, about $0.001 each; live test calls on GLM 5.2 ran about 750 to 790 ElevenLabs credits a minute, of which the model was about 39% (field notes, 2026-11-06); one more "Ask your books" call for the sponsor screenshots, under a cent (2026-11-10)
 - **Started:** 2026-11-05T06:24:33+05:30
-- **Last updated:** 2026-11-07T08:51:13+05:30
+- **Last updated:** 2026-11-10T09:47:30+05:30
 
 ## Log
 
@@ -237,6 +237,72 @@ in the code after a docs audit.
   live site.
 - **Built with:** Claude Code, claude-opus-5-5.
 
+### 2026-11-07 - d04ab15
+Receipts now reach the customer: the Render workflow that runs the close-out had no email settings, so the customer's
+receipt email was skipped without a word and only PayPal's invoice went out, to the sandbox payer. The receipt pill on
+Mike's job now says which of the two went out. Phone-call bookings notify every subscribed dashboard. "Ask your books"
+reads the whole week, and the voice agent only starts through Ringside (a short-lived browser token or the Twilio
+number), so the demo's per-session limits can't be bypassed. The README gained a sponsor tools section with APIMatic's
+PayPal context plugin skills committed under `.claude/skills/`, the demo video, the problem with two sources (late
+invoices, the FTC's advice) and the "agentic commerce" framing. Labels now say "today" or "this week" after a judge's
+read found the dashboard and Books disagreeing.
+
+- **Failed:** the close-out's receipt email was skipped silently on Render Workflows (missing `RESEND_API_KEY` and
+  `EMAIL_FROM`).
+- **Fixed:** ed51642 passes both from the web service and logs any email skipped for missing settings.
+- **Failed:** "Ask your books" answered that "the output was cut off before the last few jobs": tool results were
+  clipped to 2,000 characters.
+- **Fixed:** 00849d3 gives tool results their own 24,000-character limit.
+- **Decision:** the voice agent requires authentication; opening a session with the agent ID alone returns 401 (6c1adf8).
+- **Tests:** `npm run check` passed with 164 tests (recorded in 86301de).
+
+### 2026-11-08 - e59090e
+Re-cut the demo video three times and relinked it from the README: the close-out now matches the code (Job done
+captures, the workflow sends the receipt), both problem sources are narrated, and the call recording is back in lip
+sync. On the dashboard, the money tiles say what they hold ("Held for upcoming visits", "Waiting on customers"), and a
+hold nobody approved before its visit window reads "Not approved in time · nothing held" and stops counting as
+waiting money. The README cites Jobber's own pricing page for AI phone agents instead of a blog post.
+
+- **Measured:** the customer's voice in the call recording lagged the camera by 1.3 s; after the fix every line she
+  speaks on camera is within 14 ms (efd4e99).
+- **Tests:** 166 tests, two of them pinning the lapsed-hold moment (recorded in e59090e).
+
+### 2026-11-09 - 1833f39
+One job per call. On a test call the agent made a second job and a second hold when the customer asked for more work
+on the same visit. A new `add_to_job` tool (the agent's eleventh) re-quotes the same job before its hold is approved,
+replacing the unapproved PayPal order with one link for the new total; once the hold is approved, the extra work goes
+to Mike as a request that he sends for the customer to approve. Today and Books now count the same jobs (they
+disagreed on paid and held), lapsed bookings say so on every screen, and earlier calls show their day. Before going
+public, a gitleaks scan of all 183 commits and the live site's bundle found no secrets (two false positives), and
+`.env.example` uses a placeholder push contact.
+
+- **Decision:** `create_quote` refuses a second job on the same call unless the caller wants a separate visit, and the
+  agent never promises what Mike will do about money.
+- **Fixed:** Today and Books disagreed on paid ($1,534 vs $1,694) and held ($975 vs $725); both now count the same
+  jobs (848329f).
+- **Tests:** 169 tests (recorded in 6e76a4d); the change was also checked end to end against a local database and the
+  PayPal sandbox.
+
+### 2026-11-10 - d1559b0
+Each sponsor tool now has its own page under `sponsors/`: PayPal, AG Grid, APIMatic and Render. Each page explains
+what the tool does in Ringside, links the code, and shows 14 new screenshots in all: PayPal's developer-dashboard logs
+of the app's API calls (authorize, capture, void, invoicing) and webhook deliveries, the Render Blueprint, web service
+and close-out workflow runs, the live Books page in AG Studio with "Ask your books" answering, and the APIMatic skills
+in the repo. The README links the pages from its sponsor section, each sponsor row and the repository map. The owner's
+contact is out of `render.yaml` and `scripts/push/vapid.mjs` (which now takes `--subject=`); the deployed value is set
+in Render's dashboard, so push notifications are unchanged. The Devpost draft links the sponsor pages in its About
+section and its PayPal, APIMatic and AG Grid answers. It is saved, not submitted.
+
+- **Measured:** Render's run history shows four `closeJob` runs in production (2026-11-05 to 11-07), all succeeded,
+  in 5.4 s, 5.3 s, 5.5 s and 1.4 s, about $0.00005 of compute each. The 1.4 s run was a rerun on closed job MP-4177
+  that returned the same invoice ID, and PayPal's API log shows that invoice created once (`sponsors/render.md`).
+- **Decision:** sponsor pages live in `sponsors/`, not the repository root, so the root stays short and the README
+  links to them.
+- **Failed:** a headless Chrome capture left the AG Studio widgets blank.
+- **Fixed:** the Books screenshots were taken from a real browser window instead.
+- **Tests:** `npx vitest run`: 21 files, 169 tests passed.
+- **Built with:** Claude Code, claude-opus-5-5 (commits written with claude-sonnet-5-5).
+
 ## Known limitations
 - PayPal runs in the sandbox only, in USD.
 - A hold can be captured at no more than 115% of its amount, so extra work is always a separate payment.
@@ -251,6 +317,6 @@ in the code after a docs audit.
 - The Books chart's value axis shows plain numbers, not dollars.
 
 ## Next steps
-- Record the demo video and have outside testers run the hosted demo.
-- Rebuild the recorded call on `/call` from a tuned real call.
-- Write the Devpost submission; make the repo public after a full-history secrets scan.
+- Make the repository and the demo video public (planned 2026-11-11).
+- Submit on Devpost before 2026-11-13 01:30 IST, then claim APIMatic's participant month.
+- Keep the demo, phone line and sandbox running until the winners are announced (2026-12-22 IST).
