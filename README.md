@@ -122,7 +122,7 @@ work from his phone, the customer paying it, and the real cost captured at job d
 
 ## How it's different
 
-AI phone agents for trades are everywhere now, from $29 a month as an add-on[^price], and most stop at the booking; a
+AI phone agents for trades are everywhere now, from $29 a month as an add-on ([Jobber's pricing](https://www.getjobber.com/pricing/)), and most stop at the booking; a
 few text a deposit link. Field-service suites take payments, as office paperwork after the job. Ringside carries the
 whole job to the payment: a hold, not a charge, before the visit, extra work approved on site, and only the real cost
 captured.
@@ -135,8 +135,6 @@ captured.
 | Extra work found on site, approved and paid before work goes on | No | A change order, usually billed later | Yes: the owner says it, the customer approves it in PayPal |
 | Charges the real cost, never more than the customer approved | No | An invoice after the job | Yes, captured from the hold; the rest is released |
 | Receipt | No | Yes | Yes, a PayPal invoice marked paid |
-
-[^price]: Jobber's Receptionist add-on, which answers calls and texts and books jobs into the calendar, is $29 a month ([Jobber pricing](https://www.getjobber.com/pricing/), checked 2026-11-08).
 
 ## How it works
 
