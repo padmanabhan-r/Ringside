@@ -2,7 +2,7 @@
 // Generates a VAPID key pair for web push and writes VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and VAPID_SUBJECT into the
 // local .env through scripts/env-set.mjs, so the private key never reaches the terminal. Keeps an existing pair unless
 // --force is passed (a new pair invalidates every browser subscribed with the old one).
-// Run: node scripts/push/vapid.mjs [--force]
+// Run: node scripts/push/vapid.mjs [--force] [--subject=mailto:you@example.com]
 // On Render, set the same three values by hand (sync: false in render.yaml).
 
 import { execFileSync } from "node:child_process";
@@ -22,4 +22,6 @@ if (first.includes("already set")) {
   console.log(set("VAPID_PRIVATE_KEY", privateKey, "--force"));
   console.log(`public key: ${publicKey}`);
 }
-console.log(set("VAPID_SUBJECT", "mailto:padmanabhan.rajendrakumar@gmail.com"));
+// The contact push services may use about this sender. Pass your own; the placeholder only keeps the script runnable.
+const subject = process.argv.find((a) => a.startsWith("--subject="))?.slice("--subject=".length) ?? "mailto:you@example.com";
+console.log(set("VAPID_SUBJECT", subject));

@@ -43,7 +43,7 @@ services:
       - key: VAPID_PRIVATE_KEY
         sync: false
       - key: VAPID_SUBJECT
-        sync: false # mailto:padmanabhan.rajendrakumar@gmail.com
+        sync: false # a contact for push services, e.g. mailto:you@example.com
 
   # The close-out after Mike's confirmed "job done": receipt invoice, then completed → closed. Retried by Render;
   # every step is idempotent. Runs the app's TypeScript as written (Node 24 type stripping, workflows/register.mjs).
