@@ -4,8 +4,8 @@
 [PayPal](paypal.md) · [AG Grid](ag-grid.md) · **APIMatic** · [Render](render.md)
 
 Ringside takes its customers' money through **PayPal's server SDK, `@paypal/paypal-server-sdk` 2.5, which APIMatic
-generates**. That integration was written by a coding agent (Claude Code) working from **APIMatic's PayPal context
-plugin**, so the agent read how this particular SDK behaves instead of guessing. The plugin's eight TypeScript skills
+generates**. That integration was written with **APIMatic's PayPal context plugin** loaded into the coding agent (Claude
+Code), so the agent read how this particular SDK behaves instead of guessing. The plugin's eight TypeScript skills
 are checked into this repository.
 
 | | |
@@ -13,7 +13,7 @@ are checked into this repository.
 | **APIMatic tools used** | The PayPal Server SDK (APIMatic-generated) and APIMatic's [PayPal context plugin](https://github.com/paypaldev/server-sdk-context-plugin-preview) for coding agents |
 | **What runs on the SDK** | Orders v2 (create, get, authorize, capture) and Payments v2 (capture an authorization, void), which is every call that places, takes or releases a customer's money |
 | **Where** | [`src/lib/paypal.ts`](../src/lib/paypal.ts), with the skills in [`.claude/skills/`](../.claude/skills/APIMATIC-PLUGIN.md) |
-| **Tests** | 13 tests replay 14 recorded sandbox responses through the real SDK client: [`test/paypal.test.ts`](../test/paypal.test.ts) |
+| **Tests** | 13 tests replay recorded sandbox responses through the real SDK client: [`test/paypal.test.ts`](../test/paypal.test.ts) |
 
 ---
 

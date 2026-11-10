@@ -144,8 +144,8 @@ Every business on Ringside runs the same flow; the screens below are the demo bu
 
 1. **The call.** A customer in Mike's area (the Saginaw Tri-Cities, Michigan) phones the business or calls from the
    browser. The ElevenLabs agent says it is an AI assistant answering for Mike, finds the job in Mike's price book,
-   quotes its range (a dripping faucet is $125 to $250), asks which day and time suit the caller, and offers Mike's open windows then. Calls end at six minutes, and the
-   agent says goodbye before that. Without a call, **Book without calling** lets the customer describe the problem in
+   quotes its range (a dripping faucet is $125 to $250), asks which day and time suit the caller, and offers Mike's open windows then.
+   Without a call, **Book without calling** lets the customer describe the problem in
    their own words: Claude Haiku 5.5 picks the one job in the price book that fits, a repair before a replacement, and
    the form shows its range, a day and time to choose, and the same read-back before the hold.
 
@@ -203,9 +203,9 @@ Every business on Ringside runs the same flow; the screens below are the demo bu
    "Who still owes me?" from his own data. Mike installs the dashboard on his phone as an app: one tap where the browser
    offers it, a Share hint on iPhone, or a QR code from the desk.
 
-<img src="assets/screens/dashboard.jpg" width="100%" alt="Mike's dashboard on a desktop: the blue sidebar, money held, waiting on the customer and paid this week, today's bookings with Add charges and Job done on the current job, and recent calls with their cost">
+<img src="assets/screens/dashboard.jpg" width="100%" alt="Mike's dashboard on a desktop: the blue sidebar, a three-step guide for trying the demo, money held for upcoming visits, waiting on customers and paid this week, today's bookings with their PayPal status, and recent calls with their cost">
 
-<img src="assets/screens/books.jpg" width="100%" alt="Mike's Books in AG Studio: figure tiles for charged, held, waiting and calls; money this week by day; a payment timeline for the selected job; the week's jobs grid with status pills; and Ask your books answering who still owes money">
+<img src="assets/sponsors/aggrid-books.jpg" width="100%" alt="Mike's Books in AG Studio: figure tiles for charged, held, waiting and calls; money this week by day; a payment timeline for the selected job; the week's jobs grid with status pills; and Ask your books answering who still owes money">
 
 Nobody pays without saying yes, nobody pays more than they approved, and every price comes from the price book, checked
 in code.
@@ -258,7 +258,7 @@ page, with screenshots from the live app and the sponsors' dashboards: **[PayPal
 | Part | Built with | What it does |
 |---|---|---|
 | Phone line | Twilio US number, imported into ElevenLabs | Callers dial the business and land straight on the agent ([`scripts/gates/setup-voice.mjs`](scripts/gates/setup-voice.mjs)) |
-| Voice agent | ElevenLabs Agents; LLM GLM 5.2 (`glm-52`) with medium reasoning, hosted by ElevenLabs; voice "Chris"; calls capped at 6 minutes | Answers as Mike's AI assistant. Conversations start only through Ringside (the agent requires authentication: the browser call uses a short-lived token from the server, the phone line comes through Twilio), and every tool call carries a shared secret. Its eleven server tools read the price book, check the service area, find open windows, save the quote, book it and send the PayPal link only after a yes. More work for the same visit goes on the same job: re-quoted before the hold is approved, or passed to Mike as extra work once it is. Near the time limit every tool reply tells it to wrap up ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`scripts/agent/configure.mjs`](scripts/agent/configure.mjs)) |
+| Voice agent | ElevenLabs Agents; LLM GLM 5.2 (`glm-52`) with medium reasoning, hosted by ElevenLabs; voice "Chris" | Answers as Mike's AI assistant. Conversations start only through Ringside (the agent requires authentication: the browser call uses a short-lived token from the server, the phone line comes through Twilio), and every tool call carries a shared secret. Its eleven server tools read the price book, check the service area, find open windows, save the quote, book it and send the PayPal link only after a yes. More work for the same visit goes on the same job: re-quoted before the hold is approved, or passed to Mike as extra work once it is. Near the time limit every tool reply tells it to wrap up ([`src/lib/agent-tools.ts`](src/lib/agent-tools.ts), [`scripts/agent/configure.mjs`](scripts/agent/configure.mjs)) |
 | Browser call | `@elevenlabs/react` over WebRTC, a server-issued conversation token | The same agent in the browser with a live transcript and a booking card that fills in; the conversation is registered to the visitor's session before the first tool call; a recorded call, and **Book without calling**: describe the problem in your own words and Claude Haiku 5.5 matches it to a job in the price book (or pick it yourself), then the same read-back and the agent's own quote, booking and hold tools ([`src/app/call/`](src/app/call/page.tsx)) |
 | Prices | Mike's price book (125 jobs as USD ranges) and a rate card of add-ons, money in integer cents | A quote holds the top of its range; extra work is parts and labour in 15-minute blocks of $23.75, or a whole job at Mike's price inside its range ([`src/lib/price-book.ts`](src/lib/price-book.ts), [`src/lib/rate-card.ts`](src/lib/rate-card.ts)) |
 | Service area | The Saginaw Tri-Cities by ZIP and city | Callers outside it get no booking and no payment ([`src/lib/service-area.ts`](src/lib/service-area.ts)) |

@@ -52,7 +52,7 @@ recorded. An approval still completes when the customer closes the page before P
 
 Job **MP-4177** is a real phone call, filmed for the demo video on 2026-11-07:
 
-1. On the phone, the agent quoted a dripping-tap repair from the price book, at $125 to $250, and read the quote back.
+1. On the phone, the agent quoted a faucet leak repair from the price book, at $125 to $250, and read the quote back.
    The caller said yes, and the agent sent the PayPal link.
 2. The caller approved a **$250.00 hold** while still on the call. The agent confirmed the visit only after its
    `check_hold` tool came back authorized.
@@ -139,9 +139,11 @@ These are enforced in code, not left to the voice agent's prompt:
 
 ### Tested without the network
 
-Thirteen tests in [`test/paypal.test.ts`](../test/paypal.test.ts) replay 14 recorded sandbox responses
-([`test/fixtures/paypal/`](../test/fixtures/paypal)) through the real SDK client: the hold, authorize, capture,
-over-capture refusal, unapproved order, void, invoices and duplicate invoice numbers. No test calls PayPal.
+Thirteen tests in [`test/paypal.test.ts`](../test/paypal.test.ts) replay recorded sandbox responses through the
+real SDK client: the hold, authorize, capture, PayPal's over-capture refusal, an unapproved order and void. Ten more in
+[`test/receipts.test.ts`](../test/receipts.test.ts) replay the Invoicing responses: create, send, record payment, paid,
+and a duplicate invoice number. The recordings are in [`test/fixtures/paypal/`](../test/fixtures/paypal). No test
+calls PayPal.
 
 ```
 $ npx vitest run test/paypal.test.ts

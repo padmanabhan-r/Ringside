@@ -22,6 +22,11 @@
   .phone { width: 400px; height: 1000px; border-radius: 44px; padding: 5px; background: #0f1b2d; box-shadow: 0 30px 60px rgba(16,24,40,.22); }
   .phone img { display: block; width: 390px; height: 990px; object-fit: cover; object-position: top; border-radius: 40px; }
   figcaption { margin-top: 18px; text-align: center; font-size: 22px; font-weight: 700; color: #465264; }
+  /* #closeout: two real screenshots, cropped in CSS (each .shot is a window onto its source image) */
+  .proof { display: flex; flex-direction: column; gap: 26px; }
+  .label { font-size: 22px; font-weight: 800; color: #465264; margin-bottom: 10px; }
+  .shot { position: relative; width: 1040px; overflow: hidden; border-radius: 16px; background: #fff; border: 2px solid #e2e7ee; box-shadow: 0 20px 44px rgba(16,24,40,.12); }
+  .shot img { position: absolute; display: block; max-width: none; }
 </style>
 </head>
 <body>
@@ -52,6 +57,30 @@
     <div class="phones">
       <figure><div class="phone"><img src="../screens/app-job.jpg" alt=""></div><figcaption>Mike, on site</figcaption></figure>
       <figure><div class="phone"><img src="../screens/approve-change.jpg" alt=""></div><figcaption>The customer</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="canvas" id="closeout" style="grid-template-columns: 520px 1040px; gap: 40px; padding: 90px 100px;">
+    <div>
+      <div class="mark"><span class="r">R</span>RINGSIDE</div>
+      <span class="step">4 · The close-out</span>
+      <h1>Charged once. Receipted once.</h1>
+      <p>Mike taps Job done and PayPal captures the real cost from the hold, releasing the rest. A Render workflow then sends the PayPal receipt invoice and closes the job.</p>
+      <p>A rerun on the same job returned the same invoice, and PayPal shows it created once.</p>
+      <span class="api">Payments v2 · Invoicing v2 · Render Workflows</span>
+      <p class="fine">Real screenshots: Render’s run history and PayPal’s developer dashboard. PayPal sandbox.</p>
+    </div>
+    <div class="proof">
+      <div>
+        <div class="label">Render Workflows · the closeJob run for the job</div>
+        <!-- render-workflow-run.jpg 1512×789, crop x 300–1512, y 125–700, scale 0.858 -->
+        <div class="shot" style="height: 493px;"><img src="../sponsors/render-workflow-run.jpg" alt="" style="width: 1297px; left: -257px; top: -107px;"></div>
+      </div>
+      <div>
+        <div class="label">PayPal · the app’s API calls, the same minute</div>
+        <!-- paypal-api-invoicing.jpg 1568×673, crop x 20–1250, y 100–550, scale 0.8455 -->
+        <div class="shot" style="height: 380px;"><img src="../sponsors/paypal-api-invoicing.jpg" alt="" style="width: 1326px; left: -17px; top: -85px;"></div>
+      </div>
     </div>
   </section>
 </body>
