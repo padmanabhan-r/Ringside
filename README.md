@@ -122,7 +122,7 @@ work from his phone, the customer paying it, and the real cost captured at job d
 
 ## How it's different
 
-AI phone agents for trades are everywhere now, from $29 a month as an add-on ([Jobber's pricing](https://www.getjobber.com/pricing/)), and most stop at the booking; a
+AI phone agents for trades are everywhere now, and most stop at the booking; a
 few text a deposit link. Field-service suites take payments, as office paperwork after the job. Ringside carries the
 whole job to the payment: a hold, not a charge, before the visit, extra work approved on site, and only the real cost
 captured.

@@ -93,7 +93,7 @@ payment before the work is done. A PayPal invoice, marked paid, is the customer'
 - **Visual world: friendly field-service software** (owner, 2026-11-05 redesign, replacing the Dispatch Board look the
   owner called clumsy): Mike's Plumbing royal blue for the brand and primary actions, green for approved or paid money,
   amber for waiting, grey for no payment; white rounded cards on a pale-grey ground, big rounded buttons, bold friendly
-  sans-serif and large money figures. Familiar to tradespeople, like Jobber or Housecall Pro, kept restrained so it never
+  sans-serif and large money figures. Familiar to tradespeople from the field-service apps they already use, kept restrained so it never
   looks cheap. Reference: `.impeccable/mocks/redesign/c-fieldservice.png`.
 - **Mike's dashboard is an installable PWA, phone first, desktop too** (owner, 2026-11-05): "Mike's Plumbing" on the
   home screen with its tap-and-drop icon, opening standalone on Today; safe-area aware header and bottom tabs, thumb-sized

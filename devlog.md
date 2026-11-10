@@ -261,7 +261,7 @@ Re-cut the demo video three times and relinked it from the README: the close-out
 captures, the workflow sends the receipt), both problem sources are narrated, and the call recording is back in lip
 sync. On the dashboard, the money tiles say what they hold ("Held for upcoming visits", "Waiting on customers"), and a
 hold nobody approved before its visit window reads "Not approved in time · nothing held" and stops counting as
-waiting money. The README cites Jobber's own pricing page for AI phone agents instead of a blog post.
+waiting money.
 
 - **Measured:** the customer's voice in the call recording lagged the camera by 1.3 s; after the fix every line she
   speaks on camera is within 14 ms (efd4e99).
