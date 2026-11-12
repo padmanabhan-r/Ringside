@@ -4,10 +4,10 @@
 - **Event:** PayPal AI Hackathon, "Build what's next with PayPal and AI" (Devpost)
 - **What it does:** call-to-cash for small service businesses (it turns a phone call into a paid job): answers a phone or browser call, quotes from the business's price book, holds the money with a PayPal authorization, gets the customer's approval for extra work found on site as a second payment, and captures the real cost when the owner says the job is done
 - **Problem:** A small service business has no single flow from a customer's call to its cash: booking is a back-and-forth, most tools stop at "booked", and payment is either taken in full up front or chased after the job, with extra work argued at the door
-- **Status:** deployed
+- **Status:** submitted (Devpost, 2026-11-11; tags `submission-1` and `submission-2`)
 - **Live app:** https://ringside-4bup.onrender.com
-- **Demo:** https://youtu.be/poULqu-DhgI (2:59; unlisted until the repo goes public)
-- **Repo:** private
+- **Demo:** https://youtu.be/poULqu-DhgI (2:59, public)
+- **Repo:** https://github.com/padmanabhan-r/Ringside (public, MIT)
 - **Stack:** TypeScript, Next.js 16.4.5 (App Router), React 19.3.1, Postgres 18 (`postgres` 3.4.9, plain SQL migrations), AG Studio 3.0.0, Node 24, Vitest 5
 - **Hosting:** Render (always-on web service and Postgres; a Render Workflows close-out service defined in `render.yaml`)
 - **Auth:** none (each demo visitor gets a session cookie that scopes the dashboard to their own jobs, plus every phone booking from the last three days, since there is one shared phone line; the agent's tools sit behind a shared-secret header)
@@ -20,7 +20,7 @@
 - **Sponsor tools used:** Render (web service, Postgres 18, Workflows close-out service with an inline fallback); AG Grid (AG Studio 3.0.0 for Mike's Books, with the Studio Agent Framework behind "Ask your books"); APIMatic (PayPal's APIMatic-generated server SDK for Orders and Payments). Bryntum dropped. Each has its own page with screenshots under `sponsors/`
 - **Model and voice spend:** from field notes: one 99 s inbound call, 798 ElevenLabs call credits plus $0.0078 LLM; four change-order parser calls on `claude-sonnet-5-5`, under $0.01 each; Render $13.30/mo from the $50 hackathon credit; "Ask your books": four Claude Haiku calls, about $0.001 each; live test calls on GLM 5.2 ran about 750 to 790 ElevenLabs credits a minute, of which the model was about 39% (field notes, 2026-11-06); one more "Ask your books" call for the sponsor screenshots, under a cent (2026-11-10)
 - **Started:** 2026-11-05T06:24:33+05:30
-- **Last updated:** 2026-11-10T09:47:30+05:30
+- **Last updated:** 2026-11-12T19:39:49+05:30
 
 ## Log
 
@@ -303,6 +303,51 @@ section and its PayPal, APIMatic and AG Grid answers. It is saved, not submitted
 - **Tests:** `npx vitest run`: 21 files, 169 tests passed.
 - **Built with:** Claude Code, claude-opus-5-5 (commits written with claude-sonnet-5-5).
 
+### 2026-11-10 - 4df48ae
+The last pass before submitting. A fresh clone ran from the README as written: `npm ci`, migrations, `npm run check`,
+build, and every page served. A new gallery image shows the close-out from real screenshots, the Render workflow run
+beside PayPal's log of the same minute with the invoice created once. The README's dashboard and Books screenshots
+were retaken, and the sponsor pages say which tests replay which recordings. Public text now describes other products
+by their category instead of naming them, and the one price citation sits inline in its sentence.
+
+- **Tests:** `npm run check`: typecheck, lint, 169 tests and the docs check passed.
+
+### 2026-11-11 - notes
+Went public and submitted. A full-history secrets scan with gitleaks over 184 commits found no real keys (one false
+positive in a test file), then the repository went public under MIT. The entry was submitted on Devpost, and the tag
+`submission-1` marks the submitted commit, 4df48ae. APIMatic's participant claim form was filed the same evening.
+
+- **Evidence:** tag `submission-1`.
+
+### 2026-11-12 - ae878be
+A final audit before the deadline. The demo video is public, and the repository's topics now name the sponsor tools.
+I checked the Devpost entry against the code: one agent traced 40 of its claims to a file and line, and a second, with
+only the public materials, reviewed it against the rules and criteria. Three sentences said more than the code does:
+every `PayPal-Request-Id` is fixed before the first try but some are derived rather than stored, extra work is captured
+when the customer approves it rather than at Job done, and the demo runs one business. Those were reworded on Devpost,
+and the sponsor, testing and AI-tool answers were made more specific. The README now says the entry is submitted, which
+bookings show on which dashboard, that the demo stays up until the winners are announced, that the agent creates the
+PayPal order itself and confirms the visit only once `check_hold` sees the hold, and which AG Studio APIs build Books.
+
+- **Tests:** `npx vitest run`: 21 files, 169 tests passed; `npm run check` passed.
+- **Measured:** 159 links and images in the README and sponsor pages, none broken; the live pages answered 200 in
+  0.26 to 2.4 s.
+- **Built with:** Claude Code, claude-opus-5-5.
+
+### 2026-11-12 - 623cc73
+On wide screens the landing uses two columns instead of shrinking itself. It used to scale down to about 82% to fit
+one screen, which left small text and wide empty margins. From 1200 px wide, Ringside's pitch and Mike's card sit on
+the left, the two doors stack on the right, and the three steps run across the bottom; phones and narrower screens keep
+the single centred column. The README's landing screenshot was retaken from the live site, and the tag `submission-2`
+marks this commit.
+
+- **Decision:** four layouts were rendered on the live page first: the current one, full width at full size, full
+  width shrunk to fit, and two columns. Two columns won because the page still fits one screen and the text grows.
+- **Measured:** at 1470 x 830 the page now shows at 89% (was 82%), and at 1920 x 1080 at full size. Checked at 1920,
+  1470, 1366, 1280, 1200, 1100 and 390 wide: the page never scrolls sideways.
+- **Tests:** `npm run check` passed, 169 tests.
+- **Built with:** Claude Code, claude-opus-5-5.
+
 ## Known limitations
 - PayPal runs in the sandbox only, in USD.
 - A hold can be captured at no more than 115% of its amount, so extra work is always a separate payment.
@@ -317,6 +362,7 @@ section and its PayPal, APIMatic and AG Grid answers. It is saved, not submitted
 - The Books chart's value axis shows plain numbers, not dollars.
 
 ## Next steps
-- Make the repository and the demo video public (planned 2026-11-11).
-- Submit on Devpost before 2026-11-13 01:30 IST, then claim APIMatic's participant month.
-- Keep the demo, phone line and sandbox running until the winners are announced (2026-12-22 IST).
+- Keep the demo, phone line and sandbox running until the winners are announced (2026-12-22 IST), with one sandbox
+  payment a day during judging (Dec 2 to 15).
+- After the results: PayPal partner approval so each business is paid into its own PayPal account, then billing and
+  self-serve onboarding.
