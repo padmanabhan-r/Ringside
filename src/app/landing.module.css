@@ -1356,3 +1356,75 @@
     text-decoration: none;
   }
 }
+
+/* Wide desks (owner, 2026-11-12): two columns use the width instead of shrinking the page. Ringside's pitch and Mike's
+   card on the left, the two doors stacked on the right, the three steps across the bottom. Narrower screens keep the
+   single centred column above. */
+@media (min-width: 1200px) and (min-height: 600px) {
+  .page {
+    --gutter: clamp(28px, 3.6vw, 56px);
+  }
+
+  .main {
+    max-width: 1640px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    grid-template-areas:
+      "hero doors"
+      "demo doors"
+      "how how";
+    grid-template-rows: auto auto auto;
+    align-content: start;
+    column-gap: clamp(32px, 3vw, 48px);
+    align-items: start;
+  }
+
+  .topbarInner {
+    max-width: 1640px;
+  }
+
+  .hero {
+    grid-area: hero;
+    padding: clamp(20px, 4.4vh, 44px) 0 18px;
+  }
+
+  .heroText {
+    text-align: left;
+  }
+
+  .lede,
+  .forWho,
+  .difference {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .lede,
+  .forWho,
+  .difference {
+    text-wrap: pretty;
+  }
+
+  .forWho,
+  .difference {
+    max-width: none;
+  }
+
+  .demoBox {
+    grid-area: demo;
+    align-self: end;
+    width: 100%;
+    margin: 0;
+  }
+
+  .doors {
+    grid-area: doors;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: clamp(20px, 4.4vh, 44px);
+  }
+
+  .how {
+    grid-area: how;
+  }
+}
