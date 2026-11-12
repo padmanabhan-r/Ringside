@@ -94,7 +94,7 @@ refund; only the owner's Job done takes money from the hold.
 Michigan. Its customers, jobs and calls are fictional too. Ringside is a prototype built for the PayPal AI Hackathon and
 runs on the PayPal sandbox.
 
-<img src="assets/screens/landing.jpg" width="100%" alt="Ringside's landing page: 'Ringside is call-to-cash for small service businesses: it turns a phone call into a paid job', the trades it serves (plumbers, electricians, HVAC techs, carpenters, handymen, cleaners and locksmiths), how it differs from AI phone agents that stop at the booking, then the demo business, Mike's Plumbing, with two doors: call it as a customer, or open the owner's dashboard; below, the call, the hold, the charge and the change order on one job">
+<img src="assets/screens/landing.jpg" width="100%" alt="Ringside's landing page in two columns: on the left the headline 'Your phone, answered. Your job, paid.', 'Ringside is call-to-cash for small service businesses: it turns a phone call into a paid job', the trades it serves, how it differs from AI phone agents that stop at the booking, and the demo business, Mike's Plumbing; on the right two doors: call Mike's Plumbing as a customer, or open the owner's dashboard; across the bottom, the call, the hold, the charge and the change order on one job">
 
 **For the judges:** open the [live demo](https://ringside-4bup.onrender.com) and try Ringside as the demo business's
 customer: call Mike's Plumbing in the browser or on **[+1 (989) 534-9779](tel:+19895349779)**, then approve the hold with
